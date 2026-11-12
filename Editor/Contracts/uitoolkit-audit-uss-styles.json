@@ -1,0 +1,308 @@
+{
+  "route": "uitoolkit/audit-uss-styles",
+  "description": "Audit USS authoring and ownership contracts. Hard errors include grouped selector lists, margin or padding shorthand, empty selector blocks, resetting a loaded shared font to none or initial, fixed font size combined with effective auto sizing, fully inlineable single-consumer selectors, invariant declarations retained only by state anchors, repeated declaration bundles, redundant component classes, and page-scoped styles that cross reusable component ownership. It also reports ineffective or redundant layout, text, and background scale-mode declarations while preserving bounded flex, visual, interaction, state, and measured optical contracts. Native enabled Button hover and pressed target styles must differ after the real theme/template cascade; missing, overridden, focus-only and incomplete feedback are errors. Runtime-generated controls and visual clarity require separate runtime evidence.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "paths": {
+        "type": "array",
+        "description": "Optional Assets-relative USS files. Omit to audit every USS file in the effective roots.",
+        "items": {
+          "type": "string"
+        }
+      },
+      "roots": {
+        "type": "array",
+        "description": "Assets-relative roots used to index USS and UXML files. Defaults to the project audit settings, then Assets.",
+        "items": {
+          "type": "string"
+        }
+      },
+      "runtimeSourceRoots": {
+        "type": "array",
+        "description": "Assets-relative roots scanned for UI Toolkit runtime class API references. Defaults to the project audit settings, then Assets.",
+        "items": {
+          "type": "string"
+        }
+      },
+      "excludePaths": {
+        "type": "array",
+        "description": "Assets-relative files or folders excluded from indexing.",
+        "items": {
+          "type": "string"
+        }
+      },
+      "useProjectSettings": {
+        "type": "boolean",
+        "description": "Use ProjectSettings/VMUnityAutomationUIToolkitAudit.json as the default scope. Defaults to true."
+      },
+      "pixelGridEnabled": {
+        "type": "boolean",
+        "description": "Override the project pixel-grid audit switch. The project/default value is used when omitted."
+      },
+      "pixelGridStep": {
+        "type": "number",
+        "description": "Override the positive pixel-grid step, such as 3 or 4."
+      },
+      "includeSuppressed": {
+        "type": "boolean",
+        "description": "Include findings with a reasoned uss-audit suppression comment. Defaults to false."
+      },
+      "logWarnings": {
+        "type": "boolean",
+        "description": "Also write active findings to the Unity Console. Defaults to false."
+      },
+      "runSelfTests": {
+        "type": "boolean",
+        "description": "Run deterministic in-memory rule tests and return their result. Defaults to false."
+      },
+      "maxIssues": {
+        "type": "number",
+        "description": "Maximum returned findings. Defaults to 200; capped at 5000.",
+        "x-vmAutomationDefaultSource": "VM Unity Automation user default result limit (when override is enabled)",
+        "x-vmAutomationExplicitValueWins": true
+      }
+    },
+    "additionalProperties": false,
+    "$defs": {
+      "unityJsonValue": {
+        "oneOf": [
+          {
+            "type": "null"
+          },
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "number"
+          },
+          {
+            "type": "string"
+          },
+          {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/unityJsonValue"
+            }
+          },
+          {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": {
+              "$ref": "#/$defs/unityJsonValue"
+            }
+          }
+        ]
+      }
+    },
+    "x-vmAutomationInputValidation": {
+      "maximumWorkUnits": 65536,
+      "maximumInputDepth": 64
+    }
+  },
+  "outputSchema": {
+    "type": "object",
+    "properties": {
+      "passed": {
+        "type": "boolean",
+        "description": "`passed` response field for `uitoolkit/audit-uss-styles`."
+      },
+      "warningCount": {
+        "type": "integer",
+        "description": "`warningCount` response field for `uitoolkit/audit-uss-styles`."
+      },
+      "suppressedCount": {
+        "type": "integer",
+        "description": "`suppressedCount` response field for `uitoolkit/audit-uss-styles`."
+      },
+      "truncated": {
+        "type": "boolean",
+        "description": "`truncated` response field for `uitoolkit/audit-uss-styles`."
+      },
+      "issues": {
+        "type": "array",
+        "items": {
+          "$ref": "#/$defs/unityJsonValue"
+        },
+        "description": "`issues` response field for `uitoolkit/audit-uss-styles`."
+      },
+      "errors": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "`errors` response field for `uitoolkit/audit-uss-styles`."
+      },
+      "scope": {
+        "type": "object",
+        "additionalProperties": {
+          "$ref": "#/$defs/unityJsonValue"
+        },
+        "description": "`scope` response field for `uitoolkit/audit-uss-styles`."
+      },
+      "automaticAudit": {
+        "type": "object",
+        "additionalProperties": {
+          "$ref": "#/$defs/unityJsonValue"
+        },
+        "description": "`automaticAudit` response field for `uitoolkit/audit-uss-styles`."
+      },
+      "selfTests": {
+        "type": "object",
+        "additionalProperties": {
+          "$ref": "#/$defs/unityJsonValue"
+        },
+        "description": "`selfTests` response field for `uitoolkit/audit-uss-styles`."
+      },
+      "scannedStyleSheets": {
+        "type": "integer",
+        "description": "`scannedStyleSheets` response field for `uitoolkit/audit-uss-styles`."
+      },
+      "indexedStyleSheets": {
+        "type": "integer",
+        "description": "`indexedStyleSheets` response field for `uitoolkit/audit-uss-styles`."
+      },
+      "indexedUxmlFiles": {
+        "type": "integer",
+        "description": "`indexedUxmlFiles` response field for `uitoolkit/audit-uss-styles`."
+      },
+      "indexedRuntimeSources": {
+        "type": "integer",
+        "description": "`indexedRuntimeSources` response field for `uitoolkit/audit-uss-styles`."
+      },
+      "errorCount": {
+        "type": "integer",
+        "description": "`errorCount` response field for `uitoolkit/audit-uss-styles`."
+      },
+      "suppressionSyntax": {
+        "type": "string",
+        "description": "`suppressionSyntax` response field for `uitoolkit/audit-uss-styles`."
+      },
+      "redundantDeclarationSuppressionSyntax": {
+        "type": "string",
+        "description": "`redundantDeclarationSuppressionSyntax` response field for `uitoolkit/audit-uss-styles`."
+      },
+      "pixelGridSuppressionSyntax": {
+        "type": "string",
+        "description": "`pixelGridSuppressionSyntax` response field for `uitoolkit/audit-uss-styles`."
+      },
+      "textStyleContractSuppressionSyntax": {
+        "type": "string",
+        "description": "`textStyleContractSuppressionSyntax` response field for `uitoolkit/audit-uss-styles`."
+      },
+      "buttonFeedback": {
+        "properties": {
+          "complete": {
+            "type": "boolean"
+          },
+          "scope": {
+            "type": "string"
+          },
+          "hosts": {
+            "type": "integer"
+          },
+          "buttons": {
+            "type": "integer"
+          },
+          "disabledButtons": {
+            "type": "integer"
+          },
+          "stateUpdates": {
+            "type": "integer"
+          },
+          "visualSamples": {
+            "type": "integer"
+          },
+          "themePath": {
+            "type": "string"
+          },
+          "elapsedMilliseconds": {
+            "type": "number"
+          },
+          "manualVisualReviewRequired": {
+            "type": "boolean"
+          },
+          "runtimeGeneratedControlsEvaluated": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "complete",
+          "scope",
+          "hosts",
+          "buttons",
+          "disabledButtons",
+          "stateUpdates",
+          "visualSamples",
+          "themePath",
+          "elapsedMilliseconds",
+          "manualVisualReviewRequired",
+          "runtimeGeneratedControlsEvaluated"
+        ],
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "required": [
+      "passed",
+      "scannedStyleSheets",
+      "indexedStyleSheets",
+      "indexedUxmlFiles",
+      "indexedRuntimeSources",
+      "errorCount",
+      "warningCount",
+      "suppressedCount",
+      "truncated",
+      "issues",
+      "errors",
+      "buttonFeedback"
+    ],
+    "$defs": {
+      "unityJsonValue": {
+        "oneOf": [
+          {
+            "type": "null"
+          },
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "number"
+          },
+          {
+            "type": "string"
+          },
+          {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/unityJsonValue"
+            }
+          },
+          {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": {
+              "$ref": "#/$defs/unityJsonValue"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "errorCodes": [
+    "argument_conflict",
+    "editor_window_ambiguous",
+    "editor_window_not_found",
+    "editor_window_selector_mismatch",
+    "input_validation_limit",
+    "invalid_arguments",
+    "invalid_project_path",
+    "invalid_timeout",
+    "project_mismatch",
+    "request_id_conflict",
+    "requires_main_editor",
+    "response_too_large",
+    "tool_execution_failed"
+  ]
+}

@@ -1,0 +1,557 @@
+{
+  "route": "uitoolkit/asset-inspect",
+  "description": "Inspect UXML and USS assets for VisualElement names, types, unconditional class defaults, contextual selectors, and pseudo-state rules.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "uxmlPath": {
+        "type": "string",
+        "description": "UXML asset path, e.g. Assets/UI/HUD.uxml."
+      },
+      "ussPath": {
+        "type": "string",
+        "description": "Optional USS asset path. UXML Style src entries are also auto-resolved."
+      },
+      "ussPaths": {
+        "type": "array",
+        "description": "Optional USS asset paths. UXML Style src entries are also auto-resolved.",
+        "items": {
+          "type": "string"
+        }
+      },
+      "name": {
+        "type": "string",
+        "description": "VisualElement.name exact match."
+      },
+      "names": {
+        "type": "array",
+        "description": "VisualElement.name values to validate.",
+        "items": {
+          "type": "string"
+        }
+      },
+      "className": {
+        "type": "string",
+        "description": "USS class exact match."
+      },
+      "typeName": {
+        "type": "string",
+        "description": "Expected or filtered VisualElement type name."
+      },
+      "maxResults": {
+        "type": "number",
+        "description": "Total result budget for elements and name matches. Defaults to 100.",
+        "x-vmAutomationDefaultSource": "VM Unity Automation user default result limit (when override is enabled)",
+        "x-vmAutomationExplicitValueWins": true
+      },
+      "includeUss": {
+        "type": "boolean",
+        "description": "Parse USS files, keeping unconditional class defaults separate from contextual and pseudo-state rules. Defaults to true."
+      },
+      "includeElements": {
+        "type": "boolean",
+        "description": "Return the general elements collection. Defaults to false for names queries and true otherwise."
+      },
+      "includeAllUssClasses": {
+        "type": "boolean",
+        "description": "Return every parsed USS class. Targeted queries default to only classes used by returned elements."
+      }
+    },
+    "additionalProperties": false,
+    "$defs": {
+      "unityJsonValue": {
+        "oneOf": [
+          {
+            "type": "null"
+          },
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "number"
+          },
+          {
+            "type": "string"
+          },
+          {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/unityJsonValue"
+            }
+          },
+          {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": {
+              "$ref": "#/$defs/unityJsonValue"
+            }
+          }
+        ]
+      }
+    },
+    "x-vmAutomationInputValidation": {
+      "maximumWorkUnits": 65536,
+      "maximumInputDepth": 64
+    }
+  },
+  "outputSchema": {
+    "type": "object",
+    "properties": {
+      "uxmlPath": {
+        "type": "string",
+        "description": "`uxmlPath` response field for `uitoolkit/asset-inspect`."
+      },
+      "uxmlReadError": {
+        "type": "string",
+        "description": "`uxmlReadError` response field for `uitoolkit/asset-inspect`."
+      },
+      "ussPaths": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "`ussPaths` response field for `uitoolkit/asset-inspect`."
+      },
+      "elementCount": {
+        "type": "integer",
+        "description": "`elementCount` response field for `uitoolkit/asset-inspect`."
+      },
+      "query": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "`name` response field for `uitoolkit/asset-inspect`."
+          },
+          "names": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "`names` response field for `uitoolkit/asset-inspect`."
+          },
+          "className": {
+            "type": "string",
+            "description": "`className` response field for `uitoolkit/asset-inspect`."
+          },
+          "typeName": {
+            "type": "string",
+            "description": "`typeName` response field for `uitoolkit/asset-inspect`."
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "names",
+          "className",
+          "typeName"
+        ],
+        "description": "`query` response field for `uitoolkit/asset-inspect`."
+      },
+      "valid": {
+        "type": "boolean",
+        "description": "`valid` response field for `uitoolkit/asset-inspect`."
+      },
+      "nameChecks": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "`name` response field for `uitoolkit/asset-inspect`."
+            },
+            "exists": {
+              "type": "boolean",
+              "description": "`exists` response field for `uitoolkit/asset-inspect`."
+            },
+            "matchCount": {
+              "type": "integer",
+              "description": "`matchCount` response field for `uitoolkit/asset-inspect`."
+            },
+            "typeMatches": {
+              "type": "boolean",
+              "description": "`typeMatches` response field for `uitoolkit/asset-inspect`."
+            },
+            "reportedMatchCount": {
+              "type": "integer",
+              "description": "`reportedMatchCount` response field for `uitoolkit/asset-inspect`."
+            },
+            "matchesTruncated": {
+              "type": "boolean",
+              "description": "`matchesTruncated` response field for `uitoolkit/asset-inspect`."
+            },
+            "matches": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "path": {
+                    "type": "string",
+                    "description": "`path` response field for `uitoolkit/asset-inspect`."
+                  },
+                  "type": {
+                    "type": "string",
+                    "description": "`type` response field for `uitoolkit/asset-inspect`."
+                  },
+                  "fullType": {
+                    "type": "string",
+                    "description": "`fullType` response field for `uitoolkit/asset-inspect`."
+                  },
+                  "name": {
+                    "type": "string",
+                    "description": "`name` response field for `uitoolkit/asset-inspect`."
+                  },
+                  "classes": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "`classes` response field for `uitoolkit/asset-inspect`."
+                  },
+                  "inlineStyle": {
+                    "type": "string",
+                    "description": "`inlineStyle` response field for `uitoolkit/asset-inspect`."
+                  },
+                  "line": {
+                    "type": "integer",
+                    "description": "`line` response field for `uitoolkit/asset-inspect`."
+                  },
+                  "ussMatchedClasses": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "`ussMatchedClasses` response field for `uitoolkit/asset-inspect`."
+                  },
+                  "ussDefaultSize": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "string"
+                    },
+                    "description": "`ussDefaultSize` response field for `uitoolkit/asset-inspect`."
+                  },
+                  "ussResolvedDeclarations": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "string"
+                    },
+                    "description": "`ussResolvedDeclarations` response field for `uitoolkit/asset-inspect`."
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "path",
+                  "type",
+                  "fullType",
+                  "name",
+                  "classes",
+                  "inlineStyle",
+                  "line",
+                  "ussMatchedClasses",
+                  "ussDefaultSize",
+                  "ussResolvedDeclarations"
+                ]
+              },
+              "description": "`matches` response field for `uitoolkit/asset-inspect`."
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "name",
+            "exists",
+            "matchCount",
+            "typeMatches",
+            "reportedMatchCount",
+            "matchesTruncated",
+            "matches"
+          ]
+        },
+        "description": "`nameChecks` response field for `uitoolkit/asset-inspect`."
+      },
+      "matchedCount": {
+        "type": "integer",
+        "description": "`matchedCount` response field for `uitoolkit/asset-inspect`."
+      },
+      "totalMatchedCount": {
+        "type": "integer",
+        "description": "`totalMatchedCount` response field for `uitoolkit/asset-inspect`."
+      },
+      "outputTruncated": {
+        "type": "boolean",
+        "description": "`outputTruncated` response field for `uitoolkit/asset-inspect`."
+      },
+      "includeElements": {
+        "type": "boolean",
+        "description": "`includeElements` response field for `uitoolkit/asset-inspect`."
+      },
+      "includeAllUssClasses": {
+        "type": "boolean",
+        "description": "`includeAllUssClasses` response field for `uitoolkit/asset-inspect`."
+      },
+      "elements": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "description": "`path` response field for `uitoolkit/asset-inspect`."
+            },
+            "type": {
+              "type": "string",
+              "description": "`type` response field for `uitoolkit/asset-inspect`."
+            },
+            "fullType": {
+              "type": "string",
+              "description": "`fullType` response field for `uitoolkit/asset-inspect`."
+            },
+            "name": {
+              "type": "string",
+              "description": "`name` response field for `uitoolkit/asset-inspect`."
+            },
+            "classes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "`classes` response field for `uitoolkit/asset-inspect`."
+            },
+            "inlineStyle": {
+              "type": "string",
+              "description": "`inlineStyle` response field for `uitoolkit/asset-inspect`."
+            },
+            "line": {
+              "type": "integer",
+              "description": "`line` response field for `uitoolkit/asset-inspect`."
+            },
+            "ussMatchedClasses": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "`ussMatchedClasses` response field for `uitoolkit/asset-inspect`."
+            },
+            "ussDefaultSize": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              },
+              "description": "`ussDefaultSize` response field for `uitoolkit/asset-inspect`."
+            },
+            "ussResolvedDeclarations": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              },
+              "description": "`ussResolvedDeclarations` response field for `uitoolkit/asset-inspect`."
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "type",
+            "fullType",
+            "name",
+            "classes",
+            "inlineStyle",
+            "line",
+            "ussMatchedClasses",
+            "ussDefaultSize",
+            "ussResolvedDeclarations"
+          ]
+        },
+        "description": "`elements` response field for `uitoolkit/asset-inspect`."
+      },
+      "ussClasses": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "object",
+          "properties": {
+            "className": {
+              "type": "string"
+            },
+            "sourcePaths": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "defaultSelectors": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "declarations": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            "defaultSize": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            "contextRules": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "selector": {
+                    "type": "string"
+                  },
+                  "sourcePath": {
+                    "type": "string"
+                  },
+                  "pseudoStates": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "declarations": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "string"
+                    }
+                  },
+                  "defaultSize": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "selector",
+                  "sourcePath",
+                  "pseudoStates",
+                  "declarations",
+                  "defaultSize"
+                ]
+              }
+            },
+            "stateRules": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "selector": {
+                    "type": "string"
+                  },
+                  "sourcePath": {
+                    "type": "string"
+                  },
+                  "pseudoStates": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "declarations": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "string"
+                    }
+                  },
+                  "defaultSize": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "selector",
+                  "sourcePath",
+                  "pseudoStates",
+                  "declarations",
+                  "defaultSize"
+                ]
+              }
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "className",
+            "sourcePaths",
+            "defaultSelectors",
+            "declarations",
+            "defaultSize",
+            "contextRules",
+            "stateRules"
+          ]
+        },
+        "description": "`ussClasses` response field for `uitoolkit/asset-inspect`."
+      }
+    },
+    "additionalProperties": false,
+    "required": [
+      "uxmlPath",
+      "uxmlReadError",
+      "ussPaths",
+      "elementCount",
+      "query",
+      "valid",
+      "nameChecks",
+      "matchedCount",
+      "totalMatchedCount",
+      "outputTruncated",
+      "includeElements",
+      "includeAllUssClasses",
+      "elements",
+      "ussClasses"
+    ],
+    "$defs": {
+      "unityJsonValue": {
+        "oneOf": [
+          {
+            "type": "null"
+          },
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "number"
+          },
+          {
+            "type": "string"
+          },
+          {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/unityJsonValue"
+            }
+          },
+          {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": {
+              "$ref": "#/$defs/unityJsonValue"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "errorCodes": [
+    "argument_conflict",
+    "editor_window_ambiguous",
+    "editor_window_not_found",
+    "editor_window_selector_mismatch",
+    "input_validation_limit",
+    "invalid_arguments",
+    "invalid_project_path",
+    "invalid_timeout",
+    "project_mismatch",
+    "request_id_conflict",
+    "requires_main_editor",
+    "response_too_large",
+    "tool_execution_failed"
+  ]
+}

@@ -1,0 +1,1406 @@
+{
+  "route": "uitoolkit/compare-element",
+  "description": "Capture a UI Toolkit element and compare the cropped image against a reference image.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "documentInstanceId": {
+        "type": "number",
+        "description": "UIDocument instance id from uitoolkit/runtime-documents."
+      },
+      "gameObjectPath": {
+        "type": "string",
+        "description": "Scene GameObject path that owns the UIDocument."
+      },
+      "gameObjectName": {
+        "type": "string",
+        "description": "Scene GameObject name that owns the UIDocument."
+      },
+      "documentName": {
+        "type": "string",
+        "description": "UIDocument component name."
+      },
+      "includeInactive": {
+        "type": "boolean",
+        "description": "Include inactive scene UIDocuments. Defaults to true."
+      },
+      "runtime": {
+        "type": "boolean",
+        "description": "Capture a runtime UIDocument element when true; otherwise capture an EditorWindow UI Toolkit element. Defaults to false."
+      },
+      "window": {
+        "type": "string",
+        "description": "EditorWindow type/title to capture. Runtime defaults to Game."
+      },
+      "path": {
+        "type": "string",
+        "description": "Element tree path, e.g. root/0/1."
+      },
+      "visualElementPath": {
+        "type": "string",
+        "description": "Slash-separated VisualElementPath names."
+      },
+      "name": {
+        "type": "string",
+        "description": "VisualElement.name exact match if path is omitted."
+      },
+      "className": {
+        "type": "string",
+        "description": "USS class name exact match if path is omitted."
+      },
+      "typeName": {
+        "type": "string",
+        "description": "VisualElement type name contains match if path is omitted."
+      },
+      "referencePath": {
+        "type": "string",
+        "description": "Reference PNG path."
+      },
+      "actualPath": {
+        "type": "string",
+        "description": "Output path for captured current element PNG."
+      },
+      "diffOutputPath": {
+        "type": "string",
+        "description": "Optional output path for diff PNG."
+      },
+      "referenceRect": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "type": "number",
+            "description": "Rectangle x coordinate."
+          },
+          "y": {
+            "type": "number",
+            "description": "Rectangle y coordinate."
+          },
+          "width": {
+            "type": "number",
+            "description": "Rectangle width."
+          },
+          "height": {
+            "type": "number",
+            "description": "Rectangle height."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Optional comparison rect in reference image."
+      },
+      "actualRect": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "type": "number",
+            "description": "Rectangle x coordinate."
+          },
+          "y": {
+            "type": "number",
+            "description": "Rectangle y coordinate."
+          },
+          "width": {
+            "type": "number",
+            "description": "Rectangle width."
+          },
+          "height": {
+            "type": "number",
+            "description": "Rectangle height."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Optional comparison rect in captured image."
+      },
+      "tolerance": {
+        "type": "number",
+        "description": "Allowed per-channel pixel delta. Defaults to 0."
+      },
+      "padding": {
+        "type": "number",
+        "description": "Extra capture padding in pixels. Defaults to 0."
+      }
+    },
+    "additionalProperties": false,
+    "$defs": {
+      "unityJsonValue": {
+        "oneOf": [
+          {
+            "type": "null"
+          },
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "number"
+          },
+          {
+            "type": "string"
+          },
+          {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/unityJsonValue"
+            }
+          },
+          {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": {
+              "$ref": "#/$defs/unityJsonValue"
+            }
+          }
+        ]
+      }
+    },
+    "x-vmAutomationInputValidation": {
+      "maximumWorkUnits": 65536,
+      "maximumInputDepth": 64
+    }
+  },
+  "outputSchema": {
+    "type": "object",
+    "properties": {
+      "referencePath": {
+        "type": "string",
+        "description": "`referencePath` response field for `uitoolkit/compare-element`."
+      },
+      "actualPath": {
+        "type": "string",
+        "description": "`actualPath` response field for `uitoolkit/compare-element`."
+      },
+      "capture": {
+        "type": "object",
+        "properties": {
+          "runtime": {
+            "type": "boolean",
+            "description": "`runtime` response field for `uitoolkit/compare-element`."
+          },
+          "context": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "instanceId": {
+                    "type": "string",
+                    "description": "`instanceId` response field for `uitoolkit/compare-element`."
+                  },
+                  "name": {
+                    "type": "string",
+                    "description": "`name` response field for `uitoolkit/compare-element`."
+                  },
+                  "enabled": {
+                    "type": "boolean",
+                    "description": "`enabled` response field for `uitoolkit/compare-element`."
+                  },
+                  "gameObjectName": {
+                    "type": "string",
+                    "description": "`gameObjectName` response field for `uitoolkit/compare-element`."
+                  },
+                  "gameObjectPath": {
+                    "type": "string",
+                    "description": "`gameObjectPath` response field for `uitoolkit/compare-element`."
+                  },
+                  "gameObjectActive": {
+                    "type": "boolean",
+                    "description": "`gameObjectActive` response field for `uitoolkit/compare-element`."
+                  },
+                  "visualTreeAsset": {
+                    "type": "string",
+                    "description": "`visualTreeAsset` response field for `uitoolkit/compare-element`."
+                  },
+                  "visualTreeAssetPath": {
+                    "type": "string",
+                    "description": "`visualTreeAssetPath` response field for `uitoolkit/compare-element`."
+                  },
+                  "panelSettings": {
+                    "type": "string",
+                    "description": "`panelSettings` response field for `uitoolkit/compare-element`."
+                  },
+                  "panelSettingsPath": {
+                    "type": "string",
+                    "description": "`panelSettingsPath` response field for `uitoolkit/compare-element`."
+                  },
+                  "hasRootVisualElement": {
+                    "type": "boolean",
+                    "description": "`hasRootVisualElement` response field for `uitoolkit/compare-element`."
+                  },
+                  "rootChildCount": {
+                    "type": "integer",
+                    "description": "`rootChildCount` response field for `uitoolkit/compare-element`."
+                  },
+                  "rootWorldBound": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "x": {
+                            "type": [
+                              "number",
+                              "null"
+                            ],
+                            "description": "`x` response field for `uitoolkit/compare-element`."
+                          },
+                          "y": {
+                            "type": [
+                              "number",
+                              "null"
+                            ],
+                            "description": "`y` response field for `uitoolkit/compare-element`."
+                          },
+                          "width": {
+                            "type": [
+                              "number",
+                              "null"
+                            ],
+                            "description": "`width` response field for `uitoolkit/compare-element`."
+                          },
+                          "height": {
+                            "type": [
+                              "number",
+                              "null"
+                            ],
+                            "description": "`height` response field for `uitoolkit/compare-element`."
+                          },
+                          "xMin": {
+                            "type": [
+                              "number",
+                              "null"
+                            ],
+                            "description": "`xMin` response field for `uitoolkit/compare-element`."
+                          },
+                          "yMin": {
+                            "type": [
+                              "number",
+                              "null"
+                            ],
+                            "description": "`yMin` response field for `uitoolkit/compare-element`."
+                          },
+                          "xMax": {
+                            "type": [
+                              "number",
+                              "null"
+                            ],
+                            "description": "`xMax` response field for `uitoolkit/compare-element`."
+                          },
+                          "yMax": {
+                            "type": [
+                              "number",
+                              "null"
+                            ],
+                            "description": "`yMax` response field for `uitoolkit/compare-element`."
+                          }
+                        },
+                        "additionalProperties": false,
+                        "required": [
+                          "x",
+                          "y",
+                          "width",
+                          "height",
+                          "xMin",
+                          "yMin",
+                          "xMax",
+                          "yMax"
+                        ]
+                      }
+                    ],
+                    "description": "`rootWorldBound` response field for `uitoolkit/compare-element`."
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "instanceId",
+                  "name",
+                  "enabled",
+                  "gameObjectName",
+                  "gameObjectPath",
+                  "gameObjectActive",
+                  "visualTreeAsset",
+                  "visualTreeAssetPath",
+                  "panelSettings",
+                  "panelSettingsPath",
+                  "hasRootVisualElement",
+                  "rootChildCount",
+                  "rootWorldBound"
+                ]
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "instanceId": {
+                    "type": "string",
+                    "description": "`instanceId` response field for `uitoolkit/compare-element`."
+                  },
+                  "title": {
+                    "type": "string",
+                    "description": "`title` response field for `uitoolkit/compare-element`."
+                  },
+                  "type": {
+                    "type": "string",
+                    "description": "`type` response field for `uitoolkit/compare-element`."
+                  },
+                  "fullType": {
+                    "type": "string",
+                    "description": "`fullType` response field for `uitoolkit/compare-element`."
+                  },
+                  "hasRootVisualElement": {
+                    "type": "boolean",
+                    "description": "`hasRootVisualElement` response field for `uitoolkit/compare-element`."
+                  },
+                  "rootChildCount": {
+                    "type": "integer",
+                    "description": "`rootChildCount` response field for `uitoolkit/compare-element`."
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "instanceId",
+                  "title",
+                  "type",
+                  "fullType",
+                  "hasRootVisualElement",
+                  "rootChildCount"
+                ]
+              }
+            ],
+            "description": "`context` response field for `uitoolkit/compare-element`."
+          },
+          "element": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string",
+                "description": "`path` response field for `uitoolkit/compare-element`."
+              },
+              "name": {
+                "type": "string",
+                "description": "`name` response field for `uitoolkit/compare-element`."
+              },
+              "type": {
+                "type": "string",
+                "description": "`type` response field for `uitoolkit/compare-element`."
+              },
+              "fullType": {
+                "type": "string",
+                "description": "`fullType` response field for `uitoolkit/compare-element`."
+              },
+              "classes": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "`classes` response field for `uitoolkit/compare-element`."
+              },
+              "text": {
+                "type": "string",
+                "description": "`text` response field for `uitoolkit/compare-element`."
+              },
+              "tooltip": {
+                "type": "string",
+                "description": "`tooltip` response field for `uitoolkit/compare-element`."
+              },
+              "visible": {
+                "type": "boolean",
+                "description": "`visible` response field for `uitoolkit/compare-element`."
+              },
+              "enabledSelf": {
+                "type": "boolean",
+                "description": "`enabledSelf` response field for `uitoolkit/compare-element`."
+              },
+              "enabledInHierarchy": {
+                "type": "boolean",
+                "description": "`enabledInHierarchy` response field for `uitoolkit/compare-element`."
+              },
+              "pickingMode": {
+                "type": "string",
+                "description": "`pickingMode` response field for `uitoolkit/compare-element`."
+              },
+              "childCount": {
+                "type": "integer",
+                "description": "`childCount` response field for `uitoolkit/compare-element`."
+              },
+              "layout": {
+                "type": "object",
+                "properties": {
+                  "x": {
+                    "type": "number",
+                    "description": "`x` response field for `uitoolkit/compare-element`."
+                  },
+                  "y": {
+                    "type": "number",
+                    "description": "`y` response field for `uitoolkit/compare-element`."
+                  },
+                  "width": {
+                    "type": "number",
+                    "description": "`width` response field for `uitoolkit/compare-element`."
+                  },
+                  "height": {
+                    "type": "number",
+                    "description": "`height` response field for `uitoolkit/compare-element`."
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "x",
+                  "y",
+                  "width",
+                  "height"
+                ],
+                "description": "`layout` response field for `uitoolkit/compare-element`."
+              },
+              "worldBound": {
+                "type": "object",
+                "properties": {
+                  "x": {
+                    "type": "number",
+                    "description": "`x` response field for `uitoolkit/compare-element`."
+                  },
+                  "y": {
+                    "type": "number",
+                    "description": "`y` response field for `uitoolkit/compare-element`."
+                  },
+                  "width": {
+                    "type": "number",
+                    "description": "`width` response field for `uitoolkit/compare-element`."
+                  },
+                  "height": {
+                    "type": "number",
+                    "description": "`height` response field for `uitoolkit/compare-element`."
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "x",
+                  "y",
+                  "width",
+                  "height"
+                ],
+                "description": "`worldBound` response field for `uitoolkit/compare-element`."
+              },
+              "inlineStyle": {
+                "type": "object",
+                "properties": {
+                  "display": {
+                    "type": "string",
+                    "description": "`display` response field for `uitoolkit/compare-element`."
+                  },
+                  "visibility": {
+                    "type": "string",
+                    "description": "`visibility` response field for `uitoolkit/compare-element`."
+                  },
+                  "position": {
+                    "type": "string",
+                    "description": "`position` response field for `uitoolkit/compare-element`."
+                  },
+                  "left": {
+                    "type": "string",
+                    "description": "`left` response field for `uitoolkit/compare-element`."
+                  },
+                  "top": {
+                    "type": "string",
+                    "description": "`top` response field for `uitoolkit/compare-element`."
+                  },
+                  "right": {
+                    "type": "string",
+                    "description": "`right` response field for `uitoolkit/compare-element`."
+                  },
+                  "bottom": {
+                    "type": "string",
+                    "description": "`bottom` response field for `uitoolkit/compare-element`."
+                  },
+                  "width": {
+                    "type": "string",
+                    "description": "`width` response field for `uitoolkit/compare-element`."
+                  },
+                  "height": {
+                    "type": "string",
+                    "description": "`height` response field for `uitoolkit/compare-element`."
+                  },
+                  "minWidth": {
+                    "type": "string",
+                    "description": "`minWidth` response field for `uitoolkit/compare-element`."
+                  },
+                  "minHeight": {
+                    "type": "string",
+                    "description": "`minHeight` response field for `uitoolkit/compare-element`."
+                  },
+                  "maxWidth": {
+                    "type": "string",
+                    "description": "`maxWidth` response field for `uitoolkit/compare-element`."
+                  },
+                  "maxHeight": {
+                    "type": "string",
+                    "description": "`maxHeight` response field for `uitoolkit/compare-element`."
+                  },
+                  "flexGrow": {
+                    "type": "string",
+                    "description": "`flexGrow` response field for `uitoolkit/compare-element`."
+                  },
+                  "flexShrink": {
+                    "type": "string",
+                    "description": "`flexShrink` response field for `uitoolkit/compare-element`."
+                  },
+                  "flexBasis": {
+                    "type": "string",
+                    "description": "`flexBasis` response field for `uitoolkit/compare-element`."
+                  },
+                  "flexDirection": {
+                    "type": "string",
+                    "description": "`flexDirection` response field for `uitoolkit/compare-element`."
+                  },
+                  "alignItems": {
+                    "type": "string",
+                    "description": "`alignItems` response field for `uitoolkit/compare-element`."
+                  },
+                  "alignSelf": {
+                    "type": "string",
+                    "description": "`alignSelf` response field for `uitoolkit/compare-element`."
+                  },
+                  "justifyContent": {
+                    "type": "string",
+                    "description": "`justifyContent` response field for `uitoolkit/compare-element`."
+                  },
+                  "marginLeft": {
+                    "type": "string",
+                    "description": "`marginLeft` response field for `uitoolkit/compare-element`."
+                  },
+                  "marginTop": {
+                    "type": "string",
+                    "description": "`marginTop` response field for `uitoolkit/compare-element`."
+                  },
+                  "marginRight": {
+                    "type": "string",
+                    "description": "`marginRight` response field for `uitoolkit/compare-element`."
+                  },
+                  "marginBottom": {
+                    "type": "string",
+                    "description": "`marginBottom` response field for `uitoolkit/compare-element`."
+                  },
+                  "paddingLeft": {
+                    "type": "string",
+                    "description": "`paddingLeft` response field for `uitoolkit/compare-element`."
+                  },
+                  "paddingTop": {
+                    "type": "string",
+                    "description": "`paddingTop` response field for `uitoolkit/compare-element`."
+                  },
+                  "paddingRight": {
+                    "type": "string",
+                    "description": "`paddingRight` response field for `uitoolkit/compare-element`."
+                  },
+                  "paddingBottom": {
+                    "type": "string",
+                    "description": "`paddingBottom` response field for `uitoolkit/compare-element`."
+                  },
+                  "backgroundColor": {
+                    "type": "string",
+                    "description": "`backgroundColor` response field for `uitoolkit/compare-element`."
+                  },
+                  "unityBackgroundImageTintColor": {
+                    "type": "string",
+                    "description": "`unityBackgroundImageTintColor` response field for `uitoolkit/compare-element`."
+                  },
+                  "color": {
+                    "type": "string",
+                    "description": "`color` response field for `uitoolkit/compare-element`."
+                  },
+                  "opacity": {
+                    "type": "string",
+                    "description": "`opacity` response field for `uitoolkit/compare-element`."
+                  }
+                },
+                "additionalProperties": false,
+                "description": "`inlineStyle` response field for `uitoolkit/compare-element`."
+              },
+              "resolvedStyle": {
+                "type": "object",
+                "properties": {
+                  "display": {
+                    "type": "string",
+                    "description": "`display` response field for `uitoolkit/compare-element`."
+                  },
+                  "visibility": {
+                    "type": "string",
+                    "description": "`visibility` response field for `uitoolkit/compare-element`."
+                  },
+                  "position": {
+                    "type": "string",
+                    "description": "`position` response field for `uitoolkit/compare-element`."
+                  },
+                  "minWidth": {
+                    "type": "string",
+                    "description": "`minWidth` response field for `uitoolkit/compare-element`."
+                  },
+                  "minHeight": {
+                    "type": "string",
+                    "description": "`minHeight` response field for `uitoolkit/compare-element`."
+                  },
+                  "maxWidth": {
+                    "type": "string",
+                    "description": "`maxWidth` response field for `uitoolkit/compare-element`."
+                  },
+                  "maxHeight": {
+                    "type": "string",
+                    "description": "`maxHeight` response field for `uitoolkit/compare-element`."
+                  },
+                  "flexBasis": {
+                    "type": "string",
+                    "description": "`flexBasis` response field for `uitoolkit/compare-element`."
+                  },
+                  "flexDirection": {
+                    "type": "string",
+                    "description": "`flexDirection` response field for `uitoolkit/compare-element`."
+                  },
+                  "alignItems": {
+                    "type": "string",
+                    "description": "`alignItems` response field for `uitoolkit/compare-element`."
+                  },
+                  "alignSelf": {
+                    "type": "string",
+                    "description": "`alignSelf` response field for `uitoolkit/compare-element`."
+                  },
+                  "justifyContent": {
+                    "type": "string",
+                    "description": "`justifyContent` response field for `uitoolkit/compare-element`."
+                  },
+                  "backgroundColor": {
+                    "type": "string",
+                    "description": "`backgroundColor` response field for `uitoolkit/compare-element`."
+                  },
+                  "unityBackgroundImageTintColor": {
+                    "type": "string",
+                    "description": "`unityBackgroundImageTintColor` response field for `uitoolkit/compare-element`."
+                  },
+                  "color": {
+                    "type": "string",
+                    "description": "`color` response field for `uitoolkit/compare-element`."
+                  },
+                  "left": {
+                    "type": "number",
+                    "description": "`left` response field for `uitoolkit/compare-element`."
+                  },
+                  "top": {
+                    "type": "number",
+                    "description": "`top` response field for `uitoolkit/compare-element`."
+                  },
+                  "right": {
+                    "type": "number",
+                    "description": "`right` response field for `uitoolkit/compare-element`."
+                  },
+                  "bottom": {
+                    "type": "number",
+                    "description": "`bottom` response field for `uitoolkit/compare-element`."
+                  },
+                  "width": {
+                    "type": "number",
+                    "description": "`width` response field for `uitoolkit/compare-element`."
+                  },
+                  "height": {
+                    "type": "number",
+                    "description": "`height` response field for `uitoolkit/compare-element`."
+                  },
+                  "flexGrow": {
+                    "type": "number",
+                    "description": "`flexGrow` response field for `uitoolkit/compare-element`."
+                  },
+                  "flexShrink": {
+                    "type": "number",
+                    "description": "`flexShrink` response field for `uitoolkit/compare-element`."
+                  },
+                  "marginLeft": {
+                    "type": "number",
+                    "description": "`marginLeft` response field for `uitoolkit/compare-element`."
+                  },
+                  "marginTop": {
+                    "type": "number",
+                    "description": "`marginTop` response field for `uitoolkit/compare-element`."
+                  },
+                  "marginRight": {
+                    "type": "number",
+                    "description": "`marginRight` response field for `uitoolkit/compare-element`."
+                  },
+                  "marginBottom": {
+                    "type": "number",
+                    "description": "`marginBottom` response field for `uitoolkit/compare-element`."
+                  },
+                  "paddingLeft": {
+                    "type": "number",
+                    "description": "`paddingLeft` response field for `uitoolkit/compare-element`."
+                  },
+                  "paddingTop": {
+                    "type": "number",
+                    "description": "`paddingTop` response field for `uitoolkit/compare-element`."
+                  },
+                  "paddingRight": {
+                    "type": "number",
+                    "description": "`paddingRight` response field for `uitoolkit/compare-element`."
+                  },
+                  "paddingBottom": {
+                    "type": "number",
+                    "description": "`paddingBottom` response field for `uitoolkit/compare-element`."
+                  },
+                  "opacity": {
+                    "type": "number",
+                    "description": "`opacity` response field for `uitoolkit/compare-element`."
+                  },
+                  "effectiveOpacity": {
+                    "type": "number",
+                    "description": "Product of the element's and its current hierarchy ancestors' native resolved opacity values. This excludes texture alpha, tint, visibility and clipping."
+                  }
+                },
+                "additionalProperties": false,
+                "description": "`resolvedStyle` response field for `uitoolkit/compare-element`."
+              },
+              "background": {
+                "type": "object",
+                "properties": {
+                  "inline": {
+                    "type": "object",
+                    "properties": {
+                      "text": {
+                        "type": "string",
+                        "description": "`text` response field for `uitoolkit/compare-element`."
+                      },
+                      "texture": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string",
+                            "description": "`name` response field for `uitoolkit/compare-element`."
+                          },
+                          "type": {
+                            "type": "string",
+                            "description": "`type` response field for `uitoolkit/compare-element`."
+                          },
+                          "instanceId": {
+                            "type": "string",
+                            "description": "`instanceId` response field for `uitoolkit/compare-element`."
+                          },
+                          "assetPath": {
+                            "type": "string",
+                            "description": "`assetPath` response field for `uitoolkit/compare-element`."
+                          }
+                        },
+                        "additionalProperties": false,
+                        "required": [
+                          "name",
+                          "type",
+                          "instanceId",
+                          "assetPath"
+                        ],
+                        "description": "`texture` response field for `uitoolkit/compare-element`."
+                      },
+                      "sprite": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string",
+                            "description": "`name` response field for `uitoolkit/compare-element`."
+                          },
+                          "type": {
+                            "type": "string",
+                            "description": "`type` response field for `uitoolkit/compare-element`."
+                          },
+                          "instanceId": {
+                            "type": "string",
+                            "description": "`instanceId` response field for `uitoolkit/compare-element`."
+                          },
+                          "assetPath": {
+                            "type": "string",
+                            "description": "`assetPath` response field for `uitoolkit/compare-element`."
+                          }
+                        },
+                        "additionalProperties": false,
+                        "required": [
+                          "name",
+                          "type",
+                          "instanceId",
+                          "assetPath"
+                        ],
+                        "description": "`sprite` response field for `uitoolkit/compare-element`."
+                      },
+                      "renderTexture": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string",
+                            "description": "`name` response field for `uitoolkit/compare-element`."
+                          },
+                          "type": {
+                            "type": "string",
+                            "description": "`type` response field for `uitoolkit/compare-element`."
+                          },
+                          "instanceId": {
+                            "type": "string",
+                            "description": "`instanceId` response field for `uitoolkit/compare-element`."
+                          },
+                          "assetPath": {
+                            "type": "string",
+                            "description": "`assetPath` response field for `uitoolkit/compare-element`."
+                          }
+                        },
+                        "additionalProperties": false,
+                        "required": [
+                          "name",
+                          "type",
+                          "instanceId",
+                          "assetPath"
+                        ],
+                        "description": "`renderTexture` response field for `uitoolkit/compare-element`."
+                      },
+                      "vectorImage": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string",
+                            "description": "`name` response field for `uitoolkit/compare-element`."
+                          },
+                          "type": {
+                            "type": "string",
+                            "description": "`type` response field for `uitoolkit/compare-element`."
+                          },
+                          "instanceId": {
+                            "type": "string",
+                            "description": "`instanceId` response field for `uitoolkit/compare-element`."
+                          },
+                          "assetPath": {
+                            "type": "string",
+                            "description": "`assetPath` response field for `uitoolkit/compare-element`."
+                          }
+                        },
+                        "additionalProperties": false,
+                        "required": [
+                          "name",
+                          "type",
+                          "instanceId",
+                          "assetPath"
+                        ],
+                        "description": "`vectorImage` response field for `uitoolkit/compare-element`."
+                      }
+                    },
+                    "additionalProperties": false,
+                    "required": [
+                      "text"
+                    ],
+                    "description": "`inline` response field for `uitoolkit/compare-element`."
+                  },
+                  "resolved": {
+                    "type": "object",
+                    "properties": {
+                      "text": {
+                        "type": "string",
+                        "description": "`text` response field for `uitoolkit/compare-element`."
+                      },
+                      "texture": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string",
+                            "description": "`name` response field for `uitoolkit/compare-element`."
+                          },
+                          "type": {
+                            "type": "string",
+                            "description": "`type` response field for `uitoolkit/compare-element`."
+                          },
+                          "instanceId": {
+                            "type": "string",
+                            "description": "`instanceId` response field for `uitoolkit/compare-element`."
+                          },
+                          "assetPath": {
+                            "type": "string",
+                            "description": "`assetPath` response field for `uitoolkit/compare-element`."
+                          }
+                        },
+                        "additionalProperties": false,
+                        "required": [
+                          "name",
+                          "type",
+                          "instanceId",
+                          "assetPath"
+                        ],
+                        "description": "`texture` response field for `uitoolkit/compare-element`."
+                      },
+                      "sprite": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string",
+                            "description": "`name` response field for `uitoolkit/compare-element`."
+                          },
+                          "type": {
+                            "type": "string",
+                            "description": "`type` response field for `uitoolkit/compare-element`."
+                          },
+                          "instanceId": {
+                            "type": "string",
+                            "description": "`instanceId` response field for `uitoolkit/compare-element`."
+                          },
+                          "assetPath": {
+                            "type": "string",
+                            "description": "`assetPath` response field for `uitoolkit/compare-element`."
+                          }
+                        },
+                        "additionalProperties": false,
+                        "required": [
+                          "name",
+                          "type",
+                          "instanceId",
+                          "assetPath"
+                        ],
+                        "description": "`sprite` response field for `uitoolkit/compare-element`."
+                      },
+                      "renderTexture": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string",
+                            "description": "`name` response field for `uitoolkit/compare-element`."
+                          },
+                          "type": {
+                            "type": "string",
+                            "description": "`type` response field for `uitoolkit/compare-element`."
+                          },
+                          "instanceId": {
+                            "type": "string",
+                            "description": "`instanceId` response field for `uitoolkit/compare-element`."
+                          },
+                          "assetPath": {
+                            "type": "string",
+                            "description": "`assetPath` response field for `uitoolkit/compare-element`."
+                          }
+                        },
+                        "additionalProperties": false,
+                        "required": [
+                          "name",
+                          "type",
+                          "instanceId",
+                          "assetPath"
+                        ],
+                        "description": "`renderTexture` response field for `uitoolkit/compare-element`."
+                      },
+                      "vectorImage": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string",
+                            "description": "`name` response field for `uitoolkit/compare-element`."
+                          },
+                          "type": {
+                            "type": "string",
+                            "description": "`type` response field for `uitoolkit/compare-element`."
+                          },
+                          "instanceId": {
+                            "type": "string",
+                            "description": "`instanceId` response field for `uitoolkit/compare-element`."
+                          },
+                          "assetPath": {
+                            "type": "string",
+                            "description": "`assetPath` response field for `uitoolkit/compare-element`."
+                          }
+                        },
+                        "additionalProperties": false,
+                        "required": [
+                          "name",
+                          "type",
+                          "instanceId",
+                          "assetPath"
+                        ],
+                        "description": "`vectorImage` response field for `uitoolkit/compare-element`."
+                      }
+                    },
+                    "additionalProperties": false,
+                    "required": [
+                      "text"
+                    ],
+                    "description": "`resolved` response field for `uitoolkit/compare-element`."
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "inline",
+                  "resolved"
+                ],
+                "description": "`background` response field for `uitoolkit/compare-element`."
+              },
+              "children": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/unityJsonValue"
+                },
+                "description": "`children` response field for `uitoolkit/compare-element`."
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "path",
+              "name",
+              "type",
+              "fullType",
+              "classes",
+              "text",
+              "tooltip",
+              "visible",
+              "enabledSelf",
+              "enabledInHierarchy",
+              "pickingMode",
+              "childCount",
+              "layout",
+              "worldBound"
+            ],
+            "description": "`element` response field for `uitoolkit/compare-element`."
+          },
+          "pixelScale": {
+            "type": "number",
+            "description": "`pixelScale` response field for `uitoolkit/compare-element`."
+          },
+          "padding": {
+            "type": "integer",
+            "description": "`padding` response field for `uitoolkit/compare-element`."
+          },
+          "cropMode": {
+            "type": "string",
+            "description": "`cropMode` response field for `uitoolkit/compare-element`."
+          },
+          "cropRect": {
+            "type": "object",
+            "properties": {
+              "x": {
+                "type": "number",
+                "description": "`x` response field for `uitoolkit/compare-element`."
+              },
+              "y": {
+                "type": "number",
+                "description": "`y` response field for `uitoolkit/compare-element`."
+              },
+              "width": {
+                "type": "number",
+                "description": "`width` response field for `uitoolkit/compare-element`."
+              },
+              "height": {
+                "type": "number",
+                "description": "`height` response field for `uitoolkit/compare-element`."
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "x",
+              "y",
+              "width",
+              "height"
+            ],
+            "description": "`cropRect` response field for `uitoolkit/compare-element`."
+          },
+          "windowCapture": {
+            "$ref": "#/$defs/unityJsonValue",
+            "description": "`windowCapture` response field for `uitoolkit/compare-element`."
+          },
+          "elementCapture": {
+            "$ref": "#/$defs/unityJsonValue",
+            "description": "`elementCapture` response field for `uitoolkit/compare-element`."
+          },
+          "error": {
+            "type": "string",
+            "description": "`error` response field for `uitoolkit/compare-element`."
+          },
+          "warning": {
+            "type": "string",
+            "description": "`warning` response field for `uitoolkit/compare-element`."
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "runtime",
+          "context",
+          "element",
+          "pixelScale",
+          "padding",
+          "cropMode",
+          "cropRect",
+          "windowCapture",
+          "elementCapture",
+          "error",
+          "warning"
+        ],
+        "description": "`capture` response field for `uitoolkit/compare-element`."
+      },
+      "comparison": {
+        "type": "object",
+        "properties": {
+          "expectedPath": {
+            "type": "string",
+            "description": "`expectedPath` response field for `uitoolkit/compare-element`."
+          },
+          "actualPath": {
+            "type": "string",
+            "description": "`actualPath` response field for `uitoolkit/compare-element`."
+          },
+          "expectedSize": {
+            "type": "object",
+            "properties": {
+              "width": {
+                "type": "integer",
+                "description": "`width` response field for `uitoolkit/compare-element`."
+              },
+              "height": {
+                "type": "integer",
+                "description": "`height` response field for `uitoolkit/compare-element`."
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "width",
+              "height"
+            ],
+            "description": "`expectedSize` response field for `uitoolkit/compare-element`."
+          },
+          "actualSize": {
+            "type": "object",
+            "properties": {
+              "width": {
+                "type": "integer",
+                "description": "`width` response field for `uitoolkit/compare-element`."
+              },
+              "height": {
+                "type": "integer",
+                "description": "`height` response field for `uitoolkit/compare-element`."
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "width",
+              "height"
+            ],
+            "description": "`actualSize` response field for `uitoolkit/compare-element`."
+          },
+          "comparedWidth": {
+            "type": "integer",
+            "description": "`comparedWidth` response field for `uitoolkit/compare-element`."
+          },
+          "comparedHeight": {
+            "type": "integer",
+            "description": "`comparedHeight` response field for `uitoolkit/compare-element`."
+          },
+          "tolerance": {
+            "type": "integer",
+            "description": "`tolerance` response field for `uitoolkit/compare-element`."
+          },
+          "differentPixels": {
+            "type": "integer",
+            "description": "`differentPixels` response field for `uitoolkit/compare-element`."
+          },
+          "totalPixels": {
+            "type": "integer",
+            "description": "`totalPixels` response field for `uitoolkit/compare-element`."
+          },
+          "differentRatio": {
+            "type": "number",
+            "description": "`differentRatio` response field for `uitoolkit/compare-element`."
+          },
+          "averageDelta": {
+            "type": "number",
+            "description": "`averageDelta` response field for `uitoolkit/compare-element`."
+          },
+          "maxDelta": {
+            "type": "integer",
+            "description": "`maxDelta` response field for `uitoolkit/compare-element`."
+          },
+          "samples": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "x": {
+                  "type": "integer",
+                  "description": "`x` response field for `uitoolkit/compare-element`."
+                },
+                "y": {
+                  "type": "integer",
+                  "description": "`y` response field for `uitoolkit/compare-element`."
+                },
+                "delta": {
+                  "type": "integer",
+                  "description": "`delta` response field for `uitoolkit/compare-element`."
+                },
+                "expected": {
+                  "type": "object",
+                  "properties": {
+                    "r": {
+                      "type": "number",
+                      "description": "`r` response field for `uitoolkit/compare-element`."
+                    },
+                    "g": {
+                      "type": "number",
+                      "description": "`g` response field for `uitoolkit/compare-element`."
+                    },
+                    "b": {
+                      "type": "number",
+                      "description": "`b` response field for `uitoolkit/compare-element`."
+                    },
+                    "a": {
+                      "type": "number",
+                      "description": "`a` response field for `uitoolkit/compare-element`."
+                    }
+                  },
+                  "additionalProperties": false,
+                  "required": [
+                    "r",
+                    "g",
+                    "b",
+                    "a"
+                  ],
+                  "description": "`expected` response field for `uitoolkit/compare-element`."
+                },
+                "actual": {
+                  "type": "object",
+                  "properties": {
+                    "r": {
+                      "type": "number",
+                      "description": "`r` response field for `uitoolkit/compare-element`."
+                    },
+                    "g": {
+                      "type": "number",
+                      "description": "`g` response field for `uitoolkit/compare-element`."
+                    },
+                    "b": {
+                      "type": "number",
+                      "description": "`b` response field for `uitoolkit/compare-element`."
+                    },
+                    "a": {
+                      "type": "number",
+                      "description": "`a` response field for `uitoolkit/compare-element`."
+                    }
+                  },
+                  "additionalProperties": false,
+                  "required": [
+                    "r",
+                    "g",
+                    "b",
+                    "a"
+                  ],
+                  "description": "`actual` response field for `uitoolkit/compare-element`."
+                }
+              },
+              "additionalProperties": false,
+              "required": [
+                "x",
+                "y",
+                "delta",
+                "expected",
+                "actual"
+              ]
+            },
+            "description": "`samples` response field for `uitoolkit/compare-element`."
+          },
+          "differenceBounds": {
+            "type": "object",
+            "properties": {
+              "x": {
+                "type": "number",
+                "description": "`x` response field for `uitoolkit/compare-element`."
+              },
+              "y": {
+                "type": "number",
+                "description": "`y` response field for `uitoolkit/compare-element`."
+              },
+              "width": {
+                "type": "number",
+                "description": "`width` response field for `uitoolkit/compare-element`."
+              },
+              "height": {
+                "type": "number",
+                "description": "`height` response field for `uitoolkit/compare-element`."
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "x",
+              "y",
+              "width",
+              "height"
+            ],
+            "description": "`differenceBounds` response field for `uitoolkit/compare-element`."
+          },
+          "diffOutputPath": {
+            "type": "string",
+            "description": "`diffOutputPath` response field for `uitoolkit/compare-element`."
+          },
+          "absoluteDiffOutputPath": {
+            "type": "string",
+            "description": "`absoluteDiffOutputPath` response field for `uitoolkit/compare-element`."
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "expectedPath",
+          "actualPath",
+          "expectedSize",
+          "actualSize",
+          "comparedWidth",
+          "comparedHeight",
+          "tolerance",
+          "differentPixels",
+          "totalPixels",
+          "differentRatio",
+          "averageDelta",
+          "maxDelta",
+          "samples"
+        ],
+        "description": "`comparison` response field for `uitoolkit/compare-element`."
+      }
+    },
+    "additionalProperties": false,
+    "required": [
+      "referencePath",
+      "actualPath",
+      "capture",
+      "comparison"
+    ],
+    "$defs": {
+      "unityJsonValue": {
+        "oneOf": [
+          {
+            "type": "null"
+          },
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "number"
+          },
+          {
+            "type": "string"
+          },
+          {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/unityJsonValue"
+            }
+          },
+          {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": {
+              "$ref": "#/$defs/unityJsonValue"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "errorCodes": [
+    "argument_conflict",
+    "editor_window_ambiguous",
+    "editor_window_not_found",
+    "editor_window_selector_mismatch",
+    "input_validation_limit",
+    "invalid_arguments",
+    "invalid_project_path",
+    "invalid_timeout",
+    "project_mismatch",
+    "request_id_conflict",
+    "requires_main_editor",
+    "response_too_large",
+    "tool_execution_failed"
+  ]
+}

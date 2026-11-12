@@ -1,0 +1,276 @@
+{
+  "route": "uitoolkit/edit-uss",
+  "description": "Edit USS through the shared rule parser, respecting comments and quoted delimiters. Declaration updates preserve unrelated text and formatting; selector upserts replace the entire body. Synchronously reimport a changed asset.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "assetPath": {
+        "type": "string",
+        "description": "USS asset path below Assets/."
+      },
+      "operations": {
+        "type": "array",
+        "description": "Ordered selector/declaration edit operations.",
+        "items": {
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "selector": {
+                  "type": "string",
+                  "description": "Exact USS selector."
+                },
+                "type": {
+                  "type": "string",
+                  "description": "Operation discriminator.",
+                  "enum": [
+                    "remove-selector"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "selector"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "selector": {
+                  "type": "string",
+                  "description": "Exact USS selector."
+                },
+                "declarations": {
+                  "type": "object",
+                  "description": "Complete selector declarations.",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                },
+                "type": {
+                  "type": "string",
+                  "description": "Operation discriminator.",
+                  "enum": [
+                    "upsert-selector"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "selector",
+                "declarations"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "selector": {
+                  "type": "string",
+                  "description": "Exact USS selector."
+                },
+                "property": {
+                  "type": "string",
+                  "description": "USS property name."
+                },
+                "value": {
+                  "type": "string",
+                  "description": "USS property value."
+                },
+                "type": {
+                  "type": "string",
+                  "description": "Operation discriminator.",
+                  "enum": [
+                    "set-declaration"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "selector",
+                "property"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "selector": {
+                  "type": "string",
+                  "description": "Exact USS selector."
+                },
+                "property": {
+                  "type": "string",
+                  "description": "USS property name."
+                },
+                "type": {
+                  "type": "string",
+                  "description": "Operation discriminator.",
+                  "enum": [
+                    "remove-declaration"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "selector",
+                "property"
+              ]
+            }
+          ]
+        }
+      },
+      "dryRun": {
+        "type": "boolean",
+        "description": "Return the edit result without writing."
+      }
+    },
+    "additionalProperties": false,
+    "required": [
+      "assetPath",
+      "operations"
+    ],
+    "$defs": {
+      "unityJsonValue": {
+        "oneOf": [
+          {
+            "type": "null"
+          },
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "number"
+          },
+          {
+            "type": "string"
+          },
+          {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/unityJsonValue"
+            }
+          },
+          {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": {
+              "$ref": "#/$defs/unityJsonValue"
+            }
+          }
+        ]
+      }
+    },
+    "x-vmAutomationInputValidation": {
+      "maximumWorkUnits": 65536,
+      "maximumInputDepth": 64
+    }
+  },
+  "outputSchema": {
+    "type": "object",
+    "properties": {
+      "assetPath": {
+        "type": "string",
+        "description": "`assetPath` response field for `uitoolkit/edit-uss`."
+      },
+      "dryRun": {
+        "type": "boolean",
+        "description": "`dryRun` response field for `uitoolkit/edit-uss`."
+      },
+      "changed": {
+        "type": "boolean",
+        "description": "`changed` response field for `uitoolkit/edit-uss`."
+      },
+      "operationCount": {
+        "type": "integer",
+        "description": "`operationCount` response field for `uitoolkit/edit-uss`."
+      },
+      "results": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "description": "`type` response field for `uitoolkit/edit-uss`."
+            },
+            "selector": {
+              "type": "string",
+              "description": "`selector` response field for `uitoolkit/edit-uss`."
+            },
+            "changed": {
+              "type": "boolean",
+              "description": "`changed` response field for `uitoolkit/edit-uss`."
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "selector",
+            "changed"
+          ]
+        },
+        "description": "`results` response field for `uitoolkit/edit-uss`."
+      }
+    },
+    "additionalProperties": false,
+    "required": [
+      "assetPath",
+      "dryRun",
+      "changed",
+      "operationCount",
+      "results"
+    ],
+    "$defs": {
+      "unityJsonValue": {
+        "oneOf": [
+          {
+            "type": "null"
+          },
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "number"
+          },
+          {
+            "type": "string"
+          },
+          {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/unityJsonValue"
+            }
+          },
+          {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": {
+              "$ref": "#/$defs/unityJsonValue"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "errorCodes": [
+    "argument_conflict",
+    "editor_window_ambiguous",
+    "editor_window_not_found",
+    "editor_window_selector_mismatch",
+    "input_validation_limit",
+    "invalid_arguments",
+    "invalid_project_path",
+    "invalid_timeout",
+    "project_binding_required",
+    "project_mismatch",
+    "request_id_conflict",
+    "requires_main_editor",
+    "response_too_large",
+    "target_project_required",
+    "tool_execution_failed",
+    "wrong_unity_project"
+  ]
+}

@@ -1,0 +1,3 @@
+* text=auto eol=lf
+# Preserve Unity's native empty importer fields.
+*.meta whitespace=-blank-at-eol

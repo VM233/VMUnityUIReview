@@ -1,0 +1,397 @@
+{
+  "route": "uitoolkit/edit-uxml",
+  "description": "Structurally edit UXML elements by VisualElementPath or authored name, then synchronously reimport the asset.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "assetPath": {
+        "type": "string",
+        "description": "UXML asset path below Assets/."
+      },
+      "operations": {
+        "type": "array",
+        "description": "Ordered structural UXML edit operations.",
+        "items": {
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "parentPath": {
+                  "type": "string",
+                  "description": "Parent element tree path."
+                },
+                "parentName": {
+                  "type": "string",
+                  "description": "Exact parent UXML name attribute."
+                },
+                "elementType": {
+                  "type": "string",
+                  "description": "UXML element type. Defaults to VisualElement."
+                },
+                "attributes": {
+                  "type": "object",
+                  "description": "Initial UXML attributes.",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                },
+                "index": {
+                  "type": "number",
+                  "description": "Optional child insertion index."
+                },
+                "type": {
+                  "type": "string",
+                  "description": "Operation discriminator.",
+                  "enum": [
+                    "add-element"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "required": [
+                "type"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "description": "Element tree path."
+                },
+                "name": {
+                  "type": "string",
+                  "description": "Exact UXML name attribute."
+                },
+                "type": {
+                  "type": "string",
+                  "description": "Operation discriminator.",
+                  "enum": [
+                    "remove-element"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "required": [
+                "type"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "description": "Element tree path."
+                },
+                "name": {
+                  "type": "string",
+                  "description": "Exact UXML name attribute."
+                },
+                "attribute": {
+                  "type": "string",
+                  "description": "Attribute name to remove."
+                },
+                "type": {
+                  "type": "string",
+                  "description": "Operation discriminator.",
+                  "enum": [
+                    "remove-attribute"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "attribute"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "description": "Element tree path."
+                },
+                "name": {
+                  "type": "string",
+                  "description": "Exact UXML name attribute."
+                },
+                "className": {
+                  "type": "string",
+                  "description": "USS class name."
+                },
+                "type": {
+                  "type": "string",
+                  "description": "Operation discriminator.",
+                  "enum": [
+                    "add-class"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "className"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "description": "Element tree path."
+                },
+                "name": {
+                  "type": "string",
+                  "description": "Exact UXML name attribute."
+                },
+                "className": {
+                  "type": "string",
+                  "description": "USS class name."
+                },
+                "type": {
+                  "type": "string",
+                  "description": "Operation discriminator.",
+                  "enum": [
+                    "remove-class"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "className"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "description": "Element tree path."
+                },
+                "name": {
+                  "type": "string",
+                  "description": "Exact UXML name attribute."
+                },
+                "text": {
+                  "type": "string",
+                  "description": "Replacement text attribute."
+                },
+                "type": {
+                  "type": "string",
+                  "description": "Operation discriminator.",
+                  "enum": [
+                    "set-text"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "required": [
+                "type"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "description": "Element tree path."
+                },
+                "name": {
+                  "type": "string",
+                  "description": "Exact UXML name attribute."
+                },
+                "parentPath": {
+                  "type": "string",
+                  "description": "New parent tree path."
+                },
+                "parentName": {
+                  "type": "string",
+                  "description": "Exact new parent UXML name attribute."
+                },
+                "index": {
+                  "type": "number",
+                  "description": "Optional child insertion index."
+                },
+                "type": {
+                  "type": "string",
+                  "description": "Operation discriminator.",
+                  "enum": [
+                    "move-element"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "required": [
+                "type"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "description": "Element tree path."
+                },
+                "name": {
+                  "type": "string",
+                  "description": "Exact UXML name attribute."
+                },
+                "attribute": {
+                  "type": "string",
+                  "description": "Attribute name to set."
+                },
+                "value": {
+                  "type": "string",
+                  "description": "Attribute value."
+                },
+                "type": {
+                  "type": "string",
+                  "description": "Operation discriminator.",
+                  "enum": [
+                    "set-attribute"
+                  ]
+                }
+              },
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "attribute"
+              ]
+            }
+          ]
+        }
+      },
+      "dryRun": {
+        "type": "boolean",
+        "description": "Return the edit result without writing."
+      }
+    },
+    "additionalProperties": false,
+    "required": [
+      "assetPath",
+      "operations"
+    ],
+    "$defs": {
+      "unityJsonValue": {
+        "oneOf": [
+          {
+            "type": "null"
+          },
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "number"
+          },
+          {
+            "type": "string"
+          },
+          {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/unityJsonValue"
+            }
+          },
+          {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": {
+              "$ref": "#/$defs/unityJsonValue"
+            }
+          }
+        ]
+      }
+    },
+    "x-vmAutomationInputValidation": {
+      "maximumWorkUnits": 65536,
+      "maximumInputDepth": 64
+    }
+  },
+  "outputSchema": {
+    "type": "object",
+    "properties": {
+      "assetPath": {
+        "type": "string",
+        "description": "`assetPath` response field for `uitoolkit/edit-uxml`."
+      },
+      "dryRun": {
+        "type": "boolean",
+        "description": "`dryRun` response field for `uitoolkit/edit-uxml`."
+      },
+      "changed": {
+        "type": "boolean",
+        "description": "`changed` response field for `uitoolkit/edit-uxml`."
+      },
+      "operationCount": {
+        "type": "integer",
+        "description": "`operationCount` response field for `uitoolkit/edit-uxml`."
+      },
+      "results": {
+        "type": "array",
+        "items": {
+          "$ref": "#/$defs/unityJsonValue"
+        },
+        "description": "`results` response field for `uitoolkit/edit-uxml`."
+      }
+    },
+    "additionalProperties": false,
+    "required": [
+      "assetPath",
+      "dryRun",
+      "changed",
+      "operationCount",
+      "results"
+    ],
+    "$defs": {
+      "unityJsonValue": {
+        "oneOf": [
+          {
+            "type": "null"
+          },
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "number"
+          },
+          {
+            "type": "string"
+          },
+          {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/unityJsonValue"
+            }
+          },
+          {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": {
+              "$ref": "#/$defs/unityJsonValue"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "errorCodes": [
+    "argument_conflict",
+    "editor_window_ambiguous",
+    "editor_window_not_found",
+    "editor_window_selector_mismatch",
+    "input_validation_limit",
+    "invalid_arguments",
+    "invalid_project_path",
+    "invalid_timeout",
+    "project_binding_required",
+    "project_mismatch",
+    "request_id_conflict",
+    "requires_main_editor",
+    "response_too_large",
+    "target_project_required",
+    "tool_execution_failed",
+    "wrong_unity_project"
+  ]
+}

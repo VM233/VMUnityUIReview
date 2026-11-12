@@ -1,0 +1,444 @@
+{
+  "route": "uitoolkit/assert-layout",
+  "description": "Assert UI Toolkit runtime layout constraints such as edge touching, containment, and size.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "documentInstanceId": {
+        "type": "number",
+        "description": "UIDocument instance id from uitoolkit/runtime-documents."
+      },
+      "gameObjectPath": {
+        "type": "string",
+        "description": "Scene GameObject path that owns the UIDocument."
+      },
+      "gameObjectName": {
+        "type": "string",
+        "description": "Scene GameObject name that owns the UIDocument."
+      },
+      "documentName": {
+        "type": "string",
+        "description": "UIDocument component name."
+      },
+      "includeInactive": {
+        "type": "boolean",
+        "description": "Include inactive scene UIDocuments. Defaults to true."
+      },
+      "assertions": {
+        "type": "array",
+        "description": "Layout assertions. Supported types: edge-touch, same-edge, same-center, inside, size.",
+        "items": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "description": "Element tree path."
+            },
+            "elementPath": {
+              "type": "string",
+              "description": "Legacy element tree path alias."
+            },
+            "visualElementPath": {
+              "type": "string",
+              "description": "Slash-separated VisualElementPath names."
+            },
+            "visualElementNames": {
+              "type": "array",
+              "description": "VisualElementPath names.",
+              "items": {
+                "type": "string"
+              }
+            },
+            "name": {
+              "type": "string",
+              "description": "VisualElement.name exact match."
+            },
+            "firstPath": {
+              "type": "string",
+              "description": "Prefixed element tree path."
+            },
+            "firstVisualElementPath": {
+              "type": "string",
+              "description": "Prefixed slash-separated VisualElementPath names."
+            },
+            "firstNames": {
+              "type": "array",
+              "description": "Prefixed VisualElementPath names.",
+              "items": {
+                "type": "string"
+              }
+            },
+            "firstName": {
+              "type": "string",
+              "description": "Prefixed VisualElement.name exact match."
+            },
+            "secondPath": {
+              "type": "string",
+              "description": "Prefixed element tree path."
+            },
+            "secondVisualElementPath": {
+              "type": "string",
+              "description": "Prefixed slash-separated VisualElementPath names."
+            },
+            "secondNames": {
+              "type": "array",
+              "description": "Prefixed VisualElementPath names.",
+              "items": {
+                "type": "string"
+              }
+            },
+            "secondName": {
+              "type": "string",
+              "description": "Prefixed VisualElement.name exact match."
+            },
+            "innerPath": {
+              "type": "string",
+              "description": "Prefixed element tree path."
+            },
+            "innerVisualElementPath": {
+              "type": "string",
+              "description": "Prefixed slash-separated VisualElementPath names."
+            },
+            "innerNames": {
+              "type": "array",
+              "description": "Prefixed VisualElementPath names.",
+              "items": {
+                "type": "string"
+              }
+            },
+            "innerName": {
+              "type": "string",
+              "description": "Prefixed VisualElement.name exact match."
+            },
+            "outerPath": {
+              "type": "string",
+              "description": "Prefixed element tree path."
+            },
+            "outerVisualElementPath": {
+              "type": "string",
+              "description": "Prefixed slash-separated VisualElementPath names."
+            },
+            "outerNames": {
+              "type": "array",
+              "description": "Prefixed VisualElementPath names.",
+              "items": {
+                "type": "string"
+              }
+            },
+            "outerName": {
+              "type": "string",
+              "description": "Prefixed VisualElement.name exact match."
+            },
+            "type": {
+              "type": "string",
+              "description": "Layout assertion type."
+            },
+            "kind": {
+              "type": "string",
+              "description": "Legacy layout assertion type alias."
+            },
+            "axis": {
+              "type": "string",
+              "description": "Comparison axis: x or y."
+            },
+            "edge": {
+              "type": "string",
+              "description": "Shared edge for alignment."
+            },
+            "firstEdge": {
+              "type": "string",
+              "description": "First element edge."
+            },
+            "secondEdge": {
+              "type": "string",
+              "description": "Second element edge."
+            },
+            "tolerance": {
+              "type": "number",
+              "description": "Allowed layout delta."
+            },
+            "width": {
+              "type": "number",
+              "description": "Expected width."
+            },
+            "height": {
+              "type": "number",
+              "description": "Expected height."
+            },
+            "expectedWidth": {
+              "type": "number",
+              "description": "Expected width alias."
+            },
+            "expectedHeight": {
+              "type": "number",
+              "description": "Expected height alias."
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    },
+    "additionalProperties": false,
+    "required": [
+      "assertions"
+    ],
+    "$defs": {
+      "unityJsonValue": {
+        "oneOf": [
+          {
+            "type": "null"
+          },
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "number"
+          },
+          {
+            "type": "string"
+          },
+          {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/unityJsonValue"
+            }
+          },
+          {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": {
+              "$ref": "#/$defs/unityJsonValue"
+            }
+          }
+        ]
+      }
+    },
+    "x-vmAutomationInputValidation": {
+      "maximumWorkUnits": 65536,
+      "maximumInputDepth": 64
+    }
+  },
+  "outputSchema": {
+    "type": "object",
+    "properties": {
+      "valid": {
+        "type": "boolean",
+        "description": "`valid` response field for `uitoolkit/assert-layout`."
+      },
+      "document": {
+        "type": "object",
+        "properties": {
+          "instanceId": {
+            "type": "string",
+            "description": "`instanceId` response field for `uitoolkit/assert-layout`."
+          },
+          "name": {
+            "type": "string",
+            "description": "`name` response field for `uitoolkit/assert-layout`."
+          },
+          "enabled": {
+            "type": "boolean",
+            "description": "`enabled` response field for `uitoolkit/assert-layout`."
+          },
+          "gameObjectName": {
+            "type": "string",
+            "description": "`gameObjectName` response field for `uitoolkit/assert-layout`."
+          },
+          "gameObjectPath": {
+            "type": "string",
+            "description": "`gameObjectPath` response field for `uitoolkit/assert-layout`."
+          },
+          "gameObjectActive": {
+            "type": "boolean",
+            "description": "`gameObjectActive` response field for `uitoolkit/assert-layout`."
+          },
+          "visualTreeAsset": {
+            "type": "string",
+            "description": "`visualTreeAsset` response field for `uitoolkit/assert-layout`."
+          },
+          "visualTreeAssetPath": {
+            "type": "string",
+            "description": "`visualTreeAssetPath` response field for `uitoolkit/assert-layout`."
+          },
+          "panelSettings": {
+            "type": "string",
+            "description": "`panelSettings` response field for `uitoolkit/assert-layout`."
+          },
+          "panelSettingsPath": {
+            "type": "string",
+            "description": "`panelSettingsPath` response field for `uitoolkit/assert-layout`."
+          },
+          "hasRootVisualElement": {
+            "type": "boolean",
+            "description": "`hasRootVisualElement` response field for `uitoolkit/assert-layout`."
+          },
+          "rootChildCount": {
+            "type": "integer",
+            "description": "`rootChildCount` response field for `uitoolkit/assert-layout`."
+          },
+          "rootWorldBound": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "x": {
+                    "type": [
+                      "number",
+                      "null"
+                    ],
+                    "description": "`x` response field for `uitoolkit/assert-layout`."
+                  },
+                  "y": {
+                    "type": [
+                      "number",
+                      "null"
+                    ],
+                    "description": "`y` response field for `uitoolkit/assert-layout`."
+                  },
+                  "width": {
+                    "type": [
+                      "number",
+                      "null"
+                    ],
+                    "description": "`width` response field for `uitoolkit/assert-layout`."
+                  },
+                  "height": {
+                    "type": [
+                      "number",
+                      "null"
+                    ],
+                    "description": "`height` response field for `uitoolkit/assert-layout`."
+                  },
+                  "xMin": {
+                    "type": [
+                      "number",
+                      "null"
+                    ],
+                    "description": "`xMin` response field for `uitoolkit/assert-layout`."
+                  },
+                  "yMin": {
+                    "type": [
+                      "number",
+                      "null"
+                    ],
+                    "description": "`yMin` response field for `uitoolkit/assert-layout`."
+                  },
+                  "xMax": {
+                    "type": [
+                      "number",
+                      "null"
+                    ],
+                    "description": "`xMax` response field for `uitoolkit/assert-layout`."
+                  },
+                  "yMax": {
+                    "type": [
+                      "number",
+                      "null"
+                    ],
+                    "description": "`yMax` response field for `uitoolkit/assert-layout`."
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "x",
+                  "y",
+                  "width",
+                  "height",
+                  "xMin",
+                  "yMin",
+                  "xMax",
+                  "yMax"
+                ]
+              }
+            ],
+            "description": "`rootWorldBound` response field for `uitoolkit/assert-layout`."
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "instanceId",
+          "name",
+          "enabled",
+          "gameObjectName",
+          "gameObjectPath",
+          "gameObjectActive",
+          "visualTreeAsset",
+          "visualTreeAssetPath",
+          "panelSettings",
+          "panelSettingsPath",
+          "hasRootVisualElement",
+          "rootChildCount",
+          "rootWorldBound"
+        ],
+        "description": "`document` response field for `uitoolkit/assert-layout`."
+      },
+      "count": {
+        "type": "integer",
+        "description": "`count` response field for `uitoolkit/assert-layout`."
+      },
+      "results": {
+        "type": "array",
+        "items": {
+          "$ref": "#/$defs/unityJsonValue"
+        },
+        "description": "`results` response field for `uitoolkit/assert-layout`."
+      }
+    },
+    "additionalProperties": false,
+    "required": [
+      "valid",
+      "document",
+      "count",
+      "results"
+    ],
+    "$defs": {
+      "unityJsonValue": {
+        "oneOf": [
+          {
+            "type": "null"
+          },
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "number"
+          },
+          {
+            "type": "string"
+          },
+          {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/unityJsonValue"
+            }
+          },
+          {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": {
+              "$ref": "#/$defs/unityJsonValue"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "errorCodes": [
+    "argument_conflict",
+    "editor_window_ambiguous",
+    "editor_window_not_found",
+    "editor_window_selector_mismatch",
+    "input_validation_limit",
+    "invalid_arguments",
+    "invalid_project_path",
+    "invalid_timeout",
+    "project_mismatch",
+    "request_id_conflict",
+    "requires_main_editor",
+    "response_too_large",
+    "tool_execution_failed"
+  ]
+}

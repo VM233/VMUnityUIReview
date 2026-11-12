@@ -1,0 +1,6 @@
+{
+  "name": "VMUnityUIReview.Runtime",
+  "rootNamespace": "VMUnityAutomation.Runtime",
+  "references": [],
+  "autoReferenced": true
+}

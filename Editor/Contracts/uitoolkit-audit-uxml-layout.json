@@ -1,0 +1,378 @@
+{
+  "route": "uitoolkit/audit-uxml-layout",
+  "description": "Audit authored UXML for required UI Builder previews, text ownership, layout, stylesheet and component contracts. Projects opting into rules.uxmlLocalizedText also reject unbound player text, including single-word titles, unless a reasoned invariant or runtime text owner is declared. Command syntax has no implicit exemption. Bound literal fallbacks and blank Labels remain errors independently of text ownership markers. Native enabled Button hover and pressed target styles must differ after the real theme/template cascade; missing, overridden, focus-only and incomplete feedback are errors. Runtime-generated controls and visual clarity require separate runtime evidence.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "paths": {
+        "type": "array",
+        "description": "Optional Assets-relative UXML files. Omit to audit every UXML file in the effective roots.",
+        "items": {
+          "type": "string"
+        }
+      },
+      "roots": {
+        "type": "array",
+        "description": "Assets-relative roots used to index UXML and USS files. Defaults to the project audit settings, then Assets.",
+        "items": {
+          "type": "string"
+        }
+      },
+      "runtimeSourceRoots": {
+        "type": "array",
+        "description": "Assets-relative roots scanned for runtime UI element-name references. Defaults to the project audit settings, then Assets.",
+        "items": {
+          "type": "string"
+        }
+      },
+      "excludePaths": {
+        "type": "array",
+        "description": "Assets-relative files or folders excluded from indexing.",
+        "items": {
+          "type": "string"
+        }
+      },
+      "useProjectSettings": {
+        "type": "boolean",
+        "description": "Use ProjectSettings/VMUnityAutomationUIToolkitAudit.json as the default scope. Defaults to true."
+      },
+      "pixelGridEnabled": {
+        "type": "boolean",
+        "description": "Override the project pixel-grid audit switch. The project/default value is used when omitted."
+      },
+      "pixelGridStep": {
+        "type": "number",
+        "description": "Override the positive pixel-grid step, such as 3 or 4."
+      },
+      "includeSuppressed": {
+        "type": "boolean",
+        "description": "Include findings with a reasoned uxml-layout-audit suppression comment. Defaults to false."
+      },
+      "logWarnings": {
+        "type": "boolean",
+        "description": "Also write active findings to the Unity Console. Defaults to false."
+      },
+      "runSelfTests": {
+        "type": "boolean",
+        "description": "Run deterministic in-memory rule tests and return their result. Defaults to false."
+      },
+      "maxIssues": {
+        "type": "number",
+        "description": "Maximum returned findings. Defaults to 200; capped at 5000.",
+        "x-vmAutomationDefaultSource": "VM Unity Automation user default result limit (when override is enabled)",
+        "x-vmAutomationExplicitValueWins": true
+      }
+    },
+    "additionalProperties": false,
+    "$defs": {
+      "unityJsonValue": {
+        "oneOf": [
+          {
+            "type": "null"
+          },
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "number"
+          },
+          {
+            "type": "string"
+          },
+          {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/unityJsonValue"
+            }
+          },
+          {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": {
+              "$ref": "#/$defs/unityJsonValue"
+            }
+          }
+        ]
+      }
+    },
+    "x-vmAutomationInputValidation": {
+      "maximumWorkUnits": 65536,
+      "maximumInputDepth": 64
+    }
+  },
+  "outputSchema": {
+    "type": "object",
+    "properties": {
+      "passed": {
+        "type": "boolean",
+        "description": "`passed` response field for `uitoolkit/audit-uxml-layout`."
+      },
+      "warningCount": {
+        "type": "integer",
+        "description": "`warningCount` response field for `uitoolkit/audit-uxml-layout`."
+      },
+      "suppressedCount": {
+        "type": "integer",
+        "description": "`suppressedCount` response field for `uitoolkit/audit-uxml-layout`."
+      },
+      "truncated": {
+        "type": "boolean",
+        "description": "`truncated` response field for `uitoolkit/audit-uxml-layout`."
+      },
+      "issues": {
+        "type": "array",
+        "items": {
+          "$ref": "#/$defs/unityJsonValue"
+        },
+        "description": "`issues` response field for `uitoolkit/audit-uxml-layout`."
+      },
+      "errors": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "`errors` response field for `uitoolkit/audit-uxml-layout`."
+      },
+      "scope": {
+        "type": "object",
+        "additionalProperties": {
+          "$ref": "#/$defs/unityJsonValue"
+        },
+        "description": "`scope` response field for `uitoolkit/audit-uxml-layout`."
+      },
+      "automaticAudit": {
+        "type": "object",
+        "additionalProperties": {
+          "$ref": "#/$defs/unityJsonValue"
+        },
+        "description": "`automaticAudit` response field for `uitoolkit/audit-uxml-layout`."
+      },
+      "selfTests": {
+        "type": "object",
+        "additionalProperties": {
+          "$ref": "#/$defs/unityJsonValue"
+        },
+        "description": "`selfTests` response field for `uitoolkit/audit-uxml-layout`."
+      },
+      "scannedUxmlFiles": {
+        "type": "integer",
+        "description": "`scannedUxmlFiles` response field for `uitoolkit/audit-uxml-layout`."
+      },
+      "indexedUxmlFiles": {
+        "type": "integer",
+        "description": "`indexedUxmlFiles` response field for `uitoolkit/audit-uxml-layout`."
+      },
+      "indexedStyleSheets": {
+        "type": "integer",
+        "description": "`indexedStyleSheets` response field for `uitoolkit/audit-uxml-layout`."
+      },
+      "indexedRuntimeSourceFiles": {
+        "type": "integer",
+        "description": "`indexedRuntimeSourceFiles` response field for `uitoolkit/audit-uxml-layout`."
+      },
+      "indexedSerializedAssetFiles": {
+        "type": "integer",
+        "description": "`indexedSerializedAssetFiles` response field for `uitoolkit/audit-uxml-layout`."
+      },
+      "errorCount": {
+        "type": "integer",
+        "description": "`errorCount` response field for `uitoolkit/audit-uxml-layout`."
+      },
+      "interactionStructure": {
+        "type": "object",
+        "properties": {
+          "coverage": {
+            "type": "string",
+            "enum": [
+              "NotDeclared",
+              "DeclaredAuthoringStructure"
+            ],
+            "description": "`coverage` response field for `uitoolkit/audit-uxml-layout`."
+          },
+          "scopes": {
+            "type": "integer",
+            "description": "`scopes` response field for `uitoolkit/audit-uxml-layout`."
+          },
+          "groups": {
+            "type": "integer",
+            "description": "`groups` response field for `uitoolkit/audit-uxml-layout`."
+          },
+          "navigationGroups": {
+            "type": "integer",
+            "description": "`navigationGroups` response field for `uitoolkit/audit-uxml-layout`."
+          },
+          "publicationNavigations": {
+            "type": "integer",
+            "description": "`publicationNavigations` response field for `uitoolkit/audit-uxml-layout`."
+          },
+          "publicationDestinations": {
+            "type": "integer",
+            "description": "`publicationDestinations` response field for `uitoolkit/audit-uxml-layout`."
+          },
+          "fields": {
+            "type": "integer",
+            "description": "`fields` response field for `uitoolkit/audit-uxml-layout`."
+          },
+          "buttons": {
+            "type": "integer",
+            "description": "`buttons` response field for `uitoolkit/audit-uxml-layout`."
+          },
+          "sliders": {
+            "type": "integer",
+            "description": "`sliders` response field for `uitoolkit/audit-uxml-layout`."
+          },
+          "unclassifiedGroups": {
+            "type": "integer",
+            "description": "`unclassifiedGroups` response field for `uitoolkit/audit-uxml-layout`."
+          },
+          "unclassifiedFields": {
+            "type": "integer",
+            "description": "`unclassifiedFields` response field for `uitoolkit/audit-uxml-layout`."
+          },
+          "runtimeEffectsAccepted": {
+            "type": "boolean",
+            "description": "`runtimeEffectsAccepted` response field for `uitoolkit/audit-uxml-layout`."
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "coverage",
+          "scopes",
+          "groups",
+          "navigationGroups",
+          "publicationNavigations",
+          "publicationDestinations",
+          "fields",
+          "buttons",
+          "sliders",
+          "unclassifiedGroups",
+          "unclassifiedFields",
+          "runtimeEffectsAccepted"
+        ],
+        "description": "`interactionStructure` response field for `uitoolkit/audit-uxml-layout`."
+      },
+      "suppressionSyntax": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "`suppressionSyntax` response field for `uitoolkit/audit-uxml-layout`."
+      },
+      "buttonFeedback": {
+        "properties": {
+          "complete": {
+            "type": "boolean"
+          },
+          "scope": {
+            "type": "string"
+          },
+          "hosts": {
+            "type": "integer"
+          },
+          "buttons": {
+            "type": "integer"
+          },
+          "disabledButtons": {
+            "type": "integer"
+          },
+          "stateUpdates": {
+            "type": "integer"
+          },
+          "visualSamples": {
+            "type": "integer"
+          },
+          "themePath": {
+            "type": "string"
+          },
+          "elapsedMilliseconds": {
+            "type": "number"
+          },
+          "manualVisualReviewRequired": {
+            "type": "boolean"
+          },
+          "runtimeGeneratedControlsEvaluated": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "complete",
+          "scope",
+          "hosts",
+          "buttons",
+          "disabledButtons",
+          "stateUpdates",
+          "visualSamples",
+          "themePath",
+          "elapsedMilliseconds",
+          "manualVisualReviewRequired",
+          "runtimeGeneratedControlsEvaluated"
+        ],
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "required": [
+      "passed",
+      "scannedUxmlFiles",
+      "indexedUxmlFiles",
+      "indexedStyleSheets",
+      "indexedRuntimeSourceFiles",
+      "indexedSerializedAssetFiles",
+      "errorCount",
+      "warningCount",
+      "suppressedCount",
+      "truncated",
+      "issues",
+      "errors",
+      "interactionStructure",
+      "buttonFeedback"
+    ],
+    "$defs": {
+      "unityJsonValue": {
+        "oneOf": [
+          {
+            "type": "null"
+          },
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "number"
+          },
+          {
+            "type": "string"
+          },
+          {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/unityJsonValue"
+            }
+          },
+          {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": {
+              "$ref": "#/$defs/unityJsonValue"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "errorCodes": [
+    "argument_conflict",
+    "editor_window_ambiguous",
+    "editor_window_not_found",
+    "editor_window_selector_mismatch",
+    "input_validation_limit",
+    "invalid_arguments",
+    "invalid_project_path",
+    "invalid_timeout",
+    "project_mismatch",
+    "request_id_conflict",
+    "requires_main_editor",
+    "response_too_large",
+    "tool_execution_failed"
+  ]
+}

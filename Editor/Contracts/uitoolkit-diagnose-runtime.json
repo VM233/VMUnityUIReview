@@ -1,0 +1,396 @@
+{
+  "route": "uitoolkit/diagnose-runtime",
+  "description": "Diagnose runtime UI Toolkit elements with VisualElementPath lookup, style, parent/children, background, and pixel-grid data.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "documentInstanceId": {
+        "type": "number",
+        "description": "UIDocument instance id from uitoolkit/runtime-documents."
+      },
+      "gameObjectPath": {
+        "type": "string",
+        "description": "Scene GameObject path that owns the UIDocument."
+      },
+      "gameObjectName": {
+        "type": "string",
+        "description": "Scene GameObject name that owns the UIDocument."
+      },
+      "documentName": {
+        "type": "string",
+        "description": "UIDocument component name."
+      },
+      "includeInactive": {
+        "type": "boolean",
+        "description": "Include inactive scene UIDocuments. Defaults to true."
+      },
+      "queries": {
+        "type": "array",
+        "description": "Optional list of element queries. Each accepts path, visualElementPath, name, className, typeName, text, and pixelScale.",
+        "items": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "description": "Element tree path."
+            },
+            "elementPath": {
+              "type": "string",
+              "description": "Legacy element tree path alias."
+            },
+            "visualElementPath": {
+              "type": "string",
+              "description": "Slash-separated VisualElementPath names."
+            },
+            "visualElementNames": {
+              "type": "array",
+              "description": "VisualElementPath names.",
+              "items": {
+                "type": "string"
+              }
+            },
+            "name": {
+              "type": "string",
+              "description": "VisualElement.name exact match."
+            },
+            "className": {
+              "type": "string",
+              "description": "USS class exact match."
+            },
+            "typeName": {
+              "type": "string",
+              "description": "VisualElement type-name match."
+            },
+            "text": {
+              "type": "string",
+              "description": "TextElement text match."
+            },
+            "pixelScale": {
+              "type": "number",
+              "description": "Pixel grid scale for diagnostics."
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "path": {
+        "type": "string",
+        "description": "Element tree path if queries is omitted."
+      },
+      "visualElementPath": {
+        "type": "string",
+        "description": "Slash-separated VisualElementPath names if queries is omitted."
+      },
+      "visualElementNames": {
+        "type": "array",
+        "description": "VisualElementPath names array if queries is omitted.",
+        "items": {
+          "type": "string"
+        }
+      },
+      "name": {
+        "type": "string",
+        "description": "VisualElement.name exact match if queries is omitted."
+      },
+      "pixelScale": {
+        "type": "number",
+        "description": "Pixel grid scale used for pixel diagnostics. Defaults to 1."
+      }
+    },
+    "additionalProperties": false,
+    "$defs": {
+      "unityJsonValue": {
+        "oneOf": [
+          {
+            "type": "null"
+          },
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "number"
+          },
+          {
+            "type": "string"
+          },
+          {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/unityJsonValue"
+            }
+          },
+          {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": {
+              "$ref": "#/$defs/unityJsonValue"
+            }
+          }
+        ]
+      }
+    },
+    "x-vmAutomationInputValidation": {
+      "maximumWorkUnits": 65536,
+      "maximumInputDepth": 64
+    }
+  },
+  "outputSchema": {
+    "type": "object",
+    "properties": {
+      "document": {
+        "type": "object",
+        "properties": {
+          "instanceId": {
+            "type": "string",
+            "description": "`instanceId` response field for `uitoolkit/diagnose-runtime`."
+          },
+          "name": {
+            "type": "string",
+            "description": "`name` response field for `uitoolkit/diagnose-runtime`."
+          },
+          "enabled": {
+            "type": "boolean",
+            "description": "`enabled` response field for `uitoolkit/diagnose-runtime`."
+          },
+          "gameObjectName": {
+            "type": "string",
+            "description": "`gameObjectName` response field for `uitoolkit/diagnose-runtime`."
+          },
+          "gameObjectPath": {
+            "type": "string",
+            "description": "`gameObjectPath` response field for `uitoolkit/diagnose-runtime`."
+          },
+          "gameObjectActive": {
+            "type": "boolean",
+            "description": "`gameObjectActive` response field for `uitoolkit/diagnose-runtime`."
+          },
+          "visualTreeAsset": {
+            "type": "string",
+            "description": "`visualTreeAsset` response field for `uitoolkit/diagnose-runtime`."
+          },
+          "visualTreeAssetPath": {
+            "type": "string",
+            "description": "`visualTreeAssetPath` response field for `uitoolkit/diagnose-runtime`."
+          },
+          "panelSettings": {
+            "type": "string",
+            "description": "`panelSettings` response field for `uitoolkit/diagnose-runtime`."
+          },
+          "panelSettingsPath": {
+            "type": "string",
+            "description": "`panelSettingsPath` response field for `uitoolkit/diagnose-runtime`."
+          },
+          "hasRootVisualElement": {
+            "type": "boolean",
+            "description": "`hasRootVisualElement` response field for `uitoolkit/diagnose-runtime`."
+          },
+          "rootChildCount": {
+            "type": "integer",
+            "description": "`rootChildCount` response field for `uitoolkit/diagnose-runtime`."
+          },
+          "rootWorldBound": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "x": {
+                    "type": [
+                      "number",
+                      "null"
+                    ],
+                    "description": "`x` response field for `uitoolkit/diagnose-runtime`."
+                  },
+                  "y": {
+                    "type": [
+                      "number",
+                      "null"
+                    ],
+                    "description": "`y` response field for `uitoolkit/diagnose-runtime`."
+                  },
+                  "width": {
+                    "type": [
+                      "number",
+                      "null"
+                    ],
+                    "description": "`width` response field for `uitoolkit/diagnose-runtime`."
+                  },
+                  "height": {
+                    "type": [
+                      "number",
+                      "null"
+                    ],
+                    "description": "`height` response field for `uitoolkit/diagnose-runtime`."
+                  },
+                  "xMin": {
+                    "type": [
+                      "number",
+                      "null"
+                    ],
+                    "description": "`xMin` response field for `uitoolkit/diagnose-runtime`."
+                  },
+                  "yMin": {
+                    "type": [
+                      "number",
+                      "null"
+                    ],
+                    "description": "`yMin` response field for `uitoolkit/diagnose-runtime`."
+                  },
+                  "xMax": {
+                    "type": [
+                      "number",
+                      "null"
+                    ],
+                    "description": "`xMax` response field for `uitoolkit/diagnose-runtime`."
+                  },
+                  "yMax": {
+                    "type": [
+                      "number",
+                      "null"
+                    ],
+                    "description": "`yMax` response field for `uitoolkit/diagnose-runtime`."
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "x",
+                  "y",
+                  "width",
+                  "height",
+                  "xMin",
+                  "yMin",
+                  "xMax",
+                  "yMax"
+                ]
+              }
+            ],
+            "description": "`rootWorldBound` response field for `uitoolkit/diagnose-runtime`."
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "instanceId",
+          "name",
+          "enabled",
+          "gameObjectName",
+          "gameObjectPath",
+          "gameObjectActive",
+          "visualTreeAsset",
+          "visualTreeAssetPath",
+          "panelSettings",
+          "panelSettingsPath",
+          "hasRootVisualElement",
+          "rootChildCount",
+          "rootWorldBound"
+        ],
+        "description": "`document` response field for `uitoolkit/diagnose-runtime`."
+      },
+      "valid": {
+        "type": "boolean",
+        "description": "`valid` response field for `uitoolkit/diagnose-runtime`."
+      },
+      "count": {
+        "type": "integer",
+        "description": "`count` response field for `uitoolkit/diagnose-runtime`."
+      },
+      "checks": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "index": {
+              "type": "integer",
+              "description": "`index` response field for `uitoolkit/diagnose-runtime`."
+            },
+            "query": {
+              "type": "string",
+              "description": "`query` response field for `uitoolkit/diagnose-runtime`."
+            },
+            "found": {
+              "type": [
+                "boolean",
+                "null"
+              ],
+              "description": "`found` response field for `uitoolkit/diagnose-runtime`."
+            },
+            "path": {
+              "type": "string",
+              "description": "`path` response field for `uitoolkit/diagnose-runtime`."
+            },
+            "error": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "`error` response field for `uitoolkit/diagnose-runtime`."
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "index",
+            "query",
+            "found",
+            "path",
+            "error"
+          ]
+        },
+        "description": "`checks` response field for `uitoolkit/diagnose-runtime`."
+      }
+    },
+    "additionalProperties": false,
+    "required": [
+      "document",
+      "valid",
+      "count",
+      "checks"
+    ],
+    "$defs": {
+      "unityJsonValue": {
+        "oneOf": [
+          {
+            "type": "null"
+          },
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "number"
+          },
+          {
+            "type": "string"
+          },
+          {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/unityJsonValue"
+            }
+          },
+          {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": {
+              "$ref": "#/$defs/unityJsonValue"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "errorCodes": [
+    "argument_conflict",
+    "editor_window_ambiguous",
+    "editor_window_not_found",
+    "editor_window_selector_mismatch",
+    "input_validation_limit",
+    "invalid_arguments",
+    "invalid_project_path",
+    "invalid_timeout",
+    "project_mismatch",
+    "request_id_conflict",
+    "requires_main_editor",
+    "response_too_large",
+    "tool_execution_failed"
+  ]
+}

@@ -1,0 +1,1811 @@
+{
+  "route": "uitoolkit/builder-preview",
+  "description": "Load the imported UXML through one exact native UI Builder on every preview, including the same asset after reimport; report the actual native load result and before/after document identity, check canvas fit and text overlap, optionally publish and verify an imported runtime PanelSettings theme and Sprite units or a custom theme without persisting overrides, reveal one unique named sample through actual ancestor scroll views, wait for settled visible layout, and capture that same window. Every terminal path restores the requested document's complete native canvas settings and exact settings file, including Fit zoom/pan, before window retirement. closeCreatedWindow retires only this request's clean created window and reports its exact outcome; preexisting windows and unsaved changes are preserved. Ambiguous windows, any unsaved document and rejected adoption fail without an alternate target.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "uxmlPath": {
+        "type": "string",
+        "description": "UXML asset path to adopt in one bound native UI Builder. Actual adoption is verified before layout or pixels."
+      },
+      "themeStyleSheetPath": {
+        "type": "string",
+        "description": "Optional imported ThemeStyleSheet used temporarily by the native Builder toolbar. Verify its actual canvas publication and restore the previous theme and asset flag on every terminal path. Does not save a user or project theme override; omission preserves the existing theme."
+      },
+      "panelSettingsPath": {
+        "type": "string",
+        "description": "Optional imported runtime PanelSettings whose theme and referenceSpritePixelsPerUnit are temporarily applied to the native Builder canvas/panel and restored on every terminal path. Exclusive with themeStyleSheetPath. Does not change source assets, Game View, DPI, user or project preferences."
+      },
+      "revealName": {
+        "type": "string",
+        "description": "Optional unique authored element name in the adopted document. Reveal it through each actual ancestor ScrollView once, inner first, and require settled bounds wholly inside every viewport before capture. Missing, ambiguous, hidden or oversized targets reject; no element is substituted."
+      },
+      "instanceId": {
+        "type": "string",
+        "description": "Optional exact existing native UI Builder identity from uitoolkit/windows. A missing identity reuses the unique native Builder, or creates one only when none exists. Ambiguous windows and unsaved document changes fail without selecting another window, saving or discarding."
+      },
+      "waitFrames": {
+        "type": "number",
+        "description": "Editor frames to wait before capturing. Defaults to 8."
+      },
+      "stableFrames": {
+        "type": "number",
+        "description": "Consecutive ready UI Builder frames with settled document and viewport bounds required. Native Fit viewport must finish before capture. Defaults to 2."
+      },
+      "timeoutMs": {
+        "type": "number",
+        "description": "Maximum time to wait for the requested document and canvas. Defaults to 10000."
+      },
+      "capture": {
+        "type": "boolean",
+        "description": "Capture the same bound UI Builder only after verified document adoption and settled native layout using captureMode. Failure returns the screenshot owner's error and no visual conclusion. Defaults to true."
+      },
+      "closeCreatedWindow": {
+        "type": "boolean",
+        "description": "Close only the clean native UI Builder created by this request after success, failure, timeout, reload or shutdown; preserve preexisting windows and all unsaved changes. Publish windowRetirement and fail if owned retirement cannot complete. Defaults to false."
+      },
+      "captureMode": {
+        "type": "string",
+        "description": "Select the screenshot owner's capture surface before one capture. Defaults to view, which verifies and reads the selected native Editor view's render surface without requiring desktop focus. screen requires the exact native target to remain foreground; print-window captures the native window; auto selects by content. No retry or alternate surface is used after failure.",
+        "enum": [
+          "auto",
+          "print-window",
+          "screen",
+          "view"
+        ]
+      },
+      "autoMatchGameView": {
+        "type": "boolean",
+        "description": "Enable UI Builder Match Game View when visible document content overflows the configured canvas. Defaults to false with explicit canvas dimensions, otherwise true. Explicit dimensions require this option to be false."
+      },
+      "canvasWidth": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 8192,
+        "description": "Native UI Builder canvas width. Supply together with canvasHeight; clears existing Match Game View through the native toggle without opening a Game View."
+      },
+      "canvasHeight": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 8192,
+        "description": "Native UI Builder canvas height. Supply together with canvasWidth; clears existing Match Game View through the native toggle without opening a Game View."
+      },
+      "autoFrameViewport": {
+        "type": "boolean",
+        "description": "Activate the native Fit viewport control and verify that the full document fits the visible viewport. Defaults to true."
+      },
+      "requireContentFit": {
+        "type": "boolean",
+        "description": "Fail the preview result when visible document content remains clipped by the canvas. Defaults to true."
+      },
+      "screenshotPath": {
+        "type": "string",
+        "description": "PNG path for the UI Builder screenshot. Defaults to the VM Unity Automation project screenshot directory.",
+        "x-vmAutomationDefaultSource": "ProjectSettings/VMUnityAutomationSettings.json toolDefaults",
+        "x-vmAutomationExplicitValueWins": true
+      },
+      "maxDimension": {
+        "type": "number",
+        "description": "Maximum screenshot dimension. Defaults to 8192."
+      },
+      "zoom": {
+        "type": "number",
+        "description": "Requested zoom, recorded for diagnostics. UI Builder has no stable public zoom API."
+      }
+    },
+    "additionalProperties": false,
+    "required": [
+      "uxmlPath"
+    ],
+    "$defs": {
+      "unityJsonValue": {
+        "oneOf": [
+          {
+            "type": "null"
+          },
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "number"
+          },
+          {
+            "type": "string"
+          },
+          {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/unityJsonValue"
+            }
+          },
+          {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": {
+              "$ref": "#/$defs/unityJsonValue"
+            }
+          }
+        ]
+      }
+    },
+    "x-vmAutomationInputValidation": {
+      "maximumWorkUnits": 65536,
+      "maximumInputDepth": 64
+    }
+  },
+  "outputSchema": {
+    "type": "object",
+    "properties": {
+      "uxmlPath": {
+        "type": "string",
+        "description": "`uxmlPath` response field for `uitoolkit/builder-preview`."
+      },
+      "opened": {
+        "type": "boolean",
+        "description": "`opened` response field for `uitoolkit/builder-preview`."
+      },
+      "documentAdoption": {
+        "type": "object",
+        "properties": {
+          "windowInstanceId": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "description": "`windowInstanceId` response field for `uitoolkit/builder-preview`."
+          },
+          "createdWindow": {
+            "type": "boolean",
+            "description": "`createdWindow` response field for `uitoolkit/builder-preview`."
+          },
+          "requestedAssetPath": {
+            "type": "string",
+            "description": "`requestedAssetPath` response field for `uitoolkit/builder-preview`."
+          },
+          "requestedAssetGuid": {
+            "type": "string",
+            "description": "`requestedAssetGuid` response field for `uitoolkit/builder-preview`."
+          },
+          "requestedAssetInstanceId": {
+            "type": "string",
+            "description": "`requestedAssetInstanceId` response field for `uitoolkit/builder-preview`."
+          },
+          "loadAttempted": {
+            "type": "boolean",
+            "description": "`loadAttempted` response field for `uitoolkit/builder-preview`."
+          },
+          "nativeLoadReturned": {
+            "type": [
+              "boolean",
+              "null"
+            ],
+            "description": "Actual native boolean result from Unity 2022.1 onward. Null when loadAttempted is false or when Unity 2021.3 completed its void LoadDocument call; adoption always requires the same native document, requested asset and path."
+          },
+          "adopted": {
+            "type": "boolean",
+            "description": "`adopted` response field for `uitoolkit/builder-preview`."
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "not-attempted",
+              "adopted",
+              "rejected"
+            ],
+            "description": "`state` response field for `uitoolkit/builder-preview`."
+          },
+          "before": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "documentInstanceId": {
+                    "type": "string",
+                    "description": "`documentInstanceId` response field for `uitoolkit/builder-preview`."
+                  },
+                  "assetPath": {
+                    "type": "string",
+                    "description": "`assetPath` response field for `uitoolkit/builder-preview`."
+                  },
+                  "assetGuid": {
+                    "type": "string",
+                    "description": "`assetGuid` response field for `uitoolkit/builder-preview`."
+                  },
+                  "assetInstanceId": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "type": "string"
+                      }
+                    ],
+                    "description": "`assetInstanceId` response field for `uitoolkit/builder-preview`."
+                  },
+                  "hasUnsavedChanges": {
+                    "type": "boolean",
+                    "description": "`hasUnsavedChanges` response field for `uitoolkit/builder-preview`."
+                  },
+                  "windowHasUnsavedChanges": {
+                    "type": "boolean",
+                    "description": "`windowHasUnsavedChanges` response field for `uitoolkit/builder-preview`."
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "documentInstanceId",
+                  "assetPath",
+                  "assetGuid",
+                  "assetInstanceId",
+                  "hasUnsavedChanges",
+                  "windowHasUnsavedChanges"
+                ]
+              }
+            ],
+            "description": "`before` response field for `uitoolkit/builder-preview`."
+          },
+          "after": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "documentInstanceId": {
+                    "type": "string",
+                    "description": "`documentInstanceId` response field for `uitoolkit/builder-preview`."
+                  },
+                  "assetPath": {
+                    "type": "string",
+                    "description": "`assetPath` response field for `uitoolkit/builder-preview`."
+                  },
+                  "assetGuid": {
+                    "type": "string",
+                    "description": "`assetGuid` response field for `uitoolkit/builder-preview`."
+                  },
+                  "assetInstanceId": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "type": "string"
+                      }
+                    ],
+                    "description": "`assetInstanceId` response field for `uitoolkit/builder-preview`."
+                  },
+                  "hasUnsavedChanges": {
+                    "type": "boolean",
+                    "description": "`hasUnsavedChanges` response field for `uitoolkit/builder-preview`."
+                  },
+                  "windowHasUnsavedChanges": {
+                    "type": "boolean",
+                    "description": "`windowHasUnsavedChanges` response field for `uitoolkit/builder-preview`."
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "documentInstanceId",
+                  "assetPath",
+                  "assetGuid",
+                  "assetInstanceId",
+                  "hasUnsavedChanges",
+                  "windowHasUnsavedChanges"
+                ]
+              }
+            ],
+            "description": "`after` response field for `uitoolkit/builder-preview`."
+          },
+          "failurePhase": {
+            "type": "string",
+            "description": "`failurePhase` response field for `uitoolkit/builder-preview`."
+          },
+          "failureType": {
+            "type": "string",
+            "description": "`failureType` response field for `uitoolkit/builder-preview`."
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "windowInstanceId",
+          "createdWindow",
+          "requestedAssetPath",
+          "requestedAssetGuid",
+          "requestedAssetInstanceId",
+          "loadAttempted",
+          "nativeLoadReturned",
+          "adopted",
+          "state",
+          "before",
+          "after",
+          "failurePhase",
+          "failureType"
+        ],
+        "description": "`documentAdoption` response field for `uitoolkit/builder-preview`."
+      },
+      "viewportFramed": {
+        "type": "boolean",
+        "description": "`viewportFramed` response field for `uitoolkit/builder-preview`."
+      },
+      "previewTarget": {
+        "oneOf": [
+          {
+            "type": "null"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "`name` response field for `uitoolkit/builder-preview`."
+              },
+              "scrollViews": {
+                "type": "integer",
+                "description": "`scrollViews` response field for `uitoolkit/builder-preview`."
+              },
+              "completedScrolls": {
+                "type": "integer",
+                "description": "`completedScrolls` response field for `uitoolkit/builder-preview`."
+              },
+              "worldBound": {
+                "type": "object",
+                "properties": {
+                  "x": {
+                    "type": [
+                      "number",
+                      "null"
+                    ],
+                    "description": "`x` response field for `uitoolkit/builder-preview`."
+                  },
+                  "y": {
+                    "type": [
+                      "number",
+                      "null"
+                    ],
+                    "description": "`y` response field for `uitoolkit/builder-preview`."
+                  },
+                  "width": {
+                    "type": [
+                      "number",
+                      "null"
+                    ],
+                    "description": "`width` response field for `uitoolkit/builder-preview`."
+                  },
+                  "height": {
+                    "type": [
+                      "number",
+                      "null"
+                    ],
+                    "description": "`height` response field for `uitoolkit/builder-preview`."
+                  },
+                  "xMin": {
+                    "type": [
+                      "number",
+                      "null"
+                    ],
+                    "description": "`xMin` response field for `uitoolkit/builder-preview`."
+                  },
+                  "yMin": {
+                    "type": [
+                      "number",
+                      "null"
+                    ],
+                    "description": "`yMin` response field for `uitoolkit/builder-preview`."
+                  },
+                  "xMax": {
+                    "type": [
+                      "number",
+                      "null"
+                    ],
+                    "description": "`xMax` response field for `uitoolkit/builder-preview`."
+                  },
+                  "yMax": {
+                    "type": [
+                      "number",
+                      "null"
+                    ],
+                    "description": "`yMax` response field for `uitoolkit/builder-preview`."
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "x",
+                  "y",
+                  "width",
+                  "height",
+                  "xMin",
+                  "yMin",
+                  "xMax",
+                  "yMax"
+                ],
+                "description": "`worldBound` response field for `uitoolkit/builder-preview`."
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "name",
+              "scrollViews",
+              "completedScrolls",
+              "worldBound"
+            ]
+          }
+        ],
+        "description": "`previewTarget` response field for `uitoolkit/builder-preview`."
+      },
+      "themePreview": {
+        "oneOf": [
+          {
+            "type": "null"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "requestedAssetPath": {
+                "type": "string",
+                "description": "`requestedAssetPath` response field for `uitoolkit/builder-preview`."
+              },
+              "requestedPanelSettingsPath": {
+                "type": "string",
+                "description": "`requestedPanelSettingsPath` response field for `uitoolkit/builder-preview`."
+              },
+              "requestedReferenceSpritePixelsPerUnit": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "description": "`requestedReferenceSpritePixelsPerUnit` response field for `uitoolkit/builder-preview`."
+              },
+              "previousReferenceSpritePixelsPerUnit": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "description": "`previousReferenceSpritePixelsPerUnit` response field for `uitoolkit/builder-preview`."
+              },
+              "observedReferenceSpritePixelsPerUnit": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "description": "`observedReferenceSpritePixelsPerUnit` response field for `uitoolkit/builder-preview`."
+              },
+              "referenceSpritePixelsPerUnitRestored": {
+                "type": "boolean",
+                "description": "`referenceSpritePixelsPerUnitRestored` response field for `uitoolkit/builder-preview`."
+              },
+              "previousAssetPath": {
+                "type": "string",
+                "description": "`previousAssetPath` response field for `uitoolkit/builder-preview`."
+              },
+              "previousMode": {
+                "type": "string",
+                "description": "`previousMode` response field for `uitoolkit/builder-preview`."
+              },
+              "observedMode": {
+                "type": "string",
+                "description": "`observedMode` response field for `uitoolkit/builder-preview`."
+              },
+              "observedAssetPath": {
+                "type": "string",
+                "description": "`observedAssetPath` response field for `uitoolkit/builder-preview`."
+              },
+              "rootContainsTheme": {
+                "type": "boolean",
+                "description": "`rootContainsTheme` response field for `uitoolkit/builder-preview`."
+              },
+              "applied": {
+                "type": "boolean",
+                "description": "`applied` response field for `uitoolkit/builder-preview`."
+              },
+              "restored": {
+                "type": "boolean",
+                "description": "`restored` response field for `uitoolkit/builder-preview`."
+              },
+              "restoreError": {
+                "type": "string",
+                "description": "`restoreError` response field for `uitoolkit/builder-preview`."
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "requestedAssetPath",
+              "requestedPanelSettingsPath",
+              "requestedReferenceSpritePixelsPerUnit",
+              "previousReferenceSpritePixelsPerUnit",
+              "observedReferenceSpritePixelsPerUnit",
+              "referenceSpritePixelsPerUnitRestored",
+              "previousAssetPath",
+              "previousMode",
+              "observedMode",
+              "observedAssetPath",
+              "rootContainsTheme",
+              "applied",
+              "restored",
+              "restoreError"
+            ]
+          }
+        ],
+        "description": "`themePreview` response field for `uitoolkit/builder-preview`."
+      },
+      "waitFrames": {
+        "type": "integer",
+        "description": "`waitFrames` response field for `uitoolkit/builder-preview`."
+      },
+      "stableFrames": {
+        "type": "integer",
+        "description": "`stableFrames` response field for `uitoolkit/builder-preview`."
+      },
+      "readyFrameCount": {
+        "type": "integer",
+        "description": "`readyFrameCount` response field for `uitoolkit/builder-preview`."
+      },
+      "elapsedMs": {
+        "type": "number",
+        "description": "`elapsedMs` response field for `uitoolkit/builder-preview`."
+      },
+      "timedOut": {
+        "type": "boolean",
+        "description": "`timedOut` response field for `uitoolkit/builder-preview`."
+      },
+      "windowFound": {
+        "type": [
+          "boolean",
+          "null"
+        ],
+        "description": "`windowFound` response field for `uitoolkit/builder-preview`."
+      },
+      "window": {
+        "oneOf": [
+          {
+            "type": "null"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "instanceId": {
+                "type": "string",
+                "description": "`instanceId` response field for `uitoolkit/builder-preview`."
+              },
+              "title": {
+                "type": "string",
+                "description": "`title` response field for `uitoolkit/builder-preview`."
+              },
+              "type": {
+                "type": "string",
+                "description": "`type` response field for `uitoolkit/builder-preview`."
+              },
+              "fullType": {
+                "type": "string",
+                "description": "`fullType` response field for `uitoolkit/builder-preview`."
+              },
+              "hasRootVisualElement": {
+                "type": "boolean",
+                "description": "`hasRootVisualElement` response field for `uitoolkit/builder-preview`."
+              },
+              "rootChildCount": {
+                "type": "integer",
+                "description": "`rootChildCount` response field for `uitoolkit/builder-preview`."
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "instanceId",
+              "title",
+              "type",
+              "fullType",
+              "hasRootVisualElement",
+              "rootChildCount"
+            ]
+          }
+        ],
+        "description": "`window` response field for `uitoolkit/builder-preview`."
+      },
+      "preview": {
+        "type": "object",
+        "properties": {
+          "ready": {
+            "type": "boolean",
+            "description": "`ready` response field for `uitoolkit/builder-preview`."
+          },
+          "documentPathMatches": {
+            "type": "boolean",
+            "description": "`documentPathMatches` response field for `uitoolkit/builder-preview`."
+          },
+          "activeUxmlPath": {
+            "type": "string",
+            "description": "`activeUxmlPath` response field for `uitoolkit/builder-preview`."
+          },
+          "documentRootChildCount": {
+            "type": "integer",
+            "description": "`documentRootChildCount` response field for `uitoolkit/builder-preview`."
+          },
+          "canvasChildCount": {
+            "type": "integer",
+            "description": "`canvasChildCount` response field for `uitoolkit/builder-preview`."
+          },
+          "documentRootSize": {
+            "type": "object",
+            "properties": {
+              "width": {
+                "type": "number",
+                "description": "`width` response field for `uitoolkit/builder-preview`."
+              },
+              "height": {
+                "type": "number",
+                "description": "`height` response field for `uitoolkit/builder-preview`."
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "width",
+              "height"
+            ],
+            "description": "`documentRootSize` response field for `uitoolkit/builder-preview`."
+          },
+          "canvasSize": {
+            "type": "object",
+            "properties": {
+              "width": {
+                "type": "number",
+                "description": "`width` response field for `uitoolkit/builder-preview`."
+              },
+              "height": {
+                "type": "number",
+                "description": "`height` response field for `uitoolkit/builder-preview`."
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "width",
+              "height"
+            ],
+            "description": "`canvasSize` response field for `uitoolkit/builder-preview`."
+          },
+          "configuredCanvasSize": {
+            "type": "object",
+            "properties": {
+              "width": {
+                "type": "number",
+                "description": "`width` response field for `uitoolkit/builder-preview`."
+              },
+              "height": {
+                "type": "number",
+                "description": "`height` response field for `uitoolkit/builder-preview`."
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "width",
+              "height"
+            ],
+            "description": "`configuredCanvasSize` response field for `uitoolkit/builder-preview`."
+          },
+          "requiredCanvasSize": {
+            "type": "object",
+            "properties": {
+              "width": {
+                "type": "number",
+                "description": "`width` response field for `uitoolkit/builder-preview`."
+              },
+              "height": {
+                "type": "number",
+                "description": "`height` response field for `uitoolkit/builder-preview`."
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "width",
+              "height"
+            ],
+            "description": "`requiredCanvasSize` response field for `uitoolkit/builder-preview`."
+          },
+          "matchGameView": {
+            "type": [
+              "boolean",
+              "null"
+            ],
+            "description": "`matchGameView` response field for `uitoolkit/builder-preview`."
+          },
+          "contentElementCount": {
+            "type": "integer",
+            "description": "`contentElementCount` response field for `uitoolkit/builder-preview`."
+          },
+          "previewTextOverlapCount": {
+            "type": "integer",
+            "description": "`previewTextOverlapCount` response field for `uitoolkit/builder-preview`."
+          },
+          "previewTextOverlapsTruncated": {
+            "type": "boolean",
+            "description": "`previewTextOverlapsTruncated` response field for `uitoolkit/builder-preview`."
+          },
+          "previewTextOverlaps": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "containerPath": {
+                  "type": "string",
+                  "description": "`containerPath` response field for `uitoolkit/builder-preview`."
+                },
+                "previewPath": {
+                  "type": "string",
+                  "description": "`previewPath` response field for `uitoolkit/builder-preview`."
+                },
+                "followingPreviewPath": {
+                  "type": "string",
+                  "description": "`followingPreviewPath` response field for `uitoolkit/builder-preview`."
+                },
+                "textPath": {
+                  "type": "string",
+                  "description": "`textPath` response field for `uitoolkit/builder-preview`."
+                },
+                "overlap": {
+                  "type": "number",
+                  "description": "`overlap` response field for `uitoolkit/builder-preview`."
+                }
+              },
+              "additionalProperties": false,
+              "required": [
+                "containerPath",
+                "previewPath",
+                "followingPreviewPath",
+                "textPath",
+                "overlap"
+              ]
+            },
+            "description": "`previewTextOverlaps` response field for `uitoolkit/builder-preview`."
+          },
+          "contentFitsCanvas": {
+            "type": "boolean",
+            "description": "`contentFitsCanvas` response field for `uitoolkit/builder-preview`."
+          },
+          "canvasTooSmall": {
+            "type": "boolean",
+            "description": "`canvasTooSmall` response field for `uitoolkit/builder-preview`."
+          },
+          "contentOverflow": {
+            "type": "object",
+            "properties": {
+              "left": {
+                "type": "number",
+                "description": "`left` response field for `uitoolkit/builder-preview`."
+              },
+              "top": {
+                "type": "number",
+                "description": "`top` response field for `uitoolkit/builder-preview`."
+              },
+              "right": {
+                "type": "number",
+                "description": "`right` response field for `uitoolkit/builder-preview`."
+              },
+              "bottom": {
+                "type": "number",
+                "description": "`bottom` response field for `uitoolkit/builder-preview`."
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "left",
+              "top",
+              "right",
+              "bottom"
+            ],
+            "description": "`contentOverflow` response field for `uitoolkit/builder-preview`."
+          },
+          "documentRootWorldBound": {
+            "type": "object",
+            "properties": {
+              "x": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "description": "`x` response field for `uitoolkit/builder-preview`."
+              },
+              "y": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "description": "`y` response field for `uitoolkit/builder-preview`."
+              },
+              "width": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "description": "`width` response field for `uitoolkit/builder-preview`."
+              },
+              "height": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "description": "`height` response field for `uitoolkit/builder-preview`."
+              },
+              "xMin": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "description": "`xMin` response field for `uitoolkit/builder-preview`."
+              },
+              "yMin": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "description": "`yMin` response field for `uitoolkit/builder-preview`."
+              },
+              "xMax": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "description": "`xMax` response field for `uitoolkit/builder-preview`."
+              },
+              "yMax": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "description": "`yMax` response field for `uitoolkit/builder-preview`."
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "x",
+              "y",
+              "width",
+              "height",
+              "xMin",
+              "yMin",
+              "xMax",
+              "yMax"
+            ],
+            "description": "`documentRootWorldBound` response field for `uitoolkit/builder-preview`."
+          },
+          "canvasWorldBound": {
+            "type": "object",
+            "properties": {
+              "x": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "description": "`x` response field for `uitoolkit/builder-preview`."
+              },
+              "y": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "description": "`y` response field for `uitoolkit/builder-preview`."
+              },
+              "width": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "description": "`width` response field for `uitoolkit/builder-preview`."
+              },
+              "height": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "description": "`height` response field for `uitoolkit/builder-preview`."
+              },
+              "xMin": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "description": "`xMin` response field for `uitoolkit/builder-preview`."
+              },
+              "yMin": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "description": "`yMin` response field for `uitoolkit/builder-preview`."
+              },
+              "xMax": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "description": "`xMax` response field for `uitoolkit/builder-preview`."
+              },
+              "yMax": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "description": "`yMax` response field for `uitoolkit/builder-preview`."
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "x",
+              "y",
+              "width",
+              "height",
+              "xMin",
+              "yMin",
+              "xMax",
+              "yMax"
+            ],
+            "description": "`canvasWorldBound` response field for `uitoolkit/builder-preview`."
+          },
+          "viewportWorldBound": {
+            "type": "object",
+            "properties": {
+              "x": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "description": "`x` response field for `uitoolkit/builder-preview`."
+              },
+              "y": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "description": "`y` response field for `uitoolkit/builder-preview`."
+              },
+              "width": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "description": "`width` response field for `uitoolkit/builder-preview`."
+              },
+              "height": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "description": "`height` response field for `uitoolkit/builder-preview`."
+              },
+              "xMin": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "description": "`xMin` response field for `uitoolkit/builder-preview`."
+              },
+              "yMin": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "description": "`yMin` response field for `uitoolkit/builder-preview`."
+              },
+              "xMax": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "description": "`xMax` response field for `uitoolkit/builder-preview`."
+              },
+              "yMax": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "description": "`yMax` response field for `uitoolkit/builder-preview`."
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "x",
+              "y",
+              "width",
+              "height",
+              "xMin",
+              "yMin",
+              "xMax",
+              "yMax"
+            ],
+            "description": "`viewportWorldBound` response field for `uitoolkit/builder-preview`."
+          },
+          "contentWorldBound": {
+            "type": "object",
+            "properties": {
+              "x": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "description": "`x` response field for `uitoolkit/builder-preview`."
+              },
+              "y": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "description": "`y` response field for `uitoolkit/builder-preview`."
+              },
+              "width": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "description": "`width` response field for `uitoolkit/builder-preview`."
+              },
+              "height": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "description": "`height` response field for `uitoolkit/builder-preview`."
+              },
+              "xMin": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "description": "`xMin` response field for `uitoolkit/builder-preview`."
+              },
+              "yMin": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "description": "`yMin` response field for `uitoolkit/builder-preview`."
+              },
+              "xMax": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "description": "`xMax` response field for `uitoolkit/builder-preview`."
+              },
+              "yMax": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "description": "`yMax` response field for `uitoolkit/builder-preview`."
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "x",
+              "y",
+              "width",
+              "height",
+              "xMin",
+              "yMin",
+              "xMax",
+              "yMax"
+            ],
+            "description": "`contentWorldBound` response field for `uitoolkit/builder-preview`."
+          },
+          "error": {
+            "type": "string",
+            "description": "`error` response field for `uitoolkit/builder-preview`."
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "ready",
+          "documentPathMatches",
+          "activeUxmlPath",
+          "documentRootChildCount",
+          "canvasChildCount",
+          "documentRootSize",
+          "canvasSize",
+          "configuredCanvasSize",
+          "requiredCanvasSize",
+          "matchGameView",
+          "contentElementCount",
+          "previewTextOverlapCount",
+          "previewTextOverlapsTruncated",
+          "previewTextOverlaps",
+          "contentFitsCanvas",
+          "canvasTooSmall",
+          "contentOverflow",
+          "documentRootWorldBound",
+          "canvasWorldBound",
+          "viewportWorldBound",
+          "contentWorldBound",
+          "error"
+        ],
+        "description": "`preview` response field for `uitoolkit/builder-preview`."
+      },
+      "canvasAdjustment": {
+        "type": "object",
+        "properties": {
+          "autoMatchGameView": {
+            "type": "boolean",
+            "description": "`autoMatchGameView` response field for `uitoolkit/builder-preview`."
+          },
+          "requireContentFit": {
+            "type": "boolean",
+            "description": "`requireContentFit` response field for `uitoolkit/builder-preview`."
+          },
+          "attempted": {
+            "type": "boolean",
+            "description": "`attempted` response field for `uitoolkit/builder-preview`."
+          },
+          "applied": {
+            "type": "boolean",
+            "description": "`applied` response field for `uitoolkit/builder-preview`."
+          },
+          "attemptedAtFrame": {
+            "type": "integer",
+            "description": "`attemptedAtFrame` response field for `uitoolkit/builder-preview`."
+          },
+          "initialMatchGameView": {
+            "type": [
+              "boolean",
+              "null"
+            ],
+            "description": "`initialMatchGameView` response field for `uitoolkit/builder-preview`."
+          },
+          "finalMatchGameView": {
+            "type": [
+              "boolean",
+              "null"
+            ],
+            "description": "`finalMatchGameView` response field for `uitoolkit/builder-preview`."
+          },
+          "initialCanvasSize": {
+            "type": "object",
+            "properties": {
+              "width": {
+                "type": "number",
+                "description": "`width` response field for `uitoolkit/builder-preview`."
+              },
+              "height": {
+                "type": "number",
+                "description": "`height` response field for `uitoolkit/builder-preview`."
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "width",
+              "height"
+            ],
+            "description": "`initialCanvasSize` response field for `uitoolkit/builder-preview`."
+          },
+          "initialRequiredCanvasSize": {
+            "type": "object",
+            "properties": {
+              "width": {
+                "type": "number",
+                "description": "`width` response field for `uitoolkit/builder-preview`."
+              },
+              "height": {
+                "type": "number",
+                "description": "`height` response field for `uitoolkit/builder-preview`."
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "width",
+              "height"
+            ],
+            "description": "`initialRequiredCanvasSize` response field for `uitoolkit/builder-preview`."
+          },
+          "finalCanvasSize": {
+            "type": "object",
+            "properties": {
+              "width": {
+                "type": "number",
+                "description": "`width` response field for `uitoolkit/builder-preview`."
+              },
+              "height": {
+                "type": "number",
+                "description": "`height` response field for `uitoolkit/builder-preview`."
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "width",
+              "height"
+            ],
+            "description": "`finalCanvasSize` response field for `uitoolkit/builder-preview`."
+          },
+          "finalRequiredCanvasSize": {
+            "type": "object",
+            "properties": {
+              "width": {
+                "type": "number",
+                "description": "`width` response field for `uitoolkit/builder-preview`."
+              },
+              "height": {
+                "type": "number",
+                "description": "`height` response field for `uitoolkit/builder-preview`."
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "width",
+              "height"
+            ],
+            "description": "`finalRequiredCanvasSize` response field for `uitoolkit/builder-preview`."
+          },
+          "contentFitsCanvas": {
+            "type": "boolean",
+            "description": "`contentFitsCanvas` response field for `uitoolkit/builder-preview`."
+          },
+          "error": {
+            "type": "string",
+            "description": "`error` response field for `uitoolkit/builder-preview`."
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "autoMatchGameView",
+          "requireContentFit",
+          "attempted",
+          "applied",
+          "attemptedAtFrame",
+          "initialMatchGameView",
+          "finalMatchGameView",
+          "initialCanvasSize",
+          "initialRequiredCanvasSize",
+          "finalCanvasSize",
+          "finalRequiredCanvasSize",
+          "contentFitsCanvas",
+          "error"
+        ],
+        "description": "`canvasAdjustment` response field for `uitoolkit/builder-preview`."
+      },
+      "errorCode": {
+        "type": "string",
+        "description": "`errorCode` response field for `uitoolkit/builder-preview`."
+      },
+      "error": {
+        "type": "string",
+        "description": "`error` response field for `uitoolkit/builder-preview`."
+      },
+      "canvasSettingsRestoration": {
+        "type": "object",
+        "properties": {
+          "settingsPath": {
+            "type": "string",
+            "description": "`settingsPath` response field for `uitoolkit/builder-preview`."
+          },
+          "fileExisted": {
+            "type": "boolean",
+            "description": "`fileExisted` response field for `uitoolkit/builder-preview`."
+          },
+          "attempted": {
+            "type": "boolean",
+            "description": "`attempted` response field for `uitoolkit/builder-preview`."
+          },
+          "activeDocumentMatches": {
+            "type": "boolean",
+            "description": "`activeDocumentMatches` response field for `uitoolkit/builder-preview`."
+          },
+          "nativeSettingsRestored": {
+            "type": "boolean",
+            "description": "`nativeSettingsRestored` response field for `uitoolkit/builder-preview`."
+          },
+          "fileRestored": {
+            "type": "boolean",
+            "description": "`fileRestored` response field for `uitoolkit/builder-preview`."
+          },
+          "restoreError": {
+            "type": "string",
+            "description": "`restoreError` response field for `uitoolkit/builder-preview`."
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "settingsPath",
+          "fileExisted",
+          "attempted",
+          "activeDocumentMatches",
+          "nativeSettingsRestored",
+          "fileRestored",
+          "restoreError"
+        ],
+        "description": "`canvasSettingsRestoration` response field for `uitoolkit/builder-preview`."
+      },
+      "windowRetirement": {
+        "type": "object",
+        "properties": {
+          "windowInstanceId": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "description": "`windowInstanceId` response field for `uitoolkit/builder-preview`."
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "not-requested",
+              "no-owned-window",
+              "existing-preserved",
+              "already-closed",
+              "unsaved-preserved",
+              "created-closed",
+              "close-failed"
+            ],
+            "description": "`state` response field for `uitoolkit/builder-preview`."
+          },
+          "error": {
+            "type": "string",
+            "description": "`error` response field for `uitoolkit/builder-preview`."
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "windowInstanceId",
+          "state",
+          "error"
+        ],
+        "description": "`windowRetirement` response field for `uitoolkit/builder-preview`."
+      },
+      "focusRestoreError": {
+        "type": "string",
+        "description": "`focusRestoreError` response field for `uitoolkit/builder-preview`."
+      },
+      "requestedZoom": {
+        "type": "number",
+        "description": "`requestedZoom` response field for `uitoolkit/builder-preview`."
+      },
+      "zoomApplied": {
+        "type": "boolean",
+        "description": "`zoomApplied` response field for `uitoolkit/builder-preview`."
+      },
+      "zoomNote": {
+        "type": "string",
+        "description": "`zoomNote` response field for `uitoolkit/builder-preview`."
+      },
+      "screenshot": {
+        "$ref": "#/$defs/unityJsonValue",
+        "description": "`screenshot` response field for `uitoolkit/builder-preview`."
+      },
+      "visualAnalysis": {
+        "type": "object",
+        "properties": {
+          "visualValid": {
+            "type": "boolean",
+            "description": "`visualValid` response field for `uitoolkit/builder-preview`."
+          },
+          "documentVisuallyBlank": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "boolean"
+              }
+            ],
+            "description": "`documentVisuallyBlank` response field for `uitoolkit/builder-preview`."
+          },
+          "conclusive": {
+            "type": "boolean",
+            "description": "`conclusive` response field for `uitoolkit/builder-preview`."
+          },
+          "reason": {
+            "type": "string",
+            "description": "`reason` response field for `uitoolkit/builder-preview`."
+          },
+          "error": {
+            "type": "string",
+            "description": "`error` response field for `uitoolkit/builder-preview`."
+          },
+          "documentRect": {
+            "type": "object",
+            "properties": {
+              "x": {
+                "type": "number",
+                "description": "`x` response field for `uitoolkit/builder-preview`."
+              },
+              "y": {
+                "type": "number",
+                "description": "`y` response field for `uitoolkit/builder-preview`."
+              },
+              "width": {
+                "type": "number",
+                "description": "`width` response field for `uitoolkit/builder-preview`."
+              },
+              "height": {
+                "type": "number",
+                "description": "`height` response field for `uitoolkit/builder-preview`."
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "x",
+              "y",
+              "width",
+              "height"
+            ],
+            "description": "`documentRect` response field for `uitoolkit/builder-preview`."
+          },
+          "sampledDocumentRect": {
+            "type": "object",
+            "properties": {
+              "x": {
+                "type": "number",
+                "description": "`x` response field for `uitoolkit/builder-preview`."
+              },
+              "y": {
+                "type": "number",
+                "description": "`y` response field for `uitoolkit/builder-preview`."
+              },
+              "width": {
+                "type": "number",
+                "description": "`width` response field for `uitoolkit/builder-preview`."
+              },
+              "height": {
+                "type": "number",
+                "description": "`height` response field for `uitoolkit/builder-preview`."
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "x",
+              "y",
+              "width",
+              "height"
+            ],
+            "description": "`sampledDocumentRect` response field for `uitoolkit/builder-preview`."
+          },
+          "canvasRect": {
+            "type": "object",
+            "properties": {
+              "x": {
+                "type": "number",
+                "description": "`x` response field for `uitoolkit/builder-preview`."
+              },
+              "y": {
+                "type": "number",
+                "description": "`y` response field for `uitoolkit/builder-preview`."
+              },
+              "width": {
+                "type": "number",
+                "description": "`width` response field for `uitoolkit/builder-preview`."
+              },
+              "height": {
+                "type": "number",
+                "description": "`height` response field for `uitoolkit/builder-preview`."
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "x",
+              "y",
+              "width",
+              "height"
+            ],
+            "description": "`canvasRect` response field for `uitoolkit/builder-preview`."
+          },
+          "sampleStep": {
+            "type": "integer",
+            "description": "`sampleStep` response field for `uitoolkit/builder-preview`."
+          },
+          "documentSamples": {
+            "type": "integer",
+            "description": "`documentSamples` response field for `uitoolkit/builder-preview`."
+          },
+          "backgroundSamples": {
+            "type": "integer",
+            "description": "`backgroundSamples` response field for `uitoolkit/builder-preview`."
+          },
+          "documentDistinctColorBuckets": {
+            "type": "integer",
+            "description": "`documentDistinctColorBuckets` response field for `uitoolkit/builder-preview`."
+          },
+          "backgroundDistinctColorBuckets": {
+            "type": "integer",
+            "description": "`backgroundDistinctColorBuckets` response field for `uitoolkit/builder-preview`."
+          },
+          "backgroundPaletteBucketCount": {
+            "type": "integer",
+            "description": "`backgroundPaletteBucketCount` response field for `uitoolkit/builder-preview`."
+          },
+          "backgroundComparable": {
+            "type": "boolean",
+            "description": "`backgroundComparable` response field for `uitoolkit/builder-preview`."
+          },
+          "backgroundOverlapSamples": {
+            "type": "integer",
+            "description": "`backgroundOverlapSamples` response field for `uitoolkit/builder-preview`."
+          },
+          "backgroundOverlapRatio": {
+            "type": "number",
+            "description": "`backgroundOverlapRatio` response field for `uitoolkit/builder-preview`."
+          },
+          "outOfBackgroundPaletteSamples": {
+            "type": "integer",
+            "description": "`outOfBackgroundPaletteSamples` response field for `uitoolkit/builder-preview`."
+          },
+          "minimumOutOfPaletteSamples": {
+            "type": "integer",
+            "description": "`minimumOutOfPaletteSamples` response field for `uitoolkit/builder-preview`."
+          },
+          "outOfBackgroundPaletteRatio": {
+            "type": "number",
+            "description": "`outOfBackgroundPaletteRatio` response field for `uitoolkit/builder-preview`."
+          },
+          "histogramDistance": {
+            "type": "number",
+            "description": "`histogramDistance` response field for `uitoolkit/builder-preview`."
+          },
+          "hasOutOfPaletteEvidence": {
+            "type": "boolean",
+            "description": "`hasOutOfPaletteEvidence` response field for `uitoolkit/builder-preview`."
+          },
+          "hasDistributionEvidence": {
+            "type": "boolean",
+            "description": "`hasDistributionEvidence` response field for `uitoolkit/builder-preview`."
+          },
+          "neutralDocumentSamples": {
+            "type": "integer",
+            "description": "`neutralDocumentSamples` response field for `uitoolkit/builder-preview`."
+          },
+          "neutralDocumentRatio": {
+            "type": "number",
+            "description": "`neutralDocumentRatio` response field for `uitoolkit/builder-preview`."
+          },
+          "dominantDocumentBucketRatio": {
+            "type": "number",
+            "description": "`dominantDocumentBucketRatio` response field for `uitoolkit/builder-preview`."
+          },
+          "hasTargetColorEvidence": {
+            "type": "boolean",
+            "description": "`hasTargetColorEvidence` response field for `uitoolkit/builder-preview`."
+          },
+          "hasTargetComplexityEvidence": {
+            "type": "boolean",
+            "description": "`hasTargetComplexityEvidence` response field for `uitoolkit/builder-preview`."
+          },
+          "mappingMode": {
+            "type": "string",
+            "description": "`mappingMode` response field for `uitoolkit/builder-preview`."
+          },
+          "contentRect": {
+            "type": "object",
+            "properties": {
+              "x": {
+                "type": "number",
+                "description": "`x` response field for `uitoolkit/builder-preview`."
+              },
+              "y": {
+                "type": "number",
+                "description": "`y` response field for `uitoolkit/builder-preview`."
+              },
+              "width": {
+                "type": "number",
+                "description": "`width` response field for `uitoolkit/builder-preview`."
+              },
+              "height": {
+                "type": "number",
+                "description": "`height` response field for `uitoolkit/builder-preview`."
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "x",
+              "y",
+              "width",
+              "height"
+            ],
+            "description": "`contentRect` response field for `uitoolkit/builder-preview`."
+          },
+          "documentWorldBound": {
+            "type": "object",
+            "properties": {
+              "x": {
+                "type": "number",
+                "description": "`x` response field for `uitoolkit/builder-preview`."
+              },
+              "y": {
+                "type": "number",
+                "description": "`y` response field for `uitoolkit/builder-preview`."
+              },
+              "width": {
+                "type": "number",
+                "description": "`width` response field for `uitoolkit/builder-preview`."
+              },
+              "height": {
+                "type": "number",
+                "description": "`height` response field for `uitoolkit/builder-preview`."
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "x",
+              "y",
+              "width",
+              "height"
+            ],
+            "description": "`documentWorldBound` response field for `uitoolkit/builder-preview`."
+          },
+          "canvasWorldBound": {
+            "type": "object",
+            "properties": {
+              "x": {
+                "type": "number",
+                "description": "`x` response field for `uitoolkit/builder-preview`."
+              },
+              "y": {
+                "type": "number",
+                "description": "`y` response field for `uitoolkit/builder-preview`."
+              },
+              "width": {
+                "type": "number",
+                "description": "`width` response field for `uitoolkit/builder-preview`."
+              },
+              "height": {
+                "type": "number",
+                "description": "`height` response field for `uitoolkit/builder-preview`."
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "x",
+              "y",
+              "width",
+              "height"
+            ],
+            "description": "`canvasWorldBound` response field for `uitoolkit/builder-preview`."
+          },
+          "viewportWorldBound": {
+            "type": "object",
+            "properties": {
+              "x": {
+                "type": "number",
+                "description": "`x` response field for `uitoolkit/builder-preview`."
+              },
+              "y": {
+                "type": "number",
+                "description": "`y` response field for `uitoolkit/builder-preview`."
+              },
+              "width": {
+                "type": "number",
+                "description": "`width` response field for `uitoolkit/builder-preview`."
+              },
+              "height": {
+                "type": "number",
+                "description": "`height` response field for `uitoolkit/builder-preview`."
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "x",
+              "y",
+              "width",
+              "height"
+            ],
+            "description": "`viewportWorldBound` response field for `uitoolkit/builder-preview`."
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "visualValid",
+          "documentVisuallyBlank",
+          "conclusive",
+          "reason"
+        ],
+        "description": "`visualAnalysis` response field for `uitoolkit/builder-preview`."
+      },
+      "visualValid": {
+        "type": "boolean",
+        "description": "`visualValid` response field for `uitoolkit/builder-preview`."
+      }
+    },
+    "additionalProperties": false,
+    "required": [
+      "uxmlPath",
+      "opened",
+      "documentAdoption",
+      "viewportFramed",
+      "previewTarget",
+      "themePreview",
+      "waitFrames",
+      "stableFrames",
+      "readyFrameCount",
+      "elapsedMs",
+      "timedOut",
+      "windowFound",
+      "window",
+      "preview",
+      "canvasAdjustment"
+    ],
+    "$defs": {
+      "unityJsonValue": {
+        "oneOf": [
+          {
+            "type": "null"
+          },
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "number"
+          },
+          {
+            "type": "string"
+          },
+          {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/unityJsonValue"
+            }
+          },
+          {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": {
+              "$ref": "#/$defs/unityJsonValue"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "errorCodes": [
+    "argument_conflict",
+    "asset_not_found",
+    "blank_capture",
+    "editor_window_ambiguous",
+    "editor_window_not_found",
+    "editor_window_selector_mismatch",
+    "input_validation_limit",
+    "invalid_arguments",
+    "invalid_project_path",
+    "invalid_timeout",
+    "project_binding_required",
+    "project_mismatch",
+    "request_id_conflict",
+    "requires_main_editor",
+    "response_too_large",
+    "target_project_required",
+    "target_view_unverified",
+    "target_window_unverified",
+    "tool_execution_failed",
+    "ui_builder_api_unavailable",
+    "ui_builder_canvas_clipped",
+    "ui_builder_canvas_controls_unavailable",
+    "ui_builder_canvas_settings_restore_failed",
+    "ui_builder_canvas_size_mismatch",
+    "ui_builder_capture_failed",
+    "ui_builder_document_blank",
+    "ui_builder_document_changed",
+    "ui_builder_document_load_failed",
+    "ui_builder_document_mismatch",
+    "ui_builder_document_rejected",
+    "ui_builder_focus_restore_failed",
+    "ui_builder_frame_unavailable",
+    "ui_builder_interrupted",
+    "ui_builder_not_ready",
+    "ui_builder_panel_settings_invalid",
+    "ui_builder_panel_settings_not_found",
+    "ui_builder_preview_failed",
+    "ui_builder_text_overlap",
+    "ui_builder_theme_api_unavailable",
+    "ui_builder_theme_mismatch",
+    "ui_builder_theme_not_found",
+    "ui_builder_theme_restore_failed",
+    "ui_builder_unsaved_changes",
+    "ui_builder_viewport_clipped",
+    "ui_builder_visual_inconclusive",
+    "ui_builder_window_retirement_failed",
+    "ui_builder_window_type_mismatch",
+    "wrong_unity_project"
+  ]
+}

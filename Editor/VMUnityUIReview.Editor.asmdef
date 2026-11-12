@@ -1,0 +1,7 @@
+{
+  "name": "VMUnityUIReview.Editor",
+  "rootNamespace": "VMUnityAutomation.Editor",
+  "references": ["VMUnityAutomation.Editor", "VMUnityAutomation.Runtime", "VMUnityUIReview.Runtime", "UnityEngine.TestRunner", "UnityEditor.TestRunner", "Unity.2D.Sprite.Editor", "Unity.TextMeshPro"],
+  "includePlatforms": ["Editor"],
+  "autoReferenced": true
+}
