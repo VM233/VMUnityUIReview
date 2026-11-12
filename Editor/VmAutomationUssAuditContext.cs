@@ -163,6 +163,7 @@ namespace VMUnityAutomation.Editor
             public string PickingMode;
             public string Focusable;
             public string TabIndex;
+            public string TemplatePath;
             public bool HasBindings;
             public int Line;
             public int Column;
@@ -202,6 +203,10 @@ namespace VMUnityAutomation.Editor
             public UssAuthoredDocument(string assetPath, XDocument document)
             {
                 AssetPath = assetPath;
+                var templates = document.Descendants().Where(element => element.Name.LocalName == "Template")
+                    .ToDictionary(element => GetAttributeValue(element, "name"),
+                        element => ResolveStyleReference(GetAttributeValue(element, "src"), assetPath),
+                        StringComparer.Ordinal);
                 foreach (var styleElement in document.Descendants()
                              .Where(element => string.Equals(element.Name.LocalName, "Style",
                                  StringComparison.OrdinalIgnoreCase)))
@@ -231,6 +236,9 @@ namespace VMUnityAutomation.Editor
                         Line = GetLineNumber(element),
                         Column = GetColumnNumber(element)
                     };
+                    if (authored.TypeName == "Instance" && templates.TryGetValue(
+                            GetAttributeValue(element, "template"), out var templatePath))
+                        authored.TemplatePath = templatePath;
                     var elementIdentity = VmAutomationUIToolkitElementStyleBaseline.Resolve(
                         element.Name.NamespaceName, element.Name.LocalName);
                     authored.ComponentTypeName = elementIdentity.ComponentTypeName;

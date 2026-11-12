@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.1.2] - 2026-11-13
+
+- Recognize proven named template-instance style variants before suggesting
+  inline styles that would prevent those native overrides.
+- Retain ordinary single-consumer geometry, unrelated ancestor, redundancy and
+  native Button feedback checks; bound the per-audit provenance index.
+- Cover ID/class targets and matched non-template, invariant and all-instance
+  negative controls in the public USS self-test.
+
 ## [0.1.1] - 2026-11-12
 
 - Require Automation 0.7.1's provider-owned profile validation.

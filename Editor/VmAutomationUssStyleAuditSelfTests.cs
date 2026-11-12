@@ -302,6 +302,7 @@ namespace VMUnityAutomation.Editor
             cases.AddRange(VmAutomationUssVariantFamilyContract.RunSelfTests());
             cases.AddRange(VmAutomationUssRedundantComponentClassAuditor.RunSelfTests());
             cases.AddRange(VmAutomationUssSharedClassDeclarationAuditor.RunSelfTests());
+            cases.AddRange(VmAutomationUssTemplateInstanceContractSelfTests.Run());
             cases.AddRange(
                 VmAutomationUssSingleConsumerInstanceDeclarationAuditor.RunSelfTests());
             cases.AddRange(VmUiButtonFeedbackSelfTests.Run());

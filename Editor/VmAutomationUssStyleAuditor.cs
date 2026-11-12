@@ -414,18 +414,21 @@ namespace VMUnityAutomation.Editor
             var ruleList = rules.ToList();
             var variantFamilyTokens =
                 VmAutomationUssVariantFamilyContract.FindContractTokens(ruleList, usageIndex);
+            var templateContracts = new VmAutomationUssTemplateInstanceContracts(ruleList, usageIndex);
             VmAutomationUssRedundantComponentClassAuditor.Audit(ruleList, usageIndex,
                 report, includeSuppressed);
             VmAutomationUssGeneratedChildStyleOwnershipAuditor.Audit(ruleList, usageIndex,
                 report, includeSuppressed);
             VmAutomationUssSingleConsumerInstanceDeclarationAuditor.Audit(ruleList,
-                usageIndex, variantFamilyTokens, report);
-            AuditRelationalSelectorContracts(ruleList, usageIndex, report, includeSuppressed);
+                usageIndex, variantFamilyTokens, report, templateContracts);
+            AuditRelationalSelectorContracts(ruleList, usageIndex, report, includeSuppressed, templateContracts);
 
             foreach (var rule in ruleList)
             {
                 foreach (var selector in rule.Selectors)
                 {
+                    var ownershipRule = templateContracts.InlineablePart(rule, selector);
+                    if (ownershipRule.Declarations.Count == 0) continue;
                     var classMatch = simpleClassSelectorRegex.Match(selector);
                     if (classMatch.Success)
                     {
@@ -443,16 +446,16 @@ namespace VMUnityAutomation.Editor
                             const string message =
                                 " serves one authored UXML element and has no pseudo, relational, " +
                                 "or runtime class contract. Move its declarations to that element's inline style.";
-                            if (IsFullyInlineableSingleSelectorRule(rule) &&
+                            if (IsFullyInlineableSingleSelectorRule(ownershipRule) &&
                                 usageIndex.GetSimpleClassRuleCount(token) == 1)
                             {
-                                AddUnsuppressibleError(report, rule, selector, token,
+                                AddUnsuppressibleError(report, ownershipRule, selector, token,
                                     "single-use-class", authored, runtime,
                                     $"Class selector '{selector}'{message}");
                             }
                             else
                             {
-                                AddIssue(report, rule, selector, token, "single-use-class",
+                                AddIssue(report, ownershipRule, selector, token, "single-use-class",
                                     authored, runtime, $"Class selector '{selector}'{message}",
                                     includeSuppressed);
                             }
@@ -480,16 +483,16 @@ namespace VMUnityAutomation.Editor
                             " serves one authored UXML element and has no direct pseudo-state contract. " +
                             "Move its ordinary declarations to that element's inline style; relational use " +
                             "of the same ID does not justify a separate simple selector block.";
-                        if (IsFullyInlineableSingleSelectorRule(rule) &&
+                        if (IsFullyInlineableSingleSelectorRule(ownershipRule) &&
                             usageIndex.GetSimpleIdRuleCount(idToken) == 1)
                         {
-                            AddUnsuppressibleError(report, rule, selector, idToken,
+                            AddUnsuppressibleError(report, ownershipRule, selector, idToken,
                                 "single-use-id", idUsages, Array.Empty<UssUsageLocation>(),
                                 $"ID selector '{selector}'{message}");
                         }
                         else
                         {
-                            AddIssue(report, rule, selector, idToken, "single-use-id", idUsages,
+                            AddIssue(report, ownershipRule, selector, idToken, "single-use-id", idUsages,
                                 Array.Empty<UssUsageLocation>(),
                                 $"ID selector '{selector}'{message}", includeSuppressed);
                         }
@@ -1164,7 +1167,8 @@ namespace VMUnityAutomation.Editor
         }
 
         internal static void AuditRelationalSelectorContracts(IReadOnlyList<UssRule> rules,
-            UssUsageIndex usageIndex, VmAutomationUssStyleAuditReport report, bool includeSuppressed)
+            UssUsageIndex usageIndex, VmAutomationUssStyleAuditReport report, bool includeSuppressed,
+            VmAutomationUssTemplateInstanceContracts templateContracts)
         {
             var reportedAnchors = new HashSet<string>(StringComparer.Ordinal);
             var reportedClassTargets = new HashSet<string>(StringComparer.Ordinal);
@@ -1227,6 +1231,7 @@ namespace VMUnityAutomation.Editor
                         reportedAnchors.Add(token);
                     }
 
+                    if (templateContracts.IsInstanceOverride(rule, selector)) continue;
                     var targetMatch = relationalTargetClassTokenRegex.Match(selector);
                     if (targetMatch.Success)
                     {

@@ -25,6 +25,7 @@ boundaries are documented with each review. `Runtime` is Player compatible;
 Discover the current review contracts through the project's official CLI catalog.
 Review exact edited paths with complete template, theme and consumer roots.
 Read [the review documentation](Documentation~/index.md),
+[template instance ownership](Documentation~/template-instance-styles.md),
 [migration guide](Documentation~/migration.md), and [release history](CHANGELOG.md).
 Passing a measured check does not certify visual quality or an untested device.
 

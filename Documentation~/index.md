@@ -2,6 +2,7 @@
 
 - [Native button feedback and coverage](button-feedback.md)
 - [USS and UXML authoring](uitoolkit-audits.md)
+- [Template instance style ownership](template-instance-styles.md)
 - [Automatic import observation](uitoolkit-import-observation.md)
 - [Interaction structure](ui-interaction-structure.md)
 - [Runtime player experience](ui-player-experience.md)

@@ -21,7 +21,7 @@ namespace VMUnityAutomation.Editor
 
         internal static void Audit(IReadOnlyList<UssRule> rules,
             UssUsageIndex usageIndex, IReadOnlyCollection<string> variantFamilyTokens,
-            VmAutomationUssStyleAuditReport report)
+            VmAutomationUssStyleAuditReport report, VmAutomationUssTemplateInstanceContracts templateContracts)
         {
             var dependentContracts = BuildDependentContracts(rules);
             foreach (var rule in rules)
@@ -42,7 +42,8 @@ namespace VMUnityAutomation.Editor
 
                 var instanceDeclarations = rule.Declarations
                     .Where(declaration => dependentContract.Changes(
-                        declaration.Key, declaration.Value) == false)
+                        declaration.Key, declaration.Value) == false &&
+                        !templateContracts.RequiresExternal(rule, rule.Selectors[0], declaration.Key))
                     .OrderBy(declaration => declaration.Key,
                         StringComparer.OrdinalIgnoreCase)
                     .ToList();
@@ -253,7 +254,8 @@ namespace VMUnityAutomation.Editor
 
             var report = new VmAutomationUssStyleAuditReport(100);
             Audit(rules, usageIndex,
-                new HashSet<string>(variantFamilyTokens, StringComparer.Ordinal), report);
+                new HashSet<string>(variantFamilyTokens, StringComparer.Ordinal), report,
+                new VmAutomationUssTemplateInstanceContracts(rules, usageIndex));
             report.SortIssues();
             return report;
         }
