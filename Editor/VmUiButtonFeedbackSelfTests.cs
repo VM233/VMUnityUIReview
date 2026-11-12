@@ -29,6 +29,10 @@ namespace VMUnityAutomation.Editor
             Case("complete effective feedback passes", baseline + ".feedback:hover { background-color: gray; }.feedback:active { background-color: white; }", "feedback", null);
             Case("press may restore normal paint", baseline + ".feedback:hover { background-color: gray; }.feedback:active { background-color: black; }", "feedback", null);
             Case("native default-theme feedback passes", "", "", null);
+            Case("computed two-pixel border feedback passes without layout",
+                baseline + ".feedback { border-left-width: 2px; border-left-color: transparent; }.feedback:hover { border-left-color: white; }.feedback:active { border-left-color: yellow; }", "feedback", null);
+            Case("zero-width border colors cannot qualify feedback",
+                baseline + ".feedback:hover { border-left-color: white; }.feedback:active { border-left-color: yellow; }", "feedback", null, "hover", "press");
             Case("descendant paint feedback passes", baseline + ".icon { background-color: black; }.feedback:hover .icon { background-color: gray; }.feedback:active .icon { background-color: white; }", "feedback", b =>
             {
                 var icon = new VisualElement();
@@ -70,9 +74,8 @@ namespace VMUnityAutomation.Editor
 
         private static void Import(StyleSheet target, string text)
         {
-            Type importerType = AppDomain.CurrentDomain.GetAssemblies()
-                .Select(assembly => assembly.GetType("UnityEditor.UIElements.StyleSheets.StyleSheetImporterImpl", false))
-                .Single(type => type != null);
+            Type importerType = VmAutomationUIToolkitInitialStyleComparer.RequireUniqueLoadedType(
+                "UnityEditor.UIElements.StyleSheets.StyleSheetImporterImpl");
             const BindingFlags members = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
             ConstructorInfo constructor = importerType.GetConstructor(members, null, Type.EmptyTypes, null)
                 ?? throw new MissingMethodException(importerType.FullName, ".ctor()");

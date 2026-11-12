@@ -19,6 +19,7 @@ namespace VMUnityAutomation.Editor
             IResolvedStyle style = element.resolvedStyle;
             bool image = !style.backgroundImage.Equals(default(Background));
             bool text = element is TextElement label && !string.IsNullOrWhiteSpace(label.text);
+            Vector4 borders = VmUiComputedBorderWidths.Read(element);
             var paint = new List<object>(24)
             {
                 VisibleColor(style.backgroundColor), image ? style.backgroundImage : default(Background),
@@ -26,14 +27,14 @@ namespace VMUnityAutomation.Editor
                 style.opacity,
                 text ? VisibleColor(style.color) : Color.clear,
                 text ? style.fontSize : 0,
-                style.borderLeftColor.a > 0 ? style.borderLeftWidth : 0,
-                style.borderTopColor.a > 0 ? style.borderTopWidth : 0,
-                style.borderRightColor.a > 0 ? style.borderRightWidth : 0,
-                style.borderBottomColor.a > 0 ? style.borderBottomWidth : 0,
-                style.borderLeftWidth > 0 ? VisibleColor(style.borderLeftColor) : Color.clear,
-                style.borderTopWidth > 0 ? VisibleColor(style.borderTopColor) : Color.clear,
-                style.borderRightWidth > 0 ? VisibleColor(style.borderRightColor) : Color.clear,
-                style.borderBottomWidth > 0 ? VisibleColor(style.borderBottomColor) : Color.clear
+                style.borderLeftColor.a > 0 ? borders.x : 0,
+                style.borderTopColor.a > 0 ? borders.y : 0,
+                style.borderRightColor.a > 0 ? borders.z : 0,
+                style.borderBottomColor.a > 0 ? borders.w : 0,
+                borders.x > 0 ? VisibleColor(style.borderLeftColor) : Color.clear,
+                borders.y > 0 ? VisibleColor(style.borderTopColor) : Color.clear,
+                borders.z > 0 ? VisibleColor(style.borderRightColor) : Color.clear,
+                borders.w > 0 ? VisibleColor(style.borderBottomColor) : Color.clear
             };
             foreach (PropertyInfo property in Transforms) paint.Add(property.GetValue(style));
 #if UNITY_2022_2_OR_NEWER

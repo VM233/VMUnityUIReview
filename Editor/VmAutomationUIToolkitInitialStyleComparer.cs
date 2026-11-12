@@ -35,6 +35,16 @@ namespace VMUnityAutomation.Editor
             return result;
         }
 
+        internal static Type RequireUniqueLoadedType(string fullName)
+        {
+            var matches = AppDomain.CurrentDomain.GetAssemblies()
+                .Select(assembly => assembly.GetType(fullName, false))
+                .Where(type => type != null).Distinct().ToList();
+            if (matches.Count != 1)
+                throw new InvalidOperationException($"Expected one loaded Unity type '{fullName}', found {matches.Count}.");
+            return matches[0];
+        }
+
         private sealed class ReflectionContract
         {
             private const BindingFlags INSTANCE_MEMBERS =
@@ -250,23 +260,6 @@ namespace VMUnityAutomation.Editor
                     releaseStyle.Invoke(targetStyle, null);
                     releaseStyle.Invoke(parentStyle, null);
                 }
-            }
-
-            private static Type RequireUniqueLoadedType(string fullName)
-            {
-                var matches = AppDomain.CurrentDomain.GetAssemblies()
-                    .Select(assembly => assembly.GetType(fullName, false))
-                    .Where(type => type != null)
-                    .Distinct()
-                    .ToList();
-                if (matches.Count != 1)
-                {
-                    throw new InvalidOperationException(
-                        $"Expected one loaded Unity type '{fullName}', found " +
-                        $"{matches.Count}.");
-                }
-
-                return matches[0];
             }
 
             private static Type RequireType(Assembly assembly, string fullName)

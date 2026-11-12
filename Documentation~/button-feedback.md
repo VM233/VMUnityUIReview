@@ -22,6 +22,13 @@ descendants contribute resolved paint, border, opacity, transform, text and nati
 image sizing. Authoring checks never infer actual readable contrast, hit targets,
 custom drawing or callback behavior from these target values.
 
+Border widths use native ComputedStyle getters. IResolvedStyle border widths
+read layout results and can still be zero after only Styles has updated; using
+those values would incorrectly reject legitimate border-color feedback. Four
+typed delegates call the exact native computed-style and width getters, without
+running layout callbacks or guessing from inline declarations. The supported
+native ABI is checked before use; capability failure rejects coverage.
+
 Sources: Unity's [Panel implementation](https://github.com/Unity-Technologies/UnityCsReference/blob/6000.0/Modules/UIElements/Core/Panel.cs),
 [PanelSettings theme adoption](https://github.com/Unity-Technologies/UnityCsReference/blob/6000.0/Modules/UIElements/Core/GameObjects/PanelSettings.cs),
 and [pseudo-state semantics](https://docs.unity.com/en-us/engine/6000.0/manual/uitoolkits/uielements/uie-uss/selectors/pseudo-classes).
@@ -38,6 +45,10 @@ Current-control snapshots retain at most5×256×18 boxed values (about1 MiB,
 platform allocation overhead dependent), plus one host tree and one64-node state
 chain. One native panel/theme/owner is alive at once. Provider initialization reads
 exactly12 contract files, each limited to1 MiB, once per domain.
+
+Computed borders add four fixed native getter calls per visual sample, at most
+131072 calls under the existing sample cap, with four delegates created once per
+domain. They add no data loop, retained snapshot field or layout pass.
 
 The2000 ms main-thread observation budget is checked between native calls; it is
 not a preemptive timeout inside an engine operation. Over-budget results are

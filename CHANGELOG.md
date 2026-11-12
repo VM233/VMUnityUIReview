@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.1.1] - 2026-11-12
+
+- Require Automation 0.7.1's provider-owned profile validation.
+- Read native computed border widths before layout; do not mistake unlaid-out
+  resolved widths for zero-width styling. Retain real border-feedback and
+  nonpainting zero-width negative controls.
+- Reuse the existing unique native Type resolver for importer fixtures, including
+  assemblies forwarding the same Type identity.
+
 ## [0.1.0] - 2026-11-12
 
 - Extract UI authoring audits, import coordination, runtime experience core,
