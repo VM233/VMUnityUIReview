@@ -45,7 +45,7 @@ namespace VMUnityAutomation.Editor
             });
             Case("disabled button does not advertise hover or press", baseline, "feedback", b => b.SetEnabled(false));
 #if UNITY_6000_6_OR_NEWER
-            cases.Add(StructuralScope(theme));
+            cases.Add(StructuralScope(theme, baseline));
 #endif
             return cases;
 
@@ -78,13 +78,14 @@ namespace VMUnityAutomation.Editor
         }
 
 #if UNITY_6000_6_OR_NEWER
-        private static Dictionary<string, object> StructuralScope(ThemeStyleSheet theme)
+        private static Dictionary<string, object> StructuralScope(ThemeStyleSheet theme, string baseline)
         {
             var selected = ScriptableObject.CreateInstance<StyleSheet>();
             var other = ScriptableObject.CreateInstance<StyleSheet>();
             var root = new VisualElement();
             var direct = new Button { name = "state-only" };
             direct.AddToClassList("scoped");
+            direct.AddToClassList("feedback");
             direct.style.backgroundColor = Color.black;
             var disabled = new Button { name = "disabled" };
             disabled.AddToClassList("scoped");
@@ -112,7 +113,7 @@ namespace VMUnityAutomation.Editor
                 Import(selected, ".scoped:hover { background-color: white; }.scoped:active { background-color: gray; }" +
                     ".scope-icon { color: white; }.scope-parent { opacity: 0.9; }" +
                     ".structural-parent > .conditional:hover { color: white; }");
-                Import(other, "Button { background-color: black; }");
+                Import(other, baseline);
                 root.styleSheets.Add(selected); root.styleSheets.Add(other);
                 var coverage = new VmUiFeedbackCoverage();
                 var findings = new List<VmAutomationUssStyleAuditIssue>();

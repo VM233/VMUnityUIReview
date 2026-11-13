@@ -79,6 +79,14 @@ Button-by-node Cartesian scan. The existing32768 visual-sample cap and five-stat
 paint verdict are unchanged. PASS for these frozen bounds; real request timing
 must also pass. The same state-only failure remains a mandatory negative control.
 
+The first real replay covers10 hosts,213 enabled Buttons and44 disabled controls
+with1065 state updates/3260 paint samples/17546 structural queries, complete in
+1413ms with no authored issues. All scope identities and the6-query relational
+fixture pass. That fixture's negative paint control initially overrode only its
+background, leaving a legitimate default-theme hover border. Reuse the existing
+zero-border/fixed-color negative baseline; do not lower its two required missing
+states. Retain this distinction between fixture preconditions and scope failure.
+
 Index at most128 UXML assets and4096 native dependencies per host: at most524288
 retained dependency paths. Native clone traversal has8192 nodes/host,128 Buttons,
 256 sampled descendants/control and depth64. Five styles updates per control give

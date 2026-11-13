@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.7] - 2026-11-14
+
+- Reuse the existing zero-border negative-control baseline in the structural
+  scope fixture. A background override alone still permits the default theme's
+  real hover border, so it cannot assert that both hover and press are absent.
+  Keep the same required scope identities, query count and missing-state verdicts.
+
 ## [0.1.6] - 2026-11-14
 
 - Replace the rejected current-state extractor with immutable structural selector
