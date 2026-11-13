@@ -29,6 +29,8 @@ namespace VMUnityAutomation.Editor
             Case("complete effective feedback passes", baseline + ".feedback:hover { background-color: gray; }.feedback:active { background-color: white; }", "feedback", null);
             Case("press may restore normal paint", baseline + ".feedback:hover { background-color: gray; }.feedback:active { background-color: black; }", "feedback", null);
             Case("native default-theme feedback passes", "", "", null);
+            Case("native scale-only feedback passes", baseline + ".feedback:hover { scale: 1.025 1.025; }.feedback:active { scale: 0.96 0.96; }", "feedback", null);
+            Case("inline scale defeats authored scale feedback", baseline + ".feedback:hover { scale: 1.025 1.025; }.feedback:active { scale: 0.96 0.96; }", "feedback", b => b.style.scale = new Scale(Vector3.one), "hover", "press");
             Case("computed two-pixel border feedback passes without layout",
                 baseline + ".feedback { border-left-width: 2px; border-left-color: transparent; }.feedback:hover { border-left-color: white; }.feedback:active { border-left-color: yellow; }", "feedback", null);
             Case("zero-width border colors cannot qualify feedback",
@@ -63,7 +65,7 @@ namespace VMUnityAutomation.Editor
                     string[] actual = findings.Select(issue => issue.Kind.Replace("button-feedback-missing-", ""))
                         .OrderBy(value => value, StringComparer.Ordinal).ToArray();
                     bool passed = actual.SequenceEqual(expected.OrderBy(value => value, StringComparer.Ordinal)) &&
-                        findings.All(issue => issue.IsError) && button.panel == null &&
+                        findings.All(issue => issue.IsError && issue.NativeStateScales?.Count == 5) && button.panel == null &&
                         (button.enabledInHierarchy ? coverage.Buttons == 1 && coverage.StateUpdates == 5 : coverage.DisabledButtons == 1);
                     cases.Add(new Dictionary<string, object> { { "name", name }, { "passed", passed },
                         { "expected", expected }, { "actual", actual } });

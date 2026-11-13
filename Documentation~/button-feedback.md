@@ -59,3 +59,13 @@ are outside authored coverage and remain explicit in the report.
 Native fixtures retain default-theme, missing, hover-only, identical, cascade,
 inline, persistent-focus, descendant, return-to-normal and disabled controls.
 Manual visual review remains required even when all measured states differ.
+
+Failed-state diagnostics retain the root control's native scale in all five
+captured states as invariant round-trip x,y,z strings. These are the already
+measured values, not authored intent; they do not change the verdict or stand in
+for descendant paint. The snapshot adds one Vector3 (12 bytes), at most15 KiB
+across the existing five-by256 live samples. Failure output adds five short
+strings per issue under the existing5000-issue cap (under2 MiB numeric/key payload).
+There are no additional native getters, scans, update passes or relaxed budgets.
+Native scale-only positive and inline-scale negative fixtures qualify this
+observation before callers use it to distinguish cascade from capture failures.

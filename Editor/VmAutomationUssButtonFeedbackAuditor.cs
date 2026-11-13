@@ -94,20 +94,25 @@ namespace VMUnityAutomation.Editor
             panel.SetState(button, false, false, false);
             coverage.StateUpdates++;
             VmUiButtonPaint[] normal = VmUiButtonPaint.Capture(nodes, coverage);
+            var stateScales = new Dictionary<string, string> { { "normal", normal[0].ScaleEvidence } };
             panel.SetState(button, true, false, false);
             coverage.StateUpdates++;
             VmUiButtonPaint[] hover = VmUiButtonPaint.Capture(nodes, coverage);
+            stateScales.Add("hover", hover[0].ScaleEvidence);
             if (VmUiButtonPaint.Same(normal, hover)) Record("hover");
             panel.SetState(button, true, false, true);
             coverage.StateUpdates++;
             VmUiButtonPaint[] focusedHover = VmUiButtonPaint.Capture(nodes, coverage);
+            stateScales.Add("focusedHover", focusedHover[0].ScaleEvidence);
             panel.SetState(button, true, true, true);
             coverage.StateUpdates++;
             VmUiButtonPaint[] pressed = VmUiButtonPaint.Capture(nodes, coverage);
+            stateScales.Add("pressed", pressed[0].ScaleEvidence);
             if (VmUiButtonPaint.Same(focusedHover, pressed)) Record("press");
             panel.SetState(button, true, false, true);
             coverage.StateUpdates++;
             VmUiButtonPaint[] released = VmUiButtonPaint.Capture(nodes, coverage);
+            stateScales.Add("released", released[0].ScaleEvidence);
             if (!VmUiButtonPaint.Same(focusedHover, released)) Record("release");
 
             void Record(string state)
@@ -117,6 +122,7 @@ namespace VMUnityAutomation.Editor
                 {
                     AssetPath = assetPath, Selector = selector, Token = button.name,
                     Severity = "error", Kind = "button-feedback-missing-" + state,
+                    NativeStateScales = stateScales,
                     Message = "Button '" + selector + "' has no effective distinct " + state +
                         " feedback in its native template host. Compare normal/hover and focused-hover/pressed; " +
                         "overridden declarations and persistent focus do not qualify. Native path: " +

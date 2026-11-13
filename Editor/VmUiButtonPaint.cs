@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
@@ -13,6 +14,9 @@ namespace VMUnityAutomation.Editor
         private static readonly PropertyInfo[] Transforms = TransformNames.Select(name =>
             typeof(IResolvedStyle).GetProperty(name) ?? throw new MissingMemberException(typeof(IResolvedStyle).FullName, name)).ToArray();
         private readonly object[] values;
+        private readonly Vector3 nativeScale;
+        internal string ScaleEvidence => string.Join(",", nativeScale.x.ToString("R", CultureInfo.InvariantCulture),
+            nativeScale.y.ToString("R", CultureInfo.InvariantCulture), nativeScale.z.ToString("R", CultureInfo.InvariantCulture));
 
         private VmUiButtonPaint(VisualElement element)
         {
@@ -36,7 +40,10 @@ namespace VMUnityAutomation.Editor
                 borders.z > 0 ? VisibleColor(style.borderRightColor) : Color.clear,
                 borders.w > 0 ? VisibleColor(style.borderBottomColor) : Color.clear
             };
-            foreach (PropertyInfo property in Transforms) paint.Add(property.GetValue(style));
+            object scale = Transforms[0].GetValue(style);
+            nativeScale = ((Scale)scale).value;
+            paint.Add(scale);
+            for (int index = 1; index < Transforms.Length; index++) paint.Add(Transforms[index].GetValue(style));
 #if UNITY_2022_2_OR_NEWER
             paint.Add(image ? style.backgroundSize : default(BackgroundSize));
 #endif

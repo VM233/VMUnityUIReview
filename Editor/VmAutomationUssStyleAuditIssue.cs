@@ -29,6 +29,7 @@ namespace VMUnityAutomation.Editor
         public bool Suppressed;
         public string SuppressionReason;
         public string Message;
+        public Dictionary<string, string> NativeStateScales;
 
         public bool IsError => string.Equals(Severity, "error",
             StringComparison.Ordinal);
@@ -50,6 +51,7 @@ namespace VMUnityAutomation.Editor
                 { "suppressionReason", SuppressionReason ?? "" },
                 { "message", Message }
             };
+            if (NativeStateScales != null) result["nativeStateScales"] = NativeStateScales;
             if (RelatedSelectors.Count > 0)
             {
                 result["relatedSelectors"] = new List<string>(RelatedSelectors);

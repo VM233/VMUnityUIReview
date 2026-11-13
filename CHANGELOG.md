@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.3] - 2026-11-13
+
+- Include the five captured native root scales with failed Button feedback, so
+  callers can distinguish a cascade failure from authored transform intent.
+- Preserve UXML/USS diagnostic parity and qualify scale-only and inline override
+  controls without changing feedback verdicts, native calls or budget gates.
+
 ## [0.1.2] - 2026-11-13
 
 - Recognize proven named template-instance style variants before suggesting
