@@ -39,14 +39,24 @@ approximate declaration scanner.
 
 USS scope repair, 2026-11-14: the confirmed failure was host-level dependency
 selection followed by inspection of every control, including controls with no
-matching rule in the requested sheets. Unity 6000.6's native
-[MatchedRulesExtractor](https://github.com/Unity-Technologies/UnityCsReference/blob/6000.6/Modules/UIElements/Core/StyleSheets/MatchedRulesExtractor.cs)
-matches imported rules without applying pseudo masks. Use that result once per
-authored node to select affected Buttons, including matching visual descendants
-and ancestors. UXML changes and theme dependencies retain whole-host coverage.
-Earlier engines retain their existing whole-host contract; their extractor does
-not provide the same pseudo-independent query. No declaration approximation is
-used. A missing native member, query limit or time limit rejects coverage.
+matching rule in the requested sheets. The first MatchedRulesExtractor method
+was rejected by the state-only fixture: it selected descendants and ancestors
+but omitted both state-only controls. The installed6000.6.8f1 IL agrees with the
+reference source. `applyPseudoMasks=false` suppresses dependency-mask writes;
+it does not remove pseudo-state eligibility. That method is retired.
+
+Use imported selector parts to build an independent structural projection with
+pseudo parts removed and zero pseudo masks, then invoke Unity's native
+[UQuery matcher](https://github.com/Unity-Technologies/UnityCsReference/blob/6000.6/Modules/UIElements/Core/StyleSheets/LegacySelectorHelper.cs).
+The [native selector contract](https://github.com/Unity-Technologies/UnityCsReference/blob/6000.6/Modules/UIElements/Core/StyleSheets/StyleSelector.cs)
+retains IDs, classes, types and ancestor/child relationships. Original selectors,
+sheets, control states and the real five-state paint measurement are untouched.
+Removing pseudo restrictions deliberately over-includes possible state owners;
+it never claims that the structural projection is a winning paint rule.
+An index of necessary rightmost IDs/classes/types avoids all-rule/node products.
+Matched visual descendants and ancestors include their owning Buttons.
+UXML and theme changes retain whole-host coverage. Earlier engines retain their
+existing whole-host contract. Missing native members or limits reject coverage.
 
 This method succeeds when an unrelated control is excluded from a USS-only
 request while direct, state-only, descendant and ancestor-owned controls remain
@@ -55,15 +65,19 @@ stops if those matched controls disappear or a native query cannot finish within
 the existing observation budget. Qualify with paired native fixtures and replay
 the original real USS request before returning to product acceptance.
 
-The additional axis is at most32768 native match queries globally, each against
-the existing bounded host/dependency graph. One extractor is cleared between
-nodes; at most32768 matched records are admitted per query. The host's8192-node
-preorder product and affected membership sets are retained only for that host.
+The projection is built once/request, at most8192 selectors/32768 parts/8MiB
+signature text, with64 selectors/chain and1024 characters/token. Structural
+duplicates share one projection and one necessary-key bucket. At most64 classes
+plus ID/type/wildcard buckets are visited/node; every projection belongs to one
+bucket. At most32768 native candidate matches are admitted globally. Each native
+right-to-left match is bounded by64 ancestors and64 selector components; opaque
+native work is checked between calls by the unchanged2000 ms budget. The host's
+8192-node preorder product and affected membership sets survive only that host;
+already-covered ancestor subtrees propagate coverage without more native queries.
 Ancestor propagation adds at most64 checks/node (524288/host), without a
-Button-by-node Cartesian scan. Query and propagation checks share the unchanged
-2000 ms observation budget. The existing32768 visual-sample cap and five-state
-paint verdict are unchanged. PASS for these bounds; native matching work remains
-opaque and is checked by the real request, as with existing style updates.
+Button-by-node Cartesian scan. The existing32768 visual-sample cap and five-state
+paint verdict are unchanged. PASS for these frozen bounds; real request timing
+must also pass. The same state-only failure remains a mandatory negative control.
 
 Index at most128 UXML assets and4096 native dependencies per host: at most524288
 retained dependency paths. Native clone traversal has8192 nodes/host,128 Buttons,

@@ -17,7 +17,7 @@ namespace VMUnityAutomation.Editor
             {
                 var hosts = ResolveHosts(uxmlPaths, targetPaths, themePath);
 #if UNITY_6000_6_OR_NEWER
-                HashSet<StyleSheet> targetSheets = null;
+                VmUiFeedbackStyleScope targetScope = null;
 #endif
                 foreach (var host in hosts)
                 {
@@ -38,8 +38,8 @@ namespace VMUnityAutomation.Editor
                     {
 #if UNITY_6000_6_OR_NEWER
                         if (!host.WholeHost)
-                            buttons = VmUiFeedbackStyleScope.SelectButtons(nodes,
-                                targetSheets ?? (targetSheets = LoadTargetSheets(targetPaths)), coverage);
+                            buttons = (targetScope ?? (targetScope = new VmUiFeedbackStyleScope(
+                                LoadTargetSheets(targetPaths), coverage))).SelectButtons(nodes, coverage);
 #endif
                         coverage.Hosts++;
                         foreach (Button button in buttons)

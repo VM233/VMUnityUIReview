@@ -1,10 +1,19 @@
 # Changelog
 
+## [0.1.6] - 2026-11-14
+
+- Replace the rejected current-state extractor with immutable structural selector
+  projections evaluated by Unity's UQuery matcher. Preserve IDs, classes, types
+  and parent relationships while removing pseudo restrictions only for scope.
+- Index and deduplicate structural candidates once per request. Keep all real
+  five-state paint verdicts and existing observation budgets; qualify conditional
+  parent, state-only, disabled and overridden-feedback controls.
+
 ## [0.1.5] - 2026-11-14
 
-- On Unity 6000.6+, scope USS-only native feedback checks to Buttons affected by
-  actual imported rule matches, including ancestor and descendant ownership and
-  state-only selectors. Unrelated controls no longer expand a shared USS review.
+- Introduced an imported-rule scope candidate on Unity 6000.6+. Native state-only
+  qualification rejected it: current-state extraction omits inactive pseudo rules.
+  The candidate is replaced in0.1.6; it did not qualify the original USS request.
 - Preserve whole-template coverage for UXML and theme changes, the earlier-engine
   contract and all five-state paint verdicts and observation budgets. Report native
   match-query and unaffected-control counts; reject incomplete native capability.

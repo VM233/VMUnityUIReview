@@ -44,6 +44,9 @@ namespace VMUnityAutomation.Editor
                 b.Add(icon);
             });
             Case("disabled button does not advertise hover or press", baseline, "feedback", b => b.SetEnabled(false));
+#if UNITY_6000_6_OR_NEWER
+            cases.Add(StructuralScope(theme));
+#endif
             return cases;
 
             void Case(string name, string css, string className, Action<Button> configure, params string[] expected)
@@ -74,7 +77,72 @@ namespace VMUnityAutomation.Editor
             }
         }
 
-        internal static void Import(StyleSheet target, string text)
+#if UNITY_6000_6_OR_NEWER
+        private static Dictionary<string, object> StructuralScope(ThemeStyleSheet theme)
+        {
+            var selected = ScriptableObject.CreateInstance<StyleSheet>();
+            var other = ScriptableObject.CreateInstance<StyleSheet>();
+            var root = new VisualElement();
+            var direct = new Button { name = "state-only" };
+            direct.AddToClassList("scoped");
+            direct.style.backgroundColor = Color.black;
+            var disabled = new Button { name = "disabled" };
+            disabled.AddToClassList("scoped");
+            disabled.SetEnabled(false);
+            var descendant = new Button { name = "descendant" };
+            var icon = new VisualElement();
+            icon.AddToClassList("scope-icon");
+            descendant.Add(icon);
+            var group = new VisualElement();
+            group.AddToClassList("scope-parent");
+            var ancestor = new Button { name = "ancestor" };
+            group.Add(ancestor);
+            var unrelated = new Button { name = "unrelated" };
+            var structuralParent = new VisualElement();
+            structuralParent.AddToClassList("structural-parent");
+            var conditional = new Button { name = "conditional" };
+            conditional.AddToClassList("conditional");
+            structuralParent.Add(conditional);
+            var wrongParent = new Button { name = "wrong-parent" };
+            wrongParent.AddToClassList("conditional");
+            root.Add(direct); root.Add(disabled); root.Add(descendant);
+            root.Add(group); root.Add(unrelated); root.Add(structuralParent); root.Add(wrongParent);
+            try
+            {
+                Import(selected, ".scoped:hover { background-color: white; }.scoped:active { background-color: gray; }" +
+                    ".scope-icon { color: white; }.scope-parent { opacity: 0.9; }" +
+                    ".structural-parent > .conditional:hover { color: white; }");
+                Import(other, "Button { background-color: black; }");
+                root.styleSheets.Add(selected); root.styleSheets.Add(other);
+                var coverage = new VmUiFeedbackCoverage();
+                var findings = new List<VmAutomationUssStyleAuditIssue>();
+                string[] actual;
+                using (var panel = new VmUiFeedbackPanel(root, theme))
+                {
+                    var nodes = new List<VisualElement> { root, direct, disabled, descendant, icon, group,
+                        ancestor, unrelated, structuralParent, conditional, wrongParent };
+                    actual = new VmUiFeedbackStyleScope(new[] { selected }, coverage).SelectButtons(nodes, coverage)
+                        .Select(button => button.name).OrderBy(name => name, StringComparer.Ordinal).ToArray();
+                    VmAutomationUssButtonFeedbackAuditor.AuditButton(panel, direct, "scope fixture", coverage, findings.Add);
+                    VmAutomationUssButtonFeedbackAuditor.AuditButton(panel, disabled, "scope fixture", coverage, findings.Add);
+                }
+                string[] expected = { "ancestor", "conditional", "descendant", "disabled", "state-only" };
+                string[] missing = findings.Select(issue => issue.Kind).OrderBy(kind => kind, StringComparer.Ordinal).ToArray();
+                return new Dictionary<string, object>
+                {
+                    { "name", "native structural scope retains state-only and relational owners" },
+                    { "passed", actual.SequenceEqual(expected) && coverage.StyleMatchQueries == 6 &&
+                        coverage.UnaffectedButtons == 2 && coverage.DisabledButtons == 1 && direct.panel == null &&
+                        missing.SequenceEqual(new[] { "button-feedback-missing-hover", "button-feedback-missing-press" }) },
+                    { "expected", expected }, { "actual", actual }, { "nativeQueries", coverage.StyleMatchQueries },
+                    { "unaffectedButtons", coverage.UnaffectedButtons }, { "retainedMissingFeedback", missing }
+                };
+            }
+            finally { UnityEngine.Object.DestroyImmediate(selected); UnityEngine.Object.DestroyImmediate(other); }
+        }
+#endif
+
+        private static void Import(StyleSheet target, string text)
         {
             Type importerType = VmAutomationUIToolkitInitialStyleComparer.RequireUniqueLoadedType(
                 "UnityEditor.UIElements.StyleSheets.StyleSheetImporterImpl");
