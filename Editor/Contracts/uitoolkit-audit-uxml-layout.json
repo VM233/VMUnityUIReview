@@ -281,6 +281,12 @@
           "visualSamples": {
             "type": "integer"
           },
+          "styleMatchQueries": {
+            "type": "integer"
+          },
+          "unaffectedButtons": {
+            "type": "integer"
+          },
           "themePath": {
             "type": "string"
           },
@@ -303,6 +309,8 @@
           "disabledButtons",
           "stateUpdates",
           "visualSamples",
+          "styleMatchQueries",
+          "unaffectedButtons",
           "themePath",
           "elapsedMilliseconds",
           "manualVisualReviewRequired",

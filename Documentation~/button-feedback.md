@@ -37,6 +37,34 @@ approximate declaration scanner.
 
 ## Static cost ledger
 
+USS scope repair, 2026-11-14: the confirmed failure was host-level dependency
+selection followed by inspection of every control, including controls with no
+matching rule in the requested sheets. Unity 6000.6's native
+[MatchedRulesExtractor](https://github.com/Unity-Technologies/UnityCsReference/blob/6000.6/Modules/UIElements/Core/StyleSheets/MatchedRulesExtractor.cs)
+matches imported rules without applying pseudo masks. Use that result once per
+authored node to select affected Buttons, including matching visual descendants
+and ancestors. UXML changes and theme dependencies retain whole-host coverage.
+Earlier engines retain their existing whole-host contract; their extractor does
+not provide the same pseudo-independent query. No declaration approximation is
+used. A missing native member, query limit or time limit rejects coverage.
+
+This method succeeds when an unrelated control is excluded from a USS-only
+request while direct, state-only, descendant and ancestor-owned controls remain
+covered, including ineffective feedback and disabled controls. It fails and
+stops if those matched controls disappear or a native query cannot finish within
+the existing observation budget. Qualify with paired native fixtures and replay
+the original real USS request before returning to product acceptance.
+
+The additional axis is at most32768 native match queries globally, each against
+the existing bounded host/dependency graph. One extractor is cleared between
+nodes; at most32768 matched records are admitted per query. The host's8192-node
+preorder product and affected membership sets are retained only for that host.
+Ancestor propagation adds at most64 checks/node (524288/host), without a
+Button-by-node Cartesian scan. Query and propagation checks share the unchanged
+2000 ms observation budget. The existing32768 visual-sample cap and five-state
+paint verdict are unchanged. PASS for these bounds; native matching work remains
+opaque and is checked by the real request, as with existing style updates.
+
 Index at most128 UXML assets and4096 native dependencies per host: at most524288
 retained dependency paths. Native clone traversal has8192 nodes/host,128 Buttons,
 256 sampled descendants/control and depth64. Five styles updates per control give

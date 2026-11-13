@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.1.5] - 2026-11-14
+
+- On Unity 6000.6+, scope USS-only native feedback checks to Buttons affected by
+  actual imported rule matches, including ancestor and descendant ownership and
+  state-only selectors. Unrelated controls no longer expand a shared USS review.
+- Preserve whole-template coverage for UXML and theme changes, the earlier-engine
+  contract and all five-state paint verdicts and observation budgets. Report native
+  match-query and unaffected-control counts; reject incomplete native capability.
+- Qualify scope with native state-only, ancestor, descendant, unrelated, disabled
+  and overridden-feedback controls alongside the existing cascade controls.
+
 ## [0.1.4] - 2026-11-14
 
 - Exclude Unity object names and their prefab-variant overrides from the

@@ -16,8 +16,12 @@ namespace VMUnityAutomation.Editor
             try
             {
                 var hosts = ResolveHosts(uxmlPaths, targetPaths, themePath);
-                foreach (string path in hosts)
+#if UNITY_6000_6_OR_NEWER
+                HashSet<StyleSheet> targetSheets = null;
+#endif
+                foreach (var host in hosts)
                 {
+                    string path = host.Path;
                     coverage.CheckBudget();
                     var asset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(path);
                     if (asset == null) throw new InvalidOperationException("Native UXML is unavailable: " + path);
@@ -32,6 +36,11 @@ namespace VMUnityAutomation.Editor
                         throw new InvalidOperationException("Feedback review requires one unambiguous imported PanelSettings ThemeStyleSheet. Complete the authoring roots: " + path);
                     using (var panel = new VmUiFeedbackPanel(root, theme))
                     {
+#if UNITY_6000_6_OR_NEWER
+                        if (!host.WholeHost)
+                            buttons = VmUiFeedbackStyleScope.SelectButtons(nodes,
+                                targetSheets ?? (targetSheets = LoadTargetSheets(targetPaths)), coverage);
+#endif
                         coverage.Hosts++;
                         foreach (Button button in buttons)
                         {
@@ -54,7 +63,7 @@ namespace VMUnityAutomation.Editor
             return coverage;
         }
 
-        private static string[] ResolveHosts(IEnumerable<string> uxmlPaths,
+        private static FeedbackHost[] ResolveHosts(IEnumerable<string> uxmlPaths,
             IReadOnlyCollection<string> targets, string themePath)
         {
             string[] paths = uxmlPaths.Distinct(StringComparer.OrdinalIgnoreCase)
@@ -75,9 +84,38 @@ namespace VMUnityAutomation.Editor
             }
             bool themeChanged = !string.IsNullOrEmpty(themePath) &&
                 AssetDatabase.GetDependencies(themePath, true).Intersect(targets, StringComparer.OrdinalIgnoreCase).Any();
+            var uxmlTargets = new HashSet<string>(targets.Where(path =>
+                path.EndsWith(".uxml", StringComparison.OrdinalIgnoreCase)), StringComparer.OrdinalIgnoreCase);
             return paths.Where(path => !templatePaths.Contains(path) &&
                     (themeChanged || targets.Contains(path) || dependencies[path].Overlaps(targets)))
+                .Select(path => new FeedbackHost { Path = path,
+                    WholeHost = themeChanged || dependencies[path].Overlaps(uxmlTargets) })
                 .ToArray();
+        }
+
+#if UNITY_6000_6_OR_NEWER
+        private static HashSet<StyleSheet> LoadTargetSheets(IEnumerable<string> targets)
+        {
+            var paths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (string target in targets.Where(path => path.EndsWith(".uss", StringComparison.OrdinalIgnoreCase)))
+                foreach (string path in AssetDatabase.GetDependencies(target, true))
+                    if (path.EndsWith(".uss", StringComparison.OrdinalIgnoreCase) ||
+                        path.EndsWith(".tss", StringComparison.OrdinalIgnoreCase))
+                    {
+                        paths.Add(path);
+                        if (paths.Count > 4096)
+                            throw new InvalidOperationException("Feedback target styles exceed 4096 dependencies.");
+                    }
+            return new HashSet<StyleSheet>(paths.Select(path =>
+                AssetDatabase.LoadAssetAtPath<StyleSheet>(path) ??
+                throw new InvalidOperationException("Native target stylesheet is unavailable: " + path)));
+        }
+#endif
+
+        private sealed class FeedbackHost
+        {
+            internal string Path;
+            internal bool WholeHost;
         }
 
         internal static void AuditButton(VmUiFeedbackPanel panel, Button button, string assetPath,

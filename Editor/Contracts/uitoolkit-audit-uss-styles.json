@@ -1,6 +1,6 @@
 {
   "route": "uitoolkit/audit-uss-styles",
-  "description": "Audit USS authoring and ownership contracts. Hard errors include grouped selector lists, margin or padding shorthand, empty selector blocks, resetting a loaded shared font to none or initial, fixed font size combined with effective auto sizing, fully inlineable single-consumer selectors, invariant declarations retained only by state anchors, repeated declaration bundles, redundant component classes, and page-scoped styles that cross reusable component ownership. It also reports ineffective or redundant layout, text, and background scale-mode declarations while preserving bounded flex, visual, interaction, state, and measured optical contracts. Native enabled Button hover and pressed target styles must differ after the real theme/template cascade; missing, overridden, focus-only and incomplete feedback are errors. Runtime-generated controls and visual clarity require separate runtime evidence.",
+  "description": "Audit USS authoring and ownership contracts. Hard errors include grouped selector lists, margin or padding shorthand, empty selector blocks, resetting a loaded shared font to none or initial, fixed font size combined with effective auto sizing, fully inlineable single-consumer selectors, invariant declarations retained only by state anchors, repeated declaration bundles, redundant component classes, and page-scoped styles that cross reusable component ownership. It also reports ineffective or redundant layout, text, and background scale-mode declarations while preserving bounded flex, visual, interaction, state, and measured optical contracts. Native enabled Button hover and pressed target styles must differ after the real theme/template cascade; missing, overridden, focus-only and incomplete feedback are errors. Unity 6000.6+ USS-only feedback scope uses native pseudo-independent matches in the requested sheets and their imports, including affected ancestors and descendants. UXML, theme and earlier-engine requests retain whole-host coverage. Runtime-generated controls and visual clarity require separate runtime evidence.",
   "inputSchema": {
     "type": "object",
     "properties": {
@@ -213,6 +213,12 @@
           "visualSamples": {
             "type": "integer"
           },
+          "styleMatchQueries": {
+            "type": "integer"
+          },
+          "unaffectedButtons": {
+            "type": "integer"
+          },
           "themePath": {
             "type": "string"
           },
@@ -235,6 +241,8 @@
           "disabledButtons",
           "stateUpdates",
           "visualSamples",
+          "styleMatchQueries",
+          "unaffectedButtons",
           "themePath",
           "elapsedMilliseconds",
           "manualVisualReviewRequired",

@@ -13,8 +13,10 @@ namespace VMUnityAutomation.Editor
         internal const int MaximumDepth = 64;
         internal const int MaximumSamples = 32768;
         internal const int MaximumMilliseconds = 2000;
+        internal const int MaximumMatchQueries = 32768;
         private readonly Stopwatch watch = Stopwatch.StartNew();
         internal int Hosts, Buttons, DisabledButtons, StateUpdates, Samples;
+        internal int StyleMatchQueries, UnaffectedButtons;
         internal bool Complete = true;
         internal string ThemePath = "";
 
@@ -22,15 +24,16 @@ namespace VMUnityAutomation.Editor
 
         internal void CheckBudget()
         {
-            if (Samples > MaximumSamples || watch.ElapsedMilliseconds > MaximumMilliseconds)
-                throw new InvalidOperationException("Native button feedback review exceeded its 32768-sample / 2000 ms observation budget; coverage is incomplete.");
+            if (Samples > MaximumSamples || StyleMatchQueries > MaximumMatchQueries || watch.ElapsedMilliseconds > MaximumMilliseconds)
+                throw new InvalidOperationException("Native button feedback review exceeded its 32768-sample / 32768-match-query / 2000 ms observation budget; coverage is incomplete.");
         }
 
         internal Dictionary<string, object> ToDictionary() => new Dictionary<string, object>
         {
-            { "complete", Complete }, { "scope", "AuthoredButtonsInNativeTemplateHosts" },
+            { "complete", Complete }, { "scope", "AuthoredButtonsInNativeTemplateHostsWithNativeStyleScopeWhenAvailable" },
             { "hosts", Hosts }, { "buttons", Buttons }, { "disabledButtons", DisabledButtons },
             { "stateUpdates", StateUpdates }, { "visualSamples", Samples },
+            { "styleMatchQueries", StyleMatchQueries }, { "unaffectedButtons", UnaffectedButtons },
             { "themePath", ThemePath }, { "elapsedMilliseconds", watch.Elapsed.TotalMilliseconds },
             { "manualVisualReviewRequired", true },
             { "runtimeGeneratedControlsEvaluated", false }
