@@ -77,7 +77,8 @@ namespace VMUnityAutomation.Editor
         internal bool Contributes(string text)
         {
             names.ClearReferences();
-            VmAutomationUxmlLayoutContractIndexer.IndexTextNameReferences(text, names, true);
+            VmAutomationUxmlLayoutContractIndexer.IndexTextNameReferences(
+                text, names, true, ignoreUnityObjectNames: true);
             if (names.HasReferences) return true;
             foreach (Match match in GuidPattern.Matches(text))
                 if (uxmlGuids.Contains(match.Groups["guid"].Value)) return true;

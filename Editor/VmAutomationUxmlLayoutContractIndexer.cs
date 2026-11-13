@@ -151,19 +151,30 @@ namespace VMUnityAutomation.Editor
     }
 
     internal static void IndexTextNameReferences(string text,
-        UxmlElementNameReferenceIndex index, bool includeYamlScalars)
+        UxmlElementNameReferenceIndex index, bool includeYamlScalars,
+        bool ignoreUnityObjectNames = false)
     {
         if (string.IsNullOrEmpty(text))
             return;
 
+        bool objectNameOverride = false;
         for (int start = 0; start < text.Length;)
         {
             int end = text.IndexOf('\n', start);
             if (end < 0)
                 end = text.Length;
-            IndexLineQuotes(text, start, end, index);
-            if (includeYamlScalars)
-                IndexYamlLine(text, start, end, index);
+            string line = ignoreUnityObjectNames ? text.Substring(start, end - start).Trim() : "";
+            if (line.StartsWith("propertyPath:", StringComparison.Ordinal))
+                objectNameOverride = line.Substring("propertyPath:".Length).Trim() == "m_Name";
+            bool objectName = ignoreUnityObjectNames &&
+                (line.StartsWith("m_Name:", StringComparison.Ordinal) ||
+                 objectNameOverride && line.StartsWith("value:", StringComparison.Ordinal));
+            if (!objectName)
+            {
+                IndexLineQuotes(text, start, end, index);
+                if (includeYamlScalars)
+                    IndexYamlLine(text, start, end, index);
+            }
             start = end + 1;
         }
     }

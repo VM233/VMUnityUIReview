@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.1.4] - 2026-11-14
+
+- Exclude Unity object names and their prefab-variant overrides from the
+  automatic prefab-to-UXML impact check. Gameplay objects named like an element
+  no longer trigger unrelated full-layout audits. Serialized element paths,
+  arbitrary binding fields, UXML GUID references and binding removal still count.
+- Cover matching quoted/unquoted names, variant overrides, real binding controls
+  and native prefab import/change/removal in the existing import fixture.
+
 ## [0.1.3] - 2026-11-13
 
 - Include the five captured native root scales with failed Button feedback, so

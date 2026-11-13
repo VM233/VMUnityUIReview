@@ -103,11 +103,11 @@ namespace VMUnityAutomation.Editor.Tests
             settings.Save();
             int initialLayoutRuns = LayoutRunCount();
             File.WriteAllText(LayoutPath,
-                "<ui:UXML xmlns:ui=\"UnityEngine.UIElements\"><ui:VisualElement/></ui:UXML>\n");
+                "<ui:UXML xmlns:ui=\"UnityEngine.UIElements\"><ui:VisualElement name=\"Crafting\"/></ui:UXML>\n");
             AssetDatabase.ImportAsset(LayoutPath, ImportAssetOptions.ForceUpdate | ImportAssetOptions.ForceSynchronousImport);
             yield return AwaitLayoutRun(initialLayoutRuns + 1);
             string prefabPath = Root + "/Stock Box.prefab";
-            var fixture = new GameObject("Stock Box");
+            var fixture = new GameObject("Crafting");
             try
             {
                 fixture.AddComponent<BoxCollider>();
@@ -162,6 +162,37 @@ namespace VMUnityAutomation.Editor.Tests
             before = LayoutRunCount();
             Assert.That(AssetDatabase.DeleteAsset(movedPath), Is.True);
             yield return AwaitLayoutRun(before + 1);
+        }
+
+        [Test]
+        public void PrefabObjectIdentityIsNotAnElementBindingButRealReferencesRemain()
+        {
+            var names = new VmAutomationUxmlLayoutModels.UxmlElementNameReferenceIndex(true);
+            names.AddDefinition("Crafting");
+            foreach (string text in new[]
+                     {
+                         "  m_Name: Crafting\n",
+                         "  m_Name: \"Crafting\"\n",
+                         "    propertyPath: m_Name\n    value: Crafting\n    objectReference: {fileID: 0}\n"
+                     })
+            {
+                names.ClearReferences();
+                VmAutomationUxmlLayoutContractIndexer.IndexTextNameReferences(
+                    text, names, true, ignoreUnityObjectNames: true);
+                Assert.That(names.HasReferences, Is.False, text);
+            }
+            foreach (string text in new[]
+                     {
+                         "  names:\n  - Crafting\n", "  target: \"Crafting\"\n",
+                         "    propertyPath: m_Name\n    value: Crafting\n" +
+                         "    propertyPath: target\n    value: Crafting\n"
+                     })
+            {
+                names.ClearReferences();
+                VmAutomationUxmlLayoutContractIndexer.IndexTextNameReferences(
+                    text, names, true, ignoreUnityObjectNames: true);
+                Assert.That(names.IsReferenced("Crafting"), Is.True, text);
+            }
         }
 
         [Test]
