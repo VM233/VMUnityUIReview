@@ -24,6 +24,7 @@ namespace VMUnityAutomation.Editor
         internal bool UxmlTooltipAttributes = true;
         internal bool UxmlLocalizedText;
         internal bool RejectDefaultControlAppearance;
+        internal bool ValidateWorkContextOwnership;
         internal bool PixelGridEnabled;
         internal int PixelGridStep = 3;
         internal readonly List<string> AssetRoots = new List<string> { "Assets" };
@@ -61,6 +62,8 @@ namespace VMUnityAutomation.Editor
                     VmAutomationUIToolkitAuditUtility.GetBool(rules, "uxmlLocalizedText", false);
                 settings.RejectDefaultControlAppearance =
                     VmAutomationUIToolkitAuditUtility.GetBool(rules, "rejectDefaultControlAppearance", false);
+                settings.ValidateWorkContextOwnership =
+                    VmAutomationUIToolkitAuditUtility.GetBool(rules, "validateWorkContextOwnership", false);
 
                 Dictionary<string, object> pixelGrid = GetDictionary(values, "pixelGrid");
                 settings.PixelGridEnabled =
@@ -175,7 +178,8 @@ namespace VMUnityAutomation.Editor
                 {
                     uxmlTooltipAttributes = UxmlTooltipAttributes,
                     uxmlLocalizedText = UxmlLocalizedText,
-                    rejectDefaultControlAppearance = RejectDefaultControlAppearance
+                    rejectDefaultControlAppearance = RejectDefaultControlAppearance,
+                    validateWorkContextOwnership = ValidateWorkContextOwnership
                 },
                 pixelGrid = new SerializedPixelGrid
                 {
@@ -271,6 +275,7 @@ namespace VMUnityAutomation.Editor
             public bool uxmlTooltipAttributes = true;
             public bool uxmlLocalizedText;
             public bool rejectDefaultControlAppearance;
+            public bool validateWorkContextOwnership;
         }
 
         [Serializable]

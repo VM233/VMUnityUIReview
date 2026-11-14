@@ -20,6 +20,7 @@ namespace VMUnityAutomation.Editor
         internal readonly bool UxmlTooltipAttributes;
         internal readonly bool UxmlLocalizedText;
         internal readonly bool RejectDefaultControlAppearance;
+        internal readonly bool ValidateWorkContextOwnership;
         internal readonly bool PixelGridEnabled;
         internal readonly int PixelGridStep;
         internal readonly List<VmAutomationBuilderPreviewRequirement> RequiredBuilderPreviews;
@@ -29,7 +30,7 @@ namespace VMUnityAutomation.Editor
             IEnumerable<string> runtimeSourceRoots, IEnumerable<string> excludePaths,
             bool uxmlTooltipAttributes, bool uxmlLocalizedText, bool rejectDefaultControlAppearance, bool pixelGridEnabled, int pixelGridStep,
             IEnumerable<VmAutomationBuilderPreviewRequirement> requiredBuilderPreviews,
-            IEnumerable<string> requiredInteractionScopes)
+            IEnumerable<string> requiredInteractionScopes, bool validateWorkContextOwnership)
         {
             AssetRoots = NormalizeRoots(assetRoots, "Assets");
             RuntimeSourceRoots = NormalizeRoots(runtimeSourceRoots, "Assets");
@@ -37,6 +38,7 @@ namespace VMUnityAutomation.Editor
             UxmlTooltipAttributes = uxmlTooltipAttributes;
             UxmlLocalizedText = uxmlLocalizedText;
             RejectDefaultControlAppearance = rejectDefaultControlAppearance;
+            ValidateWorkContextOwnership = validateWorkContextOwnership;
             PixelGridEnabled = pixelGridEnabled;
             PixelGridStep = Math.Max(1, pixelGridStep);
             RequiredBuilderPreviews = (requiredBuilderPreviews ??
@@ -74,7 +76,7 @@ namespace VMUnityAutomation.Editor
 
             return new VmAutomationUIToolkitAuditOptions(assetRoots, runtimeRoots, excludePaths,
                 settings.UxmlTooltipAttributes, settings.UxmlLocalizedText, settings.RejectDefaultControlAppearance, pixelGridEnabled, pixelGridStep,
-                settings.RequiredBuilderPreviews, settings.RequiredInteractionScopes);
+                settings.RequiredBuilderPreviews, settings.RequiredInteractionScopes, settings.ValidateWorkContextOwnership);
         }
 
         internal static VmAutomationUIToolkitAuditOptions FromProjectSettings(
@@ -86,7 +88,7 @@ namespace VMUnityAutomation.Editor
             return new VmAutomationUIToolkitAuditOptions(settings.AssetRoots,
                 settings.RuntimeSourceRoots, settings.ExcludePaths,
                 settings.UxmlTooltipAttributes, settings.UxmlLocalizedText, settings.RejectDefaultControlAppearance, settings.PixelGridEnabled,
-                settings.PixelGridStep, settings.RequiredBuilderPreviews, settings.RequiredInteractionScopes);
+                settings.PixelGridStep, settings.RequiredBuilderPreviews, settings.RequiredInteractionScopes, settings.ValidateWorkContextOwnership);
         }
 
         internal bool Includes(string assetPath)
@@ -125,7 +127,8 @@ namespace VMUnityAutomation.Editor
                     {
                         { "uxmlTooltipAttributes", UxmlTooltipAttributes },
                         { "uxmlLocalizedText", UxmlLocalizedText },
-                        { "rejectDefaultControlAppearance", RejectDefaultControlAppearance }
+                        { "rejectDefaultControlAppearance", RejectDefaultControlAppearance },
+                        { "validateWorkContextOwnership", ValidateWorkContextOwnership }
                     }
                 },
                 {

@@ -206,6 +206,8 @@ namespace VMUnityAutomation.Editor
             }
 
             VmAutomationUxmlPanelNestingAuditor.AuditProject(allUxmlPaths, report);
+            if (options.ValidateWorkContextOwnership)
+                VmUiWorkContextAuthoringAudit.Audit(options, report);
             VmAutomationUxmlThemeStyleAuditor.AuditProject(targetPaths, report);
             report.FeedbackWork = VmAutomationUssButtonFeedbackAuditor.Create(allUxmlPaths,
                 targetPaths, VmAutomationUssStyleAuditor.FindCommonPanelThemePath(options),

@@ -23,6 +23,9 @@ or ambiguous targets and never suppresses structural errors.
   `state` itself. This uses that real element as the context without adding a
   layout wrapper. A scope without state clears inherited context and still needs
   a child context; nested task scopes never inherit an outer work area implicitly.
+- `activity`: a work scope with `state` and actual component `owner`. Projects
+  enabling [work-context ownership](work-context-ownership.md) match it against
+  the real Prefab producer and require a separately navigated functional page.
 - `navigation`: requires `state`, `context`, `content` (the unique content name)
   and `selectedClass`. Its Button children use `tab` with a unique `target`
   referring to an actual `panel`. One state has one navigation owner per context,

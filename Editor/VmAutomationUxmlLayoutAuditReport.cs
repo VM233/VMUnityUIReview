@@ -24,6 +24,7 @@ namespace VMUnityAutomation.Editor
         public int InteractionPublicationNavigations, InteractionPublicationDestinations;
         public int InteractionButtons, InteractionSliders;
         public int UnclassifiedInteractionGroups, UnclassifiedInteractionFields;
+        public int WorkContextSources, WorkContextBindings, WorkContextActivities;
         internal VmUiFeedbackCoverage ButtonFeedback;
         internal VmUiFeedbackWork FeedbackWork;
 
@@ -103,6 +104,9 @@ namespace VMUnityAutomation.Editor
                         { "buttons", InteractionButtons }, { "sliders", InteractionSliders },
                         { "unclassifiedGroups", UnclassifiedInteractionGroups },
                         { "unclassifiedFields", UnclassifiedInteractionFields },
+                        { "workContextSources", WorkContextSources },
+                        { "workContextBindings", WorkContextBindings },
+                        { "workContextActivities", WorkContextActivities },
                         { "runtimeEffectsAccepted", false }
                     } },
                 { "errorCount", ErrorCount },

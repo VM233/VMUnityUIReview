@@ -82,7 +82,7 @@ namespace VMUnityAutomation.Editor
                 {
                     node.Contract = contract; node.Role = node.Get("role");
                 }
-                if (node.Role == "scope")
+                if (node.Role == "scope" || node.Role == "activity")
                 {
                     node.Scope = node; node.Group = node.Field = null;
                     node.Context = node.Get("state") == "" ? null : node;
@@ -146,7 +146,8 @@ namespace VMUnityAutomation.Editor
             foreach (string required in requirements)
             {
                 string name = required.Substring(path.Length + 1);
-                if (!globalNames.TryGetValue(name, out var named) || named.Count != 1 || named[0].Role != "scope")
+                if (!globalNames.TryGetValue(name, out var named) || named.Count != 1 ||
+                    (named[0].Role != "scope" && named[0].Role != "activity"))
                     Issue(path, document.Root, report, "required-interaction-scope-missing", "Expected one declared scope: " + required);
             }
             AuditGroups(path, groups, panels, styles, report);
@@ -307,7 +308,7 @@ namespace VMUnityAutomation.Editor
             return declarations.TryGetValue(property, out var value) ? value : styles.ResolveProperty(element, property);
         }
 
-        private static Dictionary<XElement, Dictionary<string, string>> ReadContracts(string path,
+        internal static Dictionary<XElement, Dictionary<string, string>> ReadContracts(string path,
             XDocument document, VmAutomationUxmlLayoutAuditReport report)
         {
             var result = new Dictionary<XElement, Dictionary<string, string>>();
@@ -343,6 +344,7 @@ namespace VMUnityAutomation.Editor
                     if (!values.TryGetValue("role", out string role)) throw new InvalidDataException("A contract needs a role.");
                     string[] keys;
                     if (role == "scope") keys = values.ContainsKey("state") ? new[] { "role", "state" } : new[] { "role" };
+                    else if (role == "activity") keys = new[] { "role", "state", "owner" };
                     else if (role == "panel" || role == "field" || role == "caption" || role == "value" || role == "help") keys = new[] { "role" };
                     else if (role == "context") keys = new[] { "role", "state" };
                     else if (role == "navigation")

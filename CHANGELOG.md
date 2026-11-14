@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.13] - 2026-11-14
+
+- Add optional native Prefab work-context ownership review to the existing UXML
+  layout/import gate. Match actual serialized UI producers and template targets,
+  require their real navigated activity pages and reject unrelated functions
+  sharing a page. Preserve explicit coverage and mixed-work negative controls.
+
 ## [0.1.11] - 2026-11-14
 
 - Resolve generated slider inputs and draggers even when native Scroller removes
