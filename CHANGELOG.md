@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.1.21] - 2026-11-15
+
+- Exercise the discovery boundary through the existing feedback-work factory and its real cleanup lifecycle.
+
 ## [0.1.20] - 2026-11-15
 
 - Separate bounded asset-dependency discovery from the first native control observation slice without increasing its sample, query or time limits. Retain a native boundary counterexample.

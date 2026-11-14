@@ -82,21 +82,23 @@ namespace VMUnityAutomation.Editor
         private static Dictionary<string, object> DiscoveryBoundary(string packagePath)
         {
             string path = packagePath + "/Editor/Fixtures/Inline Skin.uxml";
-            var coverage = new VmUiFeedbackCoverage();
             var findings = new List<VmAutomationUssStyleAuditIssue>();
-            using (var steps = VmAutomationUssButtonFeedbackAuditor.AuditSteps(new[] { path },
-                       new[] { path }, packagePath + "/Editor/Fixtures/Default Theme.tss",
-                       findings.Add, true, coverage).GetEnumerator())
+            var work = VmAutomationUssButtonFeedbackAuditor.Create(new[] { path }, new[] { path },
+                packagePath + "/Editor/Fixtures/Default Theme.tss", findings.Add, true);
+            try
             {
-                bool discoveryOnly = steps.MoveNext() && coverage.Samples == 0 && coverage.StateUpdates == 0;
-                coverage.BeginObservation();
-                bool observed = steps.MoveNext() && coverage.Samples > 0;
+                work.Advance();
+                bool discoveryOnly = !work.Finished && work.Coverage.Samples == 0 && work.Coverage.StateUpdates == 0;
+                work.Advance();
+                bool observed = work.Coverage.Samples > 0;
+                work.Drain();
                 return new Dictionary<string, object>
                 {
                     { "name", "dependency discovery cannot consume the first native observation slice" },
-                    { "passed", discoveryOnly && observed }
+                    { "passed", discoveryOnly && observed && work.Coverage.Complete }
                 };
             }
+            finally { work.Cancel("Discovery boundary fixture completed."); }
         }
 
         private static Dictionary<string, object> SharedAncestorState(ThemeStyleSheet theme)
