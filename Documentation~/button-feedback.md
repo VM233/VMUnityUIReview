@@ -1,5 +1,36 @@
 # Native button feedback gate
 
+## Native flat-surface contrast
+
+The same state observations also compare resolved text against its composited
+flat background (4.5:1) and reject loss of a formerly distinct control boundary
+(3:1 against the adjacent host). A painted border can preserve the boundary.
+Alpha colors use foreground-over-background composition before sRGB relative
+luminance. These are the W3C [text](https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html)
+and [non-text](https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast.html)
+models, not a requirement for 3:1 between consecutive state colors.
+
+Native ToggleButtonGroup members are observed in both checked and unchecked
+variants, preserving their original selection. Disabled controls remain outside
+enabled feedback requirements. Reports count text/boundary checks, selection
+variants and unmeasured samples separately. Textures, group opacity and sibling
+overpaint require actual pixel review; no default color is invented for them.
+The original white-hover-on-white-host, near-white and low-text-contrast controls
+must fail; dark hover, a real border, alpha composition and disabled controls
+have matched positive witnesses.
+
+Static Cost Ledger: retain the existing 32768 global sample bound. Each sample
+adds at most two 64-ancestor walks and four edge comparisons, without textures,
+layout, new native state updates or asset searches. Selection variants reuse
+the same five-state observation and global caps, with at most two variants per
+native group member. One current host and paint snapshot remain live. Failure,
+unmeasured textures, budget limits and native capability gaps remain explicit;
+none are a visual acceptance pass. Success requires the matched fixtures and a
+complete replay of the real host. A missed original negative or legitimate
+border rejection stops this method without changing thresholds or scope.
+
+## Effective state feedback
+
 An enabled authored Button needs an effective hover presentation and a distinct
 pressed presentation. The gate reports errors for missing or overridden feedback,
 including opaque text buttons, inline/ID/later cascade overrides, identical hover

@@ -19,6 +19,8 @@ namespace VMUnityAutomation.Editor
         internal int Hosts, Buttons, DisabledButtons, StateUpdates, Samples;
         internal int StyleMatchQueries, UnaffectedButtons, StyleOriginCacheHits;
         internal int FieldOwners;
+        internal int ContrastSamples, UnmeasuredContrastSamples, TextContrastChecks, BoundaryContrastChecks;
+        internal int SelectionVariants;
         internal bool Complete = true;
         internal string ThemePath = "";
         internal VmUiControlSkinAudit ControlSkins;
@@ -41,6 +43,10 @@ namespace VMUnityAutomation.Editor
             { "styleMatchQueries", StyleMatchQueries }, { "unaffectedButtons", UnaffectedButtons },
             { "styleOriginCacheHits", StyleOriginCacheHits },
             { "fieldOwners", FieldOwners },
+            { "contrastSamples", ContrastSamples }, { "unmeasuredContrastSamples", UnmeasuredContrastSamples },
+            { "selectionVariants", SelectionVariants },
+            { "textContrastChecks", TextContrastChecks }, { "boundaryContrastChecks", BoundaryContrastChecks },
+            { "contrastScope", "NativeOpaqueFlatSurfaces; boundary loss from a distinct normal state; text minimum 4.5:1" },
             { "observationBudgetMilliseconds", MaximumMilliseconds },
             { "observationBudgetUnit", "NativeControlObservation" },
             { "themePath", ThemePath }, { "elapsedMilliseconds", watch.Elapsed.TotalMilliseconds },

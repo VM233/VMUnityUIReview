@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.23] - 2026-11-15
+
+- Measure enabled Button text and boundary contrast on native resolved flat surfaces across normal, hover, focus, press and release. Reject unreadable text and a hover/press that loses a previously distinct boundary against its actual host, including alpha composition.
+- Report measured and unmeasured coverage explicitly; textures, opacity and overpaint still require pixel review. Keep original white-on-white and near-white failure controls beside readable dark, bordered, alpha and disabled controls.
+
 ## [0.1.22] - 2026-11-15
 
 - Run complete work-context authoring coverage through the existing cooperative native-work owner, yielding between Prefabs/documents with the same per-slice limits and cancellation cleanup.

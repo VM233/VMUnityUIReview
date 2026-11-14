@@ -1,6 +1,6 @@
 {
   "route": "uitoolkit/audit-uxml-layout",
-  "description": "Audit authored UXML for required UI Builder previews, text ownership, layout, stylesheet and component contracts. Projects opting into rules.uxmlLocalizedText also reject unbound player text, including single-word titles, unless a reasoned invariant or runtime text owner is declared. Command syntax has no implicit exemption. Bound literal fallbacks and blank Labels remain errors independently of text ownership markers. Native enabled Button hover and pressed target styles must differ after the real theme/template cascade; missing, overridden, focus-only and incomplete feedback are errors. Runtime-generated controls and visual clarity require separate runtime evidence. Projects opting into rules.rejectDefaultControlAppearance also reject actual Unity default-theme paint and built-in UI resources, including generated parts, inherited text, boolean values and interaction/disabled states. Current attached runtime parts are checked by resource-audit; manual art review remains required. With that policy enabled, complete native control observations continue between Editor updates; source/domain changes, cancellation or failure produce incomplete coverage and retire every owned panel before publication. Optional validateWorkContextOwnership compares actual serialized producer bindings and native UIDocument/template targets; independent work contexts sharing one navigated page fail.",
+  "description": "Audit authored UXML for required UI Builder previews, text ownership, layout, stylesheet and component contracts. Projects opting into rules.uxmlLocalizedText also reject unbound player text, including single-word titles, unless a reasoned invariant or runtime text owner is declared. Command syntax has no implicit exemption. Bound literal fallbacks and blank Labels remain errors independently of text ownership markers. Native enabled Button hover and pressed target styles must differ after the real theme/template cascade; missing, overridden, focus-only and incomplete feedback are errors. Native flat-surface text and control-boundary contrast are measured across enabled states, including both native group selection variants. Textures, opacity, runtime-generated controls and visual clarity require separate runtime evidence. Projects opting into rules.rejectDefaultControlAppearance also reject actual Unity default-theme paint and built-in UI resources, including generated parts, inherited text, boolean values and interaction/disabled states. Current attached runtime parts are checked by resource-audit; manual art review remains required. With that policy enabled, complete native control observations continue between Editor updates; source/domain changes, cancellation or failure produce incomplete coverage and retire every owned panel before publication. Optional validateWorkContextOwnership compares actual serialized producer bindings and native UIDocument/template targets; independent work contexts sharing one navigated page fail.",
   "inputSchema": {
     "type": "object",
     "properties": {
@@ -293,6 +293,17 @@
           "stateUpdates": {
             "type": "integer"
           },
+          "contrastSamples": { "type": "integer" },
+          "unmeasuredContrastSamples": { "type": "integer" },
+          "textContrastChecks": { "type": "integer" },
+          "boundaryContrastChecks": { "type": "integer" },
+          "selectionVariants": { "type": "integer" },
+          "contrastScope": { "type": "string" },
+          "styleOriginCacheHits": { "type": "integer" },
+          "fieldOwners": { "type": "integer" },
+          "observationBudgetMilliseconds": { "type": "integer" },
+          "observationBudgetUnit": { "type": "string" },
+          "controlSkins": { "type": ["object", "null"], "properties": { "samples": {"type":"integer"}, "findings": {"type":"integer"}, "scope": {"type":"string"}, "manualArtReviewRequired": {"type":"boolean"} }, "additionalProperties": false },
           "visualSamples": {
             "type": "integer"
           },

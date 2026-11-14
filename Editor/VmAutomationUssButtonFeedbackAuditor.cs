@@ -213,7 +213,7 @@ namespace VMUnityAutomation.Editor
         }
 
         internal static void AuditButton(VmUiFeedbackPanel panel, Button button, string assetPath,
-            VmUiFeedbackCoverage coverage, Action<VmAutomationUssStyleAuditIssue> record)
+            VmUiFeedbackCoverage coverage, Action<VmAutomationUssStyleAuditIssue> record, bool selectionVariant = false)
         {
             if (!button.enabledInHierarchy) { coverage.DisabledButtons++; return; }
             List<VisualElement> nodes = Descendants(button, VmUiFeedbackCoverage.MaximumDescendants);
@@ -222,32 +222,38 @@ namespace VMUnityAutomation.Editor
                 node.style.transitionDuration = new List<TimeValue> { new TimeValue(0) };
                 node.style.transitionDelay = new List<TimeValue> { new TimeValue(0) };
             }
-            coverage.Buttons++;
+            if (selectionVariant) coverage.SelectionVariants++;
+            else coverage.Buttons++;
             panel.SetState(button, false, false, false);
             coverage.StateUpdates++;
             VmUiButtonPaint[] normal = VmUiButtonPaint.Capture(nodes, coverage);
+            VmUiButtonContrast.Review(normal, normal, "normal", assetPath, button, coverage, record);
             coverage.ControlSkins?.Inspect(panel.Root, nodes, assetPath, "button:normal", record);
             var stateScales = new Dictionary<string, string> { { "normal", normal[0].ScaleEvidence } };
             panel.SetState(button, true, false, false);
             coverage.StateUpdates++;
             VmUiButtonPaint[] hover = VmUiButtonPaint.Capture(nodes, coverage);
+            VmUiButtonContrast.Review(normal, hover, "hover", assetPath, button, coverage, record);
             coverage.ControlSkins?.Inspect(panel.Root, nodes, assetPath, "button:hover", record);
             stateScales.Add("hover", hover[0].ScaleEvidence);
             if (VmUiButtonPaint.Same(normal, hover)) Record("hover");
             panel.SetState(button, true, false, true);
             coverage.StateUpdates++;
             VmUiButtonPaint[] focusedHover = VmUiButtonPaint.Capture(nodes, coverage);
+            VmUiButtonContrast.Review(normal, focusedHover, "focused-hover", assetPath, button, coverage, record);
             coverage.ControlSkins?.Inspect(panel.Root, nodes, assetPath, "button:focused-hover", record);
             stateScales.Add("focusedHover", focusedHover[0].ScaleEvidence);
             panel.SetState(button, true, true, true);
             coverage.StateUpdates++;
             VmUiButtonPaint[] pressed = VmUiButtonPaint.Capture(nodes, coverage);
+            VmUiButtonContrast.Review(normal, pressed, "pressed", assetPath, button, coverage, record);
             coverage.ControlSkins?.Inspect(panel.Root, nodes, assetPath, "button:pressed", record);
             stateScales.Add("pressed", pressed[0].ScaleEvidence);
             if (VmUiButtonPaint.Same(focusedHover, pressed)) Record("press");
             panel.SetState(button, true, false, true);
             coverage.StateUpdates++;
             VmUiButtonPaint[] released = VmUiButtonPaint.Capture(nodes, coverage);
+            VmUiButtonContrast.Review(normal, released, "released", assetPath, button, coverage, record);
             coverage.ControlSkins?.Inspect(panel.Root, nodes, assetPath, "button:released", record);
             stateScales.Add("released", released[0].ScaleEvidence);
             if (!VmUiButtonPaint.Same(focusedHover, released)) Record("release");
@@ -265,6 +271,17 @@ namespace VMUnityAutomation.Editor
                     button.SetEnabled(true);
                     panel.SetState(button, true, false, true);
                 }
+            }
+
+            if (!selectionVariant && panel.HasSelectionOwner(button))
+            {
+                bool selected = panel.IsChecked(button);
+                try
+                {
+                    panel.SetChecked(button, !selected);
+                    AuditButton(panel, button, assetPath, coverage, record, selectionVariant: true);
+                }
+                finally { panel.SetChecked(button, selected); panel.SetState(button, false, false, false); }
             }
 
             void Record(string state)

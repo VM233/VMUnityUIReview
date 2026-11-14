@@ -16,6 +16,7 @@ namespace VMUnityAutomation.Editor
             typeof(IResolvedStyle).GetProperty(name) ?? throw new MissingMemberException(typeof(IResolvedStyle).FullName, name)).ToArray();
         private readonly object[] values;
         private readonly Vector3 nativeScale;
+        internal VmUiButtonContrast Contrast { get; private set; }
         internal string ScaleEvidence => string.Join(",", nativeScale.x.ToString("R", CultureInfo.InvariantCulture),
             nativeScale.y.ToString("R", CultureInfo.InvariantCulture), nativeScale.z.ToString("R", CultureInfo.InvariantCulture));
 
@@ -25,6 +26,7 @@ namespace VMUnityAutomation.Editor
             bool image = !style.backgroundImage.Equals(default(Background));
             bool text = element is TextElement label && !string.IsNullOrWhiteSpace(label.text);
             Vector4 borders = VmUiComputedStyleValues.Read(element);
+            Contrast = VmUiButtonContrast.Capture(element, borders);
             var paint = new List<object>(24)
             {
                 VisibleColor(style.backgroundColor), image ? style.backgroundImage : default(Background),

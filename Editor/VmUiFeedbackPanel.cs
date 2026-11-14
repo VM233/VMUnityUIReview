@@ -28,6 +28,8 @@ namespace VMUnityAutomation.Editor
         private static readonly long Hover = Convert.ToInt64(Enum.Parse(PseudoStates.PropertyType, "Hover"));
         private static readonly long Active = Convert.ToInt64(Enum.Parse(PseudoStates.PropertyType, "Active"));
         private static readonly long Focus = Convert.ToInt64(Enum.Parse(PseudoStates.PropertyType, "Focus"));
+        private static readonly long Checked = Convert.ToInt64(Enum.Parse(PseudoStates.PropertyType, "Checked"));
+        private static readonly Type SelectionGroupType = typeof(VisualElement).Assembly.GetType("UnityEngine.UIElements.ToggleButtonGroup");
         private readonly List<VisualElement> stateChain = new List<VisualElement>();
         private readonly List<VisualElement> nextStateChain = new List<VisualElement>();
         private readonly HashSet<VisualElement> nextStateMembers = new HashSet<VisualElement>();
@@ -39,6 +41,22 @@ namespace VMUnityAutomation.Editor
 
         internal VisualElement Root { get; private set; }
         internal StyleSheet Theme => theme;
+
+        internal bool HasSelectionOwner(VisualElement element)
+        {
+            for (VisualElement node = element.hierarchy.parent; node != null; node = node.hierarchy.parent)
+                if (SelectionGroupType != null && SelectionGroupType.IsInstanceOfType(node)) return true;
+            return false;
+        }
+
+        internal bool IsChecked(VisualElement element) => (Convert.ToInt64(PseudoStates.GetValue(element)) & Checked) != 0;
+
+        internal void SetChecked(VisualElement element, bool selected)
+        {
+            long states = Convert.ToInt64(PseudoStates.GetValue(element));
+            PseudoStates.SetValue(element, Enum.ToObject(PseudoStates.PropertyType,
+                selected ? states | Checked : states & ~Checked));
+        }
 
         internal VmUiFeedbackPanel(VisualElement content, ThemeStyleSheet sourceTheme)
         {
