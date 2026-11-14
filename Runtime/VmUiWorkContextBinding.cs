@@ -1,12 +1,5 @@
-using System.Collections.Generic;
-
 namespace VMUnityAutomation.Runtime
 {
-    public interface IVmUiWorkContextSource
-    {
-        IEnumerable<VmUiWorkContextBinding> GetWorkContextBindings();
-    }
-
     public readonly struct VmUiWorkContextBinding
     {
         public string ElementName { get; }

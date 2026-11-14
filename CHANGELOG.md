@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.15] - 2026-11-14
+
+- Keep the work-context producer interface and binding value in separate source
+  files so package adoption passes the shared one-type-per-file policy.
+
 ## [0.1.14] - 2026-11-14
 
 - Run Button-only review through the same bounded native observation continuation
