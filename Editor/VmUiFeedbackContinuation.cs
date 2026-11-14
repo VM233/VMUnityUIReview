@@ -16,7 +16,6 @@ namespace VMUnityAutomation.Editor
         internal static void Run(VmUiFeedbackWork work, Action completed)
         {
             if (work == null || work.Finished) { completed(); return; }
-            if (!work.Coverage.Cooperative) { work.Drain(); completed(); return; }
             if (Pending == 8)
             {
                 work.Cancel("At most eight native UI review continuations may be admitted.");

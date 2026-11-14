@@ -49,7 +49,7 @@ enabled, CLI, menu and automatic review instead continue between Editor updates,
 using the existing deferred-route pattern of native Builder preview. One step
 observes a complete neutral host, one field's full value/state matrix, or one
 Button's full matrix. Each step retains the 2000 ms active observation bound.
-Button-only review keeps its request-wide bound and synchronous execution.
+Button-only review uses this same native observation continuation and reports the NativeControlObservation budget unit. The active bound is2000ms per complete observation, with the existing60000ms continuation lifetime and total sample/query caps.
 Total elapsed time is always reported; total sample/query/declaration caps remain
 request-wide. No field, name, class, type or skin marker grants an exemption.
 Acceptance requires raw Foldout, marker-only and partial-state controls to fail,

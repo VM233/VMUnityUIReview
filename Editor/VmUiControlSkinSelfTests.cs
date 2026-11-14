@@ -66,7 +66,7 @@ namespace VMUnityAutomation.Editor
             void WorkLifetime(int outcome)
             {
                 var root = new VisualElement();
-                var coverage = new VmUiFeedbackCoverage { Cooperative = true };
+                var coverage = new VmUiFeedbackCoverage();
                 var errors = new List<string>();
                 var work = new VmUiFeedbackWork(coverage, Observe().GetEnumerator(), errors.Add);
                 bool pending = !work.Finished && !coverage.Complete;

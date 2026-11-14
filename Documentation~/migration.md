@@ -29,3 +29,7 @@ the unique PanelSettings theme in the declared roots. Runtime-created controls,
 custom non-Button click handlers, uGUI Selectable feedback and device presentation
 need their corresponding native/runtime evidence. Their absence from this
 authoring report is never an acceptance claim.
+
+## Native observation scheduling
+
+Button-only authoring review now uses the same bounded Editor-update continuation as control-skin review. The report budget unit is NativeControlObservation, with2000ms per complete observation, an8ms cooperative slice and60000ms lifetime;2000ms is no longer a request-total promise. Global sample/query caps and failure/retirement semantics remain unchanged. Wait for the existing durable job completion before consuming results.

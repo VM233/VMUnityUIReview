@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.14] - 2026-11-14
+
+- Run Button-only review through the same bounded native observation continuation
+  as control-skin review. Report the per-control budget explicitly; retain complete
+  states, global sample/query limits and cancellation/source-retirement contracts.
+
 ## [0.1.13] - 2026-11-14
 
 - Add optional native Prefab work-context ownership review to the existing UXML

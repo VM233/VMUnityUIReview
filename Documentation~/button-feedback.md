@@ -120,12 +120,37 @@ There are no additional native getters, scans, update passes or relaxed budgets.
 Native scale-only positive and inline-scale negative fixtures qualify this
 observation before callers use it to distinguish cascade from capture failures.
 
-### Pseudo-state invalidation and remaining request cost
+### Complete observations across Editor updates
 
-Direct final pseudo-state writes retain shared ancestors and pass the native ancestor-resolution control. They remove a confirmed redundant clear/restore invalidation, but the original full three-sheet request still exceeds its unchanged request-wide2000ms bound. This is not a completed performance repair; the cold/prewarm and state-write-only explanations are stopped. Keep all original control/state/query/sample coverage and negative controls.
+The marked native capture attributes the complete three-sheet request to212
+enabled and45 disabled Buttons,1060 states,3255 paint samples and17559 queries
+in1519.78ms. Its work marker includes518.93ms state application (455.67ms native
+Styles),249.97ms cloning,130.84ms matching and118.23ms host resolution. All
+native self-tests pass. This scope does not establish a universal request bound.
+A shared-root request reaches289 Buttons in five hosts before the old total
+2000ms cutoff. Stop the request-total method and retain this incomplete witness.
 
-A scoped native Profiler capture found a20.95s command frame with259.9MiB allocated, including self-tests, but19.60s remained opaque under the Pipeline dispatcher. It did not attribute the feedback work's own2s interval. Unity recommends [manual profiling blocks](https://docs.unity3d.com/2021.1/Documentation/Manual/ProfilerWindow.html) when whole-method deep profiling would impose excessive overhead. Add fixed immutable ProfilerMarker scopes to the actual synchronous work step, host resolution/clone, panel construction, structural scope build/matching, pseudo-state/native style update and paint capture. No marker spans an iterator yield or an Editor frame.
+Use the existing [Editor update iterator](https://docs.unity3d.com/cn/6000.0/ScriptReference/Progress.html)
+and native continuation for Button-only and control-skin reviews. Each complete
+control observation keeps its2000ms active native bound, with the existing8ms
+cooperative slice and60000ms continuation lifetime. Reports explicitly identify
+NativeControlObservation. The old request-total two-second promise is removed;
+this is a scheduling/coverage contract change, not lower total CPU work. All
+hosts, controls, five Button states, negative controls and global32768-sample/query
+caps remain unchanged. The bound is checked between native calls, without
+preemption inside engine work.
 
-One further capture of the same full request, without deep profiling, must expose the real expensive phase before another algorithm change. It is diagnostic evidence, not acceptance. No interval, host, control, negative control or budget is removed or relaxed. All enabled/target flags and native frame capacity are restored; the prior empty recording checkpoint permits retiring only these owned frames. If the marked calls are absent or cannot be correlated with the original request, stop and investigate observation ownership rather than guessing another optimization.
+Only the isolated panel and enumerator cross Editor updates. Source changes,
+compilation, Play Mode, domain retirement, timeout or cancellation invalidate the
+whole result and retire that same owner. Completion publishes after disposal.
+Self-test drains use the same observation boundaries without a second algorithm.
 
-Static Cost Ledger: nine fixed native marker identities; each original synchronous work/host/state/paint operation gains one stack AutoScope, with native Styles nested inside state application. No new data traversal, selector match, native style update, paint read, retained snapshot, schedule or request field. Existing128-host/8192-node/128-button/256-descendant/32768-query/32768-sample bounds still apply, including the unchanged2000ms request budget for Button-only review. Marker calls are at most a constant multiple of the original operations; disabled recording retains no per-operation product. PASS for these frozen axes. The user's independent temporary clone is used for publication and removed after consumer adoption.
+Static Cost Ledger:128 hosts times128 Buttons gives at most16384 observation
+steps, further bounded by32768 total paint samples and32768 total queries. One
+current panel and its bounded tree/snapshots remain live. No native state update,
+match, paint getter, input axis, cache or product is added. At most eight
+continuations live, each limited to60000ms. Nine fixed markers stay inside
+synchronous steps and never span yields. PASS for these frozen axes. One complete
+final-scope replay must preserve negative controls and satisfy active/lifetime and
+total caps. Incomplete coverage, lost negatives or retirement failure stops this
+method; do not raise caps, trim scope or repeat for a lucky pass.

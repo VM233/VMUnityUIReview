@@ -16,7 +16,7 @@ namespace VMUnityAutomation.Editor
         {
             var coverage = new VmUiFeedbackCoverage
             {
-                ThemePath = themePath ?? "", Cooperative = rejectDefaultControlAppearance
+                ThemePath = themePath ?? ""
             };
             return new VmUiFeedbackWork(coverage,
                 Steps(uxmlPaths, targetPaths, themePath, record, rejectDefaultControlAppearance, coverage).GetEnumerator(),

@@ -19,18 +19,17 @@ namespace VMUnityAutomation.Editor
         internal int Hosts, Buttons, DisabledButtons, StateUpdates, Samples;
         internal int StyleMatchQueries, UnaffectedButtons, StyleOriginCacheHits;
         internal int FieldOwners;
-        internal bool Cooperative;
         internal bool Complete = true;
         internal string ThemePath = "";
         internal VmUiControlSkinAudit ControlSkins;
 
         internal void Finish() => watch.Stop();
-        internal void BeginObservation() { if (Cooperative) observationWatch.Restart(); }
+        internal void BeginObservation() { observationWatch.Restart(); }
 
         internal void CheckBudget()
         {
             if (Samples > MaximumSamples || StyleMatchQueries > MaximumMatchQueries ||
-                (Cooperative ? observationWatch.ElapsedMilliseconds : watch.ElapsedMilliseconds) > MaximumMilliseconds)
+                observationWatch.ElapsedMilliseconds > MaximumMilliseconds)
                 throw new InvalidOperationException("Native UI review exceeded its 32768 total samples / 32768 total match queries / 2000 ms active observation budget; coverage is incomplete.");
         }
 
@@ -43,7 +42,7 @@ namespace VMUnityAutomation.Editor
             { "styleOriginCacheHits", StyleOriginCacheHits },
             { "fieldOwners", FieldOwners },
             { "observationBudgetMilliseconds", MaximumMilliseconds },
-            { "observationBudgetUnit", Cooperative ? "NativeControlObservation" : "Request" },
+            { "observationBudgetUnit", "NativeControlObservation" },
             { "themePath", ThemePath }, { "elapsedMilliseconds", watch.Elapsed.TotalMilliseconds },
             { "manualVisualReviewRequired", true },
             { "runtimeGeneratedControlsEvaluated", false },

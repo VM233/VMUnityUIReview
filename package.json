@@ -1,6 +1,6 @@
 {
   "name": "com.vm233.unity-ui-review",
-  "version": "0.1.13",
+  "version": "0.1.14",
   "displayName": "VM Unity UI Review",
   "description": "UI Toolkit authoring, native interaction feedback, runtime experience and transition review through the official Unity CLI and Pipeline.",
   "unity": "2021.3",
