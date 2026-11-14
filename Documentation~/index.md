@@ -1,6 +1,7 @@
 # UI review references
 
 - [Native button feedback and coverage](button-feedback.md)
+- [Project control skins and default-theme rejection](control-skins.md)
 - [USS and UXML authoring](uitoolkit-audits.md)
 - [Template instance style ownership](template-instance-styles.md)
 - [Automatic import observation](uitoolkit-import-observation.md)

@@ -306,6 +306,7 @@ namespace VMUnityAutomation.Editor
             cases.AddRange(
                 VmAutomationUssSingleConsumerInstanceDeclarationAuditor.RunSelfTests());
             cases.AddRange(VmUiButtonFeedbackSelfTests.Run());
+            cases.AddRange(VmUiControlSkinSelfTests.Run());
             AddSelfTestCase(cases, "display-only visibility classes are rejected",
                 displayClassSelectors.SequenceEqual(new[]
                 {

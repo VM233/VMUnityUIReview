@@ -183,7 +183,7 @@ namespace VMUnityAutomation.Editor
                 allRules, usageIndex, report);
             report.ButtonFeedback = VmAutomationUssButtonFeedbackAuditor.Audit(
                 usageIndex.Documents.Select(document => document.AssetPath), targetPaths,
-                commonThemePath, issue => report.Record(issue, false));
+                commonThemePath, issue => report.Record(issue, false), options.RejectDefaultControlAppearance);
             report.SortIssues();
             return report;
         }

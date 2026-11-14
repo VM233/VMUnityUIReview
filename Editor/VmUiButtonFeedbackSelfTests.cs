@@ -143,7 +143,7 @@ namespace VMUnityAutomation.Editor
         }
 #endif
 
-        private static void Import(StyleSheet target, string text)
+        internal static void Import(StyleSheet target, string text)
         {
             Type importerType = VmAutomationUIToolkitInitialStyleComparer.RequireUniqueLoadedType(
                 "UnityEditor.UIElements.StyleSheets.StyleSheetImporterImpl");

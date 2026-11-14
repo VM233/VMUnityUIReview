@@ -10,11 +10,13 @@ namespace VMUnityAutomation.Editor
     {
         internal static VmUiFeedbackCoverage Audit(IEnumerable<string> uxmlPaths,
             IReadOnlyCollection<string> targetPaths, string themePath,
-            Action<VmAutomationUssStyleAuditIssue> record)
+            Action<VmAutomationUssStyleAuditIssue> record, bool rejectDefaultControlAppearance = false)
         {
             var coverage = new VmUiFeedbackCoverage { ThemePath = themePath ?? "" };
             try
             {
+                if (rejectDefaultControlAppearance)
+                    coverage.ControlSkins = new VmUiControlSkinAudit(coverage);
                 var hosts = ResolveHosts(uxmlPaths, targetPaths, themePath);
 #if UNITY_6000_6_OR_NEWER
                 VmUiFeedbackStyleScope targetScope = null;
@@ -28,7 +30,7 @@ namespace VMUnityAutomation.Editor
                     VisualElement root = asset.CloneTree();
                     List<VisualElement> nodes = Descendants(root, VmUiFeedbackCoverage.MaximumNodes);
                     Button[] buttons = nodes.OfType<Button>().ToArray();
-                    if (buttons.Length == 0) continue;
+                    if (buttons.Length == 0 && coverage.ControlSkins == null) continue;
                     if (buttons.Length > VmUiFeedbackCoverage.MaximumButtons)
                         throw new InvalidOperationException("Native feedback host exceeds 128 Buttons: " + path);
                     var theme = AssetDatabase.LoadAssetAtPath<ThemeStyleSheet>(themePath);
@@ -36,6 +38,13 @@ namespace VMUnityAutomation.Editor
                         throw new InvalidOperationException("Feedback review requires one unambiguous imported PanelSettings ThemeStyleSheet. Complete the authoring roots: " + path);
                     using (var panel = new VmUiFeedbackPanel(root, theme))
                     {
+                        if (coverage.ControlSkins != null)
+                        {
+                            coverage.ControlSkins.RegisterTheme(panel.Theme, themePath);
+                            panel.SetState(root, false, false, false);
+                            coverage.ControlSkins.Inspect(panel.Root, nodes, path, "neutral", record);
+                            AuditFieldSkins(panel, nodes, path, coverage, record);
+                        }
 #if UNITY_6000_6_OR_NEWER
                         if (!host.WholeHost)
                             buttons = (targetScope ?? (targetScope = new VmUiFeedbackStyleScope(
@@ -61,6 +70,48 @@ namespace VMUnityAutomation.Editor
             }
             finally { coverage.Finish(); }
             return coverage;
+        }
+
+        private static void AuditFieldSkins(VmUiFeedbackPanel panel, List<VisualElement> nodes,
+            string path, VmUiFeedbackCoverage coverage, Action<VmAutomationUssStyleAuditIssue> record)
+        {
+            VisualElement[] fields = nodes.Where(node => node is Toggle ||
+                (node.focusable && !(node is Button))).ToArray();
+            if (fields.Length > VmUiFeedbackCoverage.MaximumButtons)
+                throw new InvalidOperationException("Native skin host exceeds 128 field state owners: " + path);
+            foreach (VisualElement field in fields)
+            {
+                bool enabled = field.enabledSelf;
+                var toggle = field as Toggle;
+                bool originalValue = toggle != null && toggle.value;
+                var sampled = Descendants(field, VmUiFeedbackCoverage.MaximumDescendants);
+                VisualElement target = field;
+                if (toggle != null)
+                    target = field.Q(className: Toggle.inputUssClassName) ??
+                        throw new InvalidOperationException("Native Toggle input is missing: " + field.name);
+                try
+                {
+                    for (int value = 0; value < (toggle == null ? 1 : 2); value++)
+                    {
+                        toggle?.SetValueWithoutNotify(value == 1);
+                        for (int state = 0; state < 5; state++)
+                        {
+                            field.SetEnabled(state != 4);
+                            panel.SetState(target, state is 1 or 2, state == 2, state == 3, field);
+                            coverage.StateUpdates++;
+                            coverage.ControlSkins.Inspect(panel.Root, sampled, path,
+                                field.GetType().Name + ":value=" + value + ":" +
+                                new[] { "normal", "hover", "pressed", "focused", "disabled" }[state], record);
+                        }
+                    }
+                }
+                finally
+                {
+                    toggle?.SetValueWithoutNotify(originalValue);
+                    field.SetEnabled(enabled);
+                    panel.SetState(field, false, false, false);
+                }
+            }
         }
 
         private static FeedbackHost[] ResolveHosts(IEnumerable<string> uxmlPaths,
@@ -132,26 +183,46 @@ namespace VMUnityAutomation.Editor
             panel.SetState(button, false, false, false);
             coverage.StateUpdates++;
             VmUiButtonPaint[] normal = VmUiButtonPaint.Capture(nodes, coverage);
+            coverage.ControlSkins?.Inspect(panel.Root, nodes, assetPath, "button:normal", record);
             var stateScales = new Dictionary<string, string> { { "normal", normal[0].ScaleEvidence } };
             panel.SetState(button, true, false, false);
             coverage.StateUpdates++;
             VmUiButtonPaint[] hover = VmUiButtonPaint.Capture(nodes, coverage);
+            coverage.ControlSkins?.Inspect(panel.Root, nodes, assetPath, "button:hover", record);
             stateScales.Add("hover", hover[0].ScaleEvidence);
             if (VmUiButtonPaint.Same(normal, hover)) Record("hover");
             panel.SetState(button, true, false, true);
             coverage.StateUpdates++;
             VmUiButtonPaint[] focusedHover = VmUiButtonPaint.Capture(nodes, coverage);
+            coverage.ControlSkins?.Inspect(panel.Root, nodes, assetPath, "button:focused-hover", record);
             stateScales.Add("focusedHover", focusedHover[0].ScaleEvidence);
             panel.SetState(button, true, true, true);
             coverage.StateUpdates++;
             VmUiButtonPaint[] pressed = VmUiButtonPaint.Capture(nodes, coverage);
+            coverage.ControlSkins?.Inspect(panel.Root, nodes, assetPath, "button:pressed", record);
             stateScales.Add("pressed", pressed[0].ScaleEvidence);
             if (VmUiButtonPaint.Same(focusedHover, pressed)) Record("press");
             panel.SetState(button, true, false, true);
             coverage.StateUpdates++;
             VmUiButtonPaint[] released = VmUiButtonPaint.Capture(nodes, coverage);
+            coverage.ControlSkins?.Inspect(panel.Root, nodes, assetPath, "button:released", record);
             stateScales.Add("released", released[0].ScaleEvidence);
             if (!VmUiButtonPaint.Same(focusedHover, released)) Record("release");
+            if (coverage.ControlSkins != null)
+            {
+                try
+                {
+                    button.SetEnabled(false);
+                    panel.SetState(button, false, false, false);
+                    coverage.StateUpdates++;
+                    coverage.ControlSkins.Inspect(panel.Root, nodes, assetPath, "button:disabled", record);
+                }
+                finally
+                {
+                    button.SetEnabled(true);
+                    panel.SetState(button, true, false, true);
+                }
+            }
 
             void Record(string state)
             {
@@ -169,7 +240,7 @@ namespace VMUnityAutomation.Editor
             }
         }
 
-        private static List<VisualElement> Descendants(VisualElement root, int maximum)
+        internal static List<VisualElement> Descendants(VisualElement root, int maximum)
         {
             var result = new List<VisualElement>();
             var pending = new Stack<KeyValuePair<VisualElement, int>>();

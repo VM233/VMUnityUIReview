@@ -1,6 +1,6 @@
 {
   "route": "uitoolkit/resource-audit",
-  "description": "Audit UI Toolkit elements for resolved background assets, generated child visuals, highlighted-state misuse, and scale metadata.",
+  "description": "Audit UI Toolkit elements for resolved background assets, generated child visuals, highlighted-state misuse, and scale metadata. Projects opting into rules.rejectDefaultControlAppearance also reject actual Unity default-theme paint and built-in UI resources, including generated parts, inherited text, boolean values and interaction/disabled states. Current attached runtime parts are checked by resource-audit; manual art review remains required.",
   "inputSchema": {
     "type": "object",
     "properties": {

@@ -214,7 +214,7 @@ namespace VMUnityAutomation.Editor
                     AssetPath = issue.AssetPath, Line = issue.Line, Element = issue.Selector,
                     ElementName = issue.Token, Kind = issue.Kind, Severity = issue.Severity,
                     Message = issue.Message, NativeStateScales = issue.NativeStateScales
-                }, false));
+                }, false), options.RejectDefaultControlAppearance);
             report.SortIssues();
             return report;
         }

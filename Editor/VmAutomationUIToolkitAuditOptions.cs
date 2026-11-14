@@ -19,6 +19,7 @@ namespace VMUnityAutomation.Editor
         internal readonly List<string> ExcludePaths;
         internal readonly bool UxmlTooltipAttributes;
         internal readonly bool UxmlLocalizedText;
+        internal readonly bool RejectDefaultControlAppearance;
         internal readonly bool PixelGridEnabled;
         internal readonly int PixelGridStep;
         internal readonly List<VmAutomationBuilderPreviewRequirement> RequiredBuilderPreviews;
@@ -26,7 +27,7 @@ namespace VMUnityAutomation.Editor
 
         private VmAutomationUIToolkitAuditOptions(IEnumerable<string> assetRoots,
             IEnumerable<string> runtimeSourceRoots, IEnumerable<string> excludePaths,
-            bool uxmlTooltipAttributes, bool uxmlLocalizedText, bool pixelGridEnabled, int pixelGridStep,
+            bool uxmlTooltipAttributes, bool uxmlLocalizedText, bool rejectDefaultControlAppearance, bool pixelGridEnabled, int pixelGridStep,
             IEnumerable<VmAutomationBuilderPreviewRequirement> requiredBuilderPreviews,
             IEnumerable<string> requiredInteractionScopes)
         {
@@ -35,6 +36,7 @@ namespace VMUnityAutomation.Editor
             ExcludePaths = NormalizeRoots(excludePaths, null);
             UxmlTooltipAttributes = uxmlTooltipAttributes;
             UxmlLocalizedText = uxmlLocalizedText;
+            RejectDefaultControlAppearance = rejectDefaultControlAppearance;
             PixelGridEnabled = pixelGridEnabled;
             PixelGridStep = Math.Max(1, pixelGridStep);
             RequiredBuilderPreviews = (requiredBuilderPreviews ??
@@ -71,7 +73,7 @@ namespace VMUnityAutomation.Editor
                 : settings.PixelGridStep;
 
             return new VmAutomationUIToolkitAuditOptions(assetRoots, runtimeRoots, excludePaths,
-                settings.UxmlTooltipAttributes, settings.UxmlLocalizedText, pixelGridEnabled, pixelGridStep,
+                settings.UxmlTooltipAttributes, settings.UxmlLocalizedText, settings.RejectDefaultControlAppearance, pixelGridEnabled, pixelGridStep,
                 settings.RequiredBuilderPreviews, settings.RequiredInteractionScopes);
         }
 
@@ -83,7 +85,7 @@ namespace VMUnityAutomation.Editor
                 throw new InvalidDataException(VmAutomationUIToolkitAuditProjectSettings.ConfigPath + ": " + settings.Error);
             return new VmAutomationUIToolkitAuditOptions(settings.AssetRoots,
                 settings.RuntimeSourceRoots, settings.ExcludePaths,
-                settings.UxmlTooltipAttributes, settings.UxmlLocalizedText, settings.PixelGridEnabled,
+                settings.UxmlTooltipAttributes, settings.UxmlLocalizedText, settings.RejectDefaultControlAppearance, settings.PixelGridEnabled,
                 settings.PixelGridStep, settings.RequiredBuilderPreviews, settings.RequiredInteractionScopes);
         }
 
@@ -122,7 +124,8 @@ namespace VMUnityAutomation.Editor
                     new Dictionary<string, object>
                     {
                         { "uxmlTooltipAttributes", UxmlTooltipAttributes },
-                        { "uxmlLocalizedText", UxmlLocalizedText }
+                        { "uxmlLocalizedText", UxmlLocalizedText },
+                        { "rejectDefaultControlAppearance", RejectDefaultControlAppearance }
                     }
                 },
                 {

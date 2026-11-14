@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.1.8] - 2026-11-14
+
+- Add the project-wide `rules.rejectDefaultControlAppearance` gate to native
+  authored UI and current attached runtime resource review. Attribute actual
+  paint to Unity's ordered style records, including generated parts, inherited
+  and inline sources, boolean values, interaction and disabled states.
+- Reject default-theme paint and built-in resources as errors even when a
+  control has a skin class. Keep art, composition and runtime input acceptance
+  separate, and report native capability/budget gaps as incomplete coverage.
+- Retain raw Foldout, marker-only, partial checked-state, inline, inherited and
+  project-paint controls beside the existing effective Button feedback suite.
+
 ## [0.1.7] - 2026-11-14
 
 - Reuse the existing zero-border negative-control baseline in the structural

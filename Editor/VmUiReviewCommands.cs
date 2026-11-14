@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 using VMUnityAutomation.Runtime;
@@ -245,6 +246,20 @@ namespace VMUnityAutomation.Editor
 
         var audits = new List<Dictionary<string, object>>();
         bool valid = true;
+        VmUiFeedbackCoverage skinCoverage = null;
+        var skinFindings = new List<VmAutomationUssStyleAuditIssue>();
+        if (runtime && VmAutomationUIToolkitAuditProjectSettings.Load().RejectDefaultControlAppearance)
+        {
+            skinCoverage = new VmUiFeedbackCoverage();
+            var theme = document.panelSettings.themeStyleSheet;
+            skinCoverage.ControlSkins = new VmUiControlSkinAudit(skinCoverage, theme,
+                AssetDatabase.GetAssetPath(theme));
+            skinCoverage.ControlSkins.Inspect(root,
+                VmAutomationUssButtonFeedbackAuditor.Descendants(root, VmUiFeedbackCoverage.MaximumNodes),
+                AssetDatabase.GetAssetPath(document.visualTreeAsset), "attached-runtime-state", skinFindings.Add);
+            skinCoverage.Finish();
+            valid = skinFindings.Count == 0;
+        }
         for (int i = 0; i < queryObjects.Count; i++)
         {
             var query = AsDictionary(queryObjects[i]);
@@ -289,6 +304,8 @@ namespace VMUnityAutomation.Editor
             { "context", context },
             { "count", audits.Count },
             { "audits", audits },
+            { "controlSkins", skinCoverage?.ControlSkins.ToDictionary() },
+            { "skinFindings", skinFindings.Select(finding => finding.ToDictionary()).ToArray() },
         };
     }
 

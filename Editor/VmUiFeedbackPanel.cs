@@ -33,6 +33,7 @@ namespace VMUnityAutomation.Editor
         private MethodInfo updateStyles;
 
         internal VisualElement Root { get; private set; }
+        internal StyleSheet Theme => theme;
 
         internal VmUiFeedbackPanel(VisualElement content, ThemeStyleSheet sourceTheme)
         {
@@ -63,9 +64,11 @@ namespace VMUnityAutomation.Editor
             }
         }
 
-        internal void SetState(Button button, bool hovered, bool pressed, bool focused)
+        internal void SetState(VisualElement button, bool hovered, bool pressed, bool focused,
+            VisualElement stateOwner = null)
         {
             ResetStates();
+            stateOwner = stateOwner ?? button;
             int depth = 0;
             for (VisualElement node = button; node != null; node = node.hierarchy.parent)
             {
@@ -73,8 +76,8 @@ namespace VMUnityAutomation.Editor
                     throw new InvalidOperationException("Native feedback ancestor depth exceeds 64.");
                 long states = Convert.ToInt64(PseudoStates.GetValue(node)) & ~(Hover | Active | Focus);
                 if (hovered) states |= Hover;
-                if (node == button && pressed) states |= Active;
-                if (node == button && focused) states |= Focus;
+                if (node == stateOwner && pressed) states |= Active;
+                if (node == stateOwner && focused) states |= Focus;
                 PseudoStates.SetValue(node, Enum.ToObject(PseudoStates.PropertyType, states));
                 stateChain.Add(node);
             }

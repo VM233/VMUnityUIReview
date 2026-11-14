@@ -19,6 +19,7 @@ namespace VMUnityAutomation.Editor
         internal int StyleMatchQueries, UnaffectedButtons;
         internal bool Complete = true;
         internal string ThemePath = "";
+        internal VmUiControlSkinAudit ControlSkins;
 
         internal void Finish() => watch.Stop();
 
@@ -36,7 +37,8 @@ namespace VMUnityAutomation.Editor
             { "styleMatchQueries", StyleMatchQueries }, { "unaffectedButtons", UnaffectedButtons },
             { "themePath", ThemePath }, { "elapsedMilliseconds", watch.Elapsed.TotalMilliseconds },
             { "manualVisualReviewRequired", true },
-            { "runtimeGeneratedControlsEvaluated", false }
+            { "runtimeGeneratedControlsEvaluated", false },
+            { "controlSkins", ControlSkins?.ToDictionary() }
         };
     }
 }
