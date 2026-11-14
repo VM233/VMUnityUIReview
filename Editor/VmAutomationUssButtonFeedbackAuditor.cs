@@ -36,6 +36,9 @@ namespace VMUnityAutomation.Editor
             if (rejectDefaultControlAppearance)
                 coverage.ControlSkins = new VmUiControlSkinAudit(coverage);
             var hosts = ResolveHosts(uxmlPaths, targetPaths, themePath);
+            // Asset dependency discovery is not native control observation. Resume on a fresh
+            // observation slice before applying the unchanged per-slice control budget.
+            yield return null;
 #if UNITY_6000_6_OR_NEWER
             VmUiFeedbackStyleScope targetScope = null;
 #endif

@@ -47,6 +47,7 @@ namespace VMUnityAutomation.Editor
             cases.Add(SharedAncestorState(theme));
 #if UNITY_6000_6_OR_NEWER
             cases.Add(StructuralScope(theme, baseline));
+            cases.Add(DiscoveryBoundary(packagePath));
 #endif
             return cases;
 
@@ -75,6 +76,26 @@ namespace VMUnityAutomation.Editor
                         { "expected", expected }, { "actual", actual } });
                 }
                 finally { UnityEngine.Object.DestroyImmediate(sheet); }
+            }
+        }
+
+        private static Dictionary<string, object> DiscoveryBoundary(string packagePath)
+        {
+            string path = packagePath + "/Editor/Fixtures/Inline Skin.uxml";
+            var coverage = new VmUiFeedbackCoverage();
+            var findings = new List<VmAutomationUssStyleAuditIssue>();
+            using (var steps = VmAutomationUssButtonFeedbackAuditor.AuditSteps(new[] { path },
+                       new[] { path }, packagePath + "/Editor/Fixtures/Default Theme.tss",
+                       findings.Add, true, coverage).GetEnumerator())
+            {
+                bool discoveryOnly = steps.MoveNext() && coverage.Samples == 0 && coverage.StateUpdates == 0;
+                coverage.BeginObservation();
+                bool observed = steps.MoveNext() && coverage.Samples > 0;
+                return new Dictionary<string, object>
+                {
+                    { "name", "dependency discovery cannot consume the first native observation slice" },
+                    { "passed", discoveryOnly && observed }
+                };
             }
         }
 

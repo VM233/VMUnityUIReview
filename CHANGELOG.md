@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.1.20] - 2026-11-15
+
+- Separate bounded asset-dependency discovery from the first native control observation slice without increasing its sample, query or time limits. Retain a native boundary counterexample.
+
 ## [0.1.19] - 2026-11-15
 
 - Treat an intentionally stationary surface as settled from the first frame; retain strict moving-surface coverage and reject nonfinite budgets.
