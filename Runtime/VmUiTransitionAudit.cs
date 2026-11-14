@@ -29,7 +29,8 @@ namespace VMUnityAutomation.Runtime
             double maximumMilliseconds, float tolerancePixels)
         {
             if (frames == null || frames.Count < 3 || frames.Count > 600 ||
-                maximumMilliseconds <= 0 || tolerancePixels <= 0)
+                maximumMilliseconds <= 0 || double.IsNaN(maximumMilliseconds) || double.IsInfinity(maximumMilliseconds) ||
+                tolerancePixels <= 0 || float.IsNaN(tolerancePixels) || float.IsInfinity(tolerancePixels))
                 throw new ArgumentException("Transition review requires3..600 frames and positive timing/pixel contracts.");
             var result = new Report { Frames = frames.Count, PublicationMilliseconds = double.PositiveInfinity };
             var first = frames[0];
@@ -37,7 +38,7 @@ namespace VMUnityAutomation.Runtime
             if (double.IsNaN(first.Seconds) || double.IsInfinity(first.Seconds))
                 throw new ArgumentException("Transition times must be finite.");
             float travel = Vector2.Distance(first.Position, last.Position);
-            int settled = frames.Count - 1;
+            int settled = 0;
             for (int index = 0; index < frames.Count; index++)
             {
                 var frame = frames[index];

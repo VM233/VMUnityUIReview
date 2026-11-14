@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.1.19] - 2026-11-15
+
+- Treat an intentionally stationary surface as settled from the first frame; retain strict moving-surface coverage and reject nonfinite budgets.
+
 ## [0.1.18] - 2026-11-14
 
 - Review declared equal-width peers through their native content container and report nonzero comparison coverage.

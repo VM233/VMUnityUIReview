@@ -116,6 +116,7 @@ namespace VMUnityAutomation.Editor.Tests
             Assert.That(VmUiTransitionAudit.Review(delayed, true, 150, .25f).Findings, Does.Contain("delayed-publication"));
             var snap = new[] { F(0, 0), F(1, 100), F(2, 100), F(3, 100) };
             Assert.That(VmUiTransitionAudit.Review(snap, true, 150, .25f).Findings, Does.Contain("position-snap"));
+            Assert.That(VmUiTransitionAudit.Review(new[] { F(0, 100), F(1, 100), F(2, 100) }, false, 150, .25f).Passed, Is.True);
             Assert.Throws<ArgumentException>(() => VmUiTransitionAudit.Review(new[] { F(0, 0), F(0, 50), F(1, 100) }, true, 150, .25f));
         }
 
