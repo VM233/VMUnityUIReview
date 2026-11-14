@@ -10,7 +10,7 @@ namespace VMUnityAutomation.Editor.Tests
         {
             var cases = VmUiControlSkinSelfTests.Run().ToArray();
 #if UNITY_6000_6_OR_NEWER
-            Assert.That(cases.Length, Is.EqualTo(6));
+            Assert.That(cases.Length, Is.EqualTo(12));
 #endif
             foreach (var result in cases)
                 Assert.That(result["passed"], Is.True, MiniJson.Serialize(result));

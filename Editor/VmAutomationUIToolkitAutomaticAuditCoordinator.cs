@@ -108,13 +108,15 @@ namespace VMUnityAutomation.Editor
             var options = VmAutomationUIToolkitAuditOptions.FromProjectSettings(settings);
             if (EditorApplication.timeSinceStartup < auditNotBefore ||
                 EditorApplication.isCompiling ||
-                EditorApplication.isUpdating)
+                EditorApplication.isUpdating || VmUiFeedbackContinuation.Pending > 0)
                 return;
 
             if (settings.AutomaticUssSingleUseStyles)
                 AuditPendingUss(options);
             else
                 PendingUss.Clear();
+
+            if (VmUiFeedbackContinuation.Pending > 0) return;
 
             if (settings.AutomaticUxmlLayoutContracts)
                 AuditPendingUxml(options, EnsurePrefabImpacts(options));
@@ -173,10 +175,13 @@ namespace VMUnityAutomation.Editor
                 return;
 
             VmAutomationUssStyleAuditReport report =
-                VmAutomationUssStyleAuditor.Audit(paths, false, 5000, options);
-            UssState.Record(paths, report.WarningCount,
-                report.ErrorCount + report.Errors.Count);
-            VmAutomationUssStyleAuditConsoleReporter.Log(report, true);
+                VmAutomationUssStyleAuditor.Audit(paths, false, 5000, options, deferNative: true);
+            VmUiFeedbackContinuation.Run(report.FeedbackWork, () =>
+            {
+                report.SortIssues();
+                UssState.Record(paths, report.WarningCount, report.ErrorCount + report.Errors.Count);
+                VmAutomationUssStyleAuditConsoleReporter.Log(report, true);
+            });
         }
 
         private static bool EnsurePrefabImpacts(VmAutomationUIToolkitAuditOptions options)
@@ -209,7 +214,7 @@ namespace VMUnityAutomation.Editor
                 : changedUxmlPaths;
             VmAutomationUxmlLayoutAuditReport report = layoutPaths.Length > 0
                 ? VmAutomationUxmlLayoutAuditor.Audit(layoutPaths,
-                    false, 5000, options)
+                    false, 5000, options, deferNative: true)
                 : new VmAutomationUxmlLayoutAuditReport(5000);
             string[] auditedPaths = layoutPaths;
             if (styleGraphChanged)
@@ -226,9 +231,12 @@ namespace VMUnityAutomation.Editor
                 auditedPaths = layoutPaths.Concat(graphOnlyPaths).ToArray();
             }
 
-            UxmlState.Record(auditedPaths, report.WarningCount,
-                report.ErrorCount + report.Errors.Count);
-            VmAutomationUxmlLayoutAuditConsoleReporter.Log(report, true);
+            VmUiFeedbackContinuation.Run(report.FeedbackWork, () =>
+            {
+                report.SortIssues();
+                UxmlState.Record(auditedPaths, report.WarningCount, report.ErrorCount + report.Errors.Count);
+                VmAutomationUxmlLayoutAuditConsoleReporter.Log(report, true);
+            });
         }
 
         private static string[] TakeChangedPaths(ICollection<string> pending)

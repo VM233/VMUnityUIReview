@@ -36,13 +36,13 @@ namespace VMUnityAutomation.Editor
             string state, Action<VmAutomationUssStyleAuditIssue> record)
         {
 #if UNITY_6000_6_OR_NEWER
-            origins.BeginState();
             foreach (VisualElement node in nodes)
             {
                 coverage.Samples++;
                 Samples++;
                 coverage.CheckBudget();
                 IResolvedStyle style = node.resolvedStyle;
+                if (style.display == DisplayStyle.None || style.visibility == Visibility.Hidden || style.opacity <= 0) continue;
                 if (style.backgroundColor.a > 0) Check("background-color", false);
                 bool image = !style.backgroundImage.Equals(default(Background));
                 if (image)
@@ -56,7 +56,7 @@ namespace VMUnityAutomation.Editor
                     if (style.unityBackgroundImageTintColor.a > 0 && style.unityBackgroundImageTintColor != Color.white)
                         Check("-unity-background-image-tint-color", false);
                 }
-                Vector4 widths = VmUiComputedBorderWidths.Read(node);
+                Vector4 widths = VmUiComputedStyleValues.Read(node);
                 if (widths.x > 0 && style.borderLeftColor.a > 0) Check("border-left-color", false);
                 if (widths.y > 0 && style.borderTopColor.a > 0) Check("border-top-color", false);
                 if (widths.z > 0 && style.borderRightColor.a > 0) Check("border-right-color", false);
@@ -87,7 +87,8 @@ namespace VMUnityAutomation.Editor
                 void CheckResource(UnityEngine.Object resource, string property)
                 {
                     string source = AssetDatabase.GetAssetPath(resource);
-                    if (!string.IsNullOrEmpty(source) && !VmUiNativeStyleOrigin.IsProjectAsset(source))
+                    if (!string.IsNullOrEmpty(source) && (!VmUiNativeStyleOrigin.IsProjectAsset(source) ||
+                        VmUiNativeStyleOrigin.IsEngineThemeClone(resource, source)))
                         Record(property, "Unity built-in resource (" + source + ")");
                 }
 
@@ -102,6 +103,7 @@ namespace VMUnityAutomation.Editor
                         Kind = "default-control-appearance", Severity = "error",
                         Message = "Player UI paint still comes from " + source + ": " + property +
                             ", state=" + state + ", native element=" + node.GetType().Name +
+                            " #" + node.name + " ." + string.Join(" .", node.GetClasses()) +
                             ". Skin the real generated part in the project's shared control family."
                     });
                 }

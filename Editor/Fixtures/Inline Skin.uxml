@@ -1,0 +1,3 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Button style="background-color: rgb(255, 0, 255); border-left-width: 0; border-top-width: 0; border-right-width: 0; border-bottom-width: 0;" />
+</ui:UXML>

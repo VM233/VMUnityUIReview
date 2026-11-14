@@ -102,7 +102,7 @@ namespace VMUnityAutomation.Editor
         };
 
         internal static VmAutomationUssStyleAuditReport Audit(IEnumerable<string> requestedPaths,
-            bool includeSuppressed, int maxIssues, VmAutomationUIToolkitAuditOptions options)
+            bool includeSuppressed, int maxIssues, VmAutomationUIToolkitAuditOptions options, bool deferNative = false)
         {
             options = options ?? VmAutomationUIToolkitAuditOptions.FromArguments(
                 new Dictionary<string, object>());
@@ -181,9 +181,11 @@ namespace VMUnityAutomation.Editor
                 rulesByPath.TryGetValue(path, out var rules)
                     ? (IEnumerable<UssRule>)rules : Array.Empty<UssRule>()),
                 allRules, usageIndex, report);
-            report.ButtonFeedback = VmAutomationUssButtonFeedbackAuditor.Audit(
+            report.FeedbackWork = VmAutomationUssButtonFeedbackAuditor.Create(
                 usageIndex.Documents.Select(document => document.AssetPath), targetPaths,
                 commonThemePath, issue => report.Record(issue, false), options.RejectDefaultControlAppearance);
+            report.ButtonFeedback = report.FeedbackWork.Coverage;
+            if (!deferNative) report.FeedbackWork.Drain();
             report.SortIssues();
             return report;
         }

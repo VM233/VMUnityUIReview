@@ -21,6 +21,7 @@ namespace VMUnityAutomation.Editor
         public int IndexedUxmlCount;
         public int IndexedRuntimeSourceCount;
         internal VmUiFeedbackCoverage ButtonFeedback;
+        internal VmUiFeedbackWork FeedbackWork;
 
         public VmAutomationUssStyleAuditReport(int maxIssues)
         {
@@ -31,7 +32,7 @@ namespace VMUnityAutomation.Editor
         public int WarningCount => activeWarningCount;
         public int SuppressedCount => suppressedIssueCount;
         internal bool Truncated => truncated;
-        public bool Passed => Errors.Count == 0 && ErrorCount == 0 &&
+        public bool Passed => (FeedbackWork == null || FeedbackWork.Finished) && ButtonFeedback?.Complete != false && Errors.Count == 0 && ErrorCount == 0 &&
                               WarningCount == 0;
 
         public void Record(VmAutomationUssStyleAuditIssue issue, bool includeSuppressed)
@@ -95,7 +96,7 @@ namespace VMUnityAutomation.Editor
         {
             return new Dictionary<string, object>
             {
-                { "success", Errors.Count == 0 },
+                { "success", Errors.Count == 0 && ButtonFeedback?.Complete != false },
                 { "passed", Passed },
                 { "scannedStyleSheets", ScannedStyleSheetCount },
                 { "indexedStyleSheets", IndexedStyleSheetCount },

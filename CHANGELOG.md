@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.1.9] - 2026-11-14
+
+- Distinguish the native USS importer's embedded Unity theme copies from
+  project-authored styles and resources. Read UXML inline rules as well as IStyle.
+- Review native field owners, both boolean values, generated inputs and custom
+  root-owned fields. Keep inputless focusable containers outside field mutation.
+- Reuse declaration provenance only for the same element and unchanged native
+  matching-rules hash within one host. Verify enabled/disabled/return against
+  uncached native attribution; use supported native pseudo classes in fixtures.
+- With control-skin review enabled, continue complete native control observations
+  between Editor updates for CLI, menu and automatic review. Retain all fields,
+  states and total sample/query/declaration caps; publish only after retirement.
+  Cancel incomplete work on source/domain changes, compilation, Play Mode,
+  shutdown or timeout. Preserve Button-only execution and request-wide budget.
+
 ## [0.1.8] - 2026-11-14
 
 - Preserve shared ancestor pseudo states across native feedback samples, with

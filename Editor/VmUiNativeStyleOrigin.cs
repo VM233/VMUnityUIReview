@@ -31,14 +31,16 @@ namespace VMUnityAutomation.Editor
         private static readonly PropertyInfo Properties = Property(Rule.PropertyType, "properties");
         private static readonly PropertyInfo Name = Property(Properties.PropertyType.GetElementType(), "name");
         private static readonly PropertyInfo DefaultSheet = Property(typeof(StyleSheet), "isDefaultStyleSheet");
+        private static readonly Type InlineType = typeof(VisualElement).Assembly.GetType("UnityEngine.UIElements.InlineStyleAccess", true);
+        private static readonly PropertyInfo InlineRule = Property(InlineType, "inlineRule");
+        private static readonly PropertyInfo InlineProperties = Property(InlineRule.PropertyType, "properties");
         private static readonly Type Debug = typeof(VisualElement).Assembly.GetType("UnityEngine.UIElements.StyleDebug", true);
         private static readonly MethodInfo Longhands = Debug.GetMethod("GetLonghandPropertyNames", Static, null,
             new[] { typeof(string) }, null) ?? throw new MissingMethodException(Debug.FullName, "GetLonghandPropertyNames");
         private static readonly MethodInfo Inline = Debug.GetMethod("GetInlineStyleValue", Static, null,
             new[] { typeof(IStyle), typeof(string) }, null) ?? throw new MissingMethodException(Debug.FullName, "GetInlineStyleValue");
         private readonly Dictionary<StyleSheet, string> sheets = new Dictionary<StyleSheet, string>();
-        private readonly Dictionary<VisualElement, Dictionary<string, string>> nodes =
-            new Dictionary<VisualElement, Dictionary<string, string>>();
+        private readonly Dictionary<VisualElement, Declarations> nodes = new Dictionary<VisualElement, Declarations>();
         private readonly VmUiFeedbackCoverage coverage;
         private readonly object extractor;
         private int declarationVisits;
@@ -50,8 +52,11 @@ namespace VMUnityAutomation.Editor
             extractor = Constructor.Invoke(new object[] { new Func<StyleSheet, string>(Source) });
         }
 
-        internal void BeginState() => nodes.Clear();
-        internal void RegisterTheme(StyleSheet theme, string path) => sheets.Add(theme, path);
+        internal void RegisterTheme(StyleSheet theme, string path)
+        {
+            nodes.Clear();
+            sheets.Add(theme, path);
+        }
 
         internal string Get(VisualElement node, string property, bool inherited)
         {
@@ -62,14 +67,26 @@ namespace VMUnityAutomation.Editor
                 object inline = Inline.Invoke(null, new object[] { node.style, property });
                 if (inline != null && Property(inline.GetType(), "keyword").GetValue(inline).ToString() != "Null")
                     return "inline";
-                if (!nodes.TryGetValue(node, out var values))
+                var authored = (IEnumerable)InlineProperties.GetValue(InlineRule.GetValue(node.style));
+                if (authored != null)
+                    foreach (object declaration in authored)
+                    {
+                        string name = Name.GetValue(declaration).ToString();
+                        if (name == property) return "UXML inline";
+                        string[] expanded = (string[])Longhands.Invoke(null, new object[] { name });
+                        if (expanded != null && Array.IndexOf(expanded, property) >= 0) return "UXML inline";
+                    }
+                long hash = VmUiComputedStyleValues.MatchingRulesHash(node);
+                bool found = nodes.TryGetValue(node, out var cached);
+                if (!found || hash == -1 || cached.Hash != hash)
                 {
-                    if (nodes.Count == VmUiFeedbackCoverage.MaximumNodes)
+                    if (!found && nodes.Count == VmUiFeedbackCoverage.MaximumNodes)
                         throw new InvalidOperationException("Skin attribution exceeds 8192 cached nodes.");
-                    values = Read(node);
-                    nodes.Add(node, values);
+                    cached = new Declarations { Hash = hash, Values = Read(node) };
+                    nodes[node] = cached;
                 }
-                if (values.TryGetValue(property, out string source)) return source;
+                else coverage.StyleOriginCacheHits++;
+                if (cached.Values.TryGetValue(property, out string source)) return source;
                 if (!inherited) return "Unity initial style";
             }
             return "Unity initial style";
@@ -86,7 +103,7 @@ namespace VMUnityAutomation.Editor
             var values = new Dictionary<string, string>(StringComparer.Ordinal);
             foreach (object record in records)
             {
-                string source = Source((StyleSheet)Sheet.GetValue(record));
+                string source = Source((StyleSheet)Sheet.GetValue(record)) + " [" + Selector.GetValue(record) + "]";
                 object rule = Rule.GetValue(Selector.GetValue(record));
                 foreach (object property in (IEnumerable)Properties.GetValue(rule))
                 {
@@ -110,7 +127,7 @@ namespace VMUnityAutomation.Editor
         {
             if (sheets.TryGetValue(sheet, out string source)) return source;
             string path = AssetDatabase.GetAssetPath(sheet);
-            source = IsProjectAsset(path) ? path :
+            source = IsEngineThemeClone(sheet, path) ? "Unity imported theme (" + path + ")" : IsProjectAsset(path) ? path :
                 (bool)DefaultSheet.GetValue(sheet) || !string.IsNullOrEmpty(path)
                     ? "Unity default theme (" + path + ")" : "runtime stylesheet";
             sheets.Add(sheet, source);
@@ -125,8 +142,20 @@ namespace VMUnityAutomation.Editor
             (path.StartsWith("Packages/", StringComparison.OrdinalIgnoreCase) &&
              !path.StartsWith("Packages/com.unity.", StringComparison.OrdinalIgnoreCase));
 
+        // The native USS importer deep-copies unity-theme:// resources into the owning stylesheet asset.
+        // Their project path does not transfer authorship of the engine's paint to the project.
+        internal static bool IsEngineThemeClone(UnityEngine.Object asset, string path) =>
+            AssetDatabase.IsSubAsset(asset) && (path.EndsWith(".tss", StringComparison.OrdinalIgnoreCase) ||
+                path.EndsWith(".uss", StringComparison.OrdinalIgnoreCase));
+
         private static PropertyInfo Property(Type type, string name) => type.GetProperty(name, Instance)
             ?? throw new MissingMemberException(type.FullName, name);
+
+        private sealed class Declarations
+        {
+            internal long Hash;
+            internal Dictionary<string, string> Values;
+        }
     }
 }
 #endif

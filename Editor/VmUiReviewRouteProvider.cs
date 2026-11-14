@@ -14,8 +14,8 @@ namespace VMUnityAutomation.Editor
         {
             CreateImmediate("uitoolkit/assert-layout", Contracts["uitoolkit/assert-layout"], a => VmAutomationUIToolkitAssetCommands.AssertUIToolkitLayout(a)),
             CreateImmediate("uitoolkit/asset-inspect", Contracts["uitoolkit/asset-inspect"], a => VmAutomationUIToolkitAssetCommands.InspectUIToolkitAsset(a)),
-            CreateImmediate("uitoolkit/audit-uss-styles", Contracts["uitoolkit/audit-uss-styles"], a => VmAutomationUIToolkitUssAuditCommands.AuditUssStyles(a)),
-            CreateImmediate("uitoolkit/audit-uxml-layout", Contracts["uitoolkit/audit-uxml-layout"], a => VmAutomationUIToolkitUxmlAuditCommands.AuditUxmlLayout(a)),
+            CreateDeferred("uitoolkit/audit-uss-styles", Contracts["uitoolkit/audit-uss-styles"], (a, resolve, _) => VmAutomationUIToolkitUssAuditCommands.BeginUssStyleAudit(a, resolve)),
+            CreateDeferred("uitoolkit/audit-uxml-layout", Contracts["uitoolkit/audit-uxml-layout"], (a, resolve, _) => VmAutomationUIToolkitUxmlAuditCommands.BeginUxmlLayoutAudit(a, resolve)),
             CreateImmediate("uitoolkit/authoring-transaction", Contracts["uitoolkit/authoring-transaction"], a => VmAutomationUIAuthoringCommands.AuthoringTransaction(a)),
             CreateDeferred("uitoolkit/builder-preview", Contracts["uitoolkit/builder-preview"], (a, resolve, _) => VmAutomationUIBuilderPreviewCommands.OpenUIBuilderPreview(a, resolve)),
             CreateImmediate("uitoolkit/compare-element", Contracts["uitoolkit/compare-element"], a => VmUiReviewCommands.CompareUIToolkitElement(a)),

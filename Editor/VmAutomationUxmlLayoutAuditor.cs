@@ -166,7 +166,7 @@ namespace VMUnityAutomation.Editor
             };
 
         internal static VmAutomationUxmlLayoutAuditReport Audit(IEnumerable<string> requestedPaths,
-            bool includeSuppressed, int maxIssues, VmAutomationUIToolkitAuditOptions options)
+            bool includeSuppressed, int maxIssues, VmAutomationUIToolkitAuditOptions options, bool deferNative = false)
         {
             options = options ?? VmAutomationUIToolkitAuditOptions.FromArguments(
                 new Dictionary<string, object>());
@@ -207,7 +207,7 @@ namespace VMUnityAutomation.Editor
 
             VmAutomationUxmlPanelNestingAuditor.AuditProject(allUxmlPaths, report);
             VmAutomationUxmlThemeStyleAuditor.AuditProject(targetPaths, report);
-            report.ButtonFeedback = VmAutomationUssButtonFeedbackAuditor.Audit(allUxmlPaths,
+            report.FeedbackWork = VmAutomationUssButtonFeedbackAuditor.Create(allUxmlPaths,
                 targetPaths, VmAutomationUssStyleAuditor.FindCommonPanelThemePath(options),
                 issue => report.Record(new VmAutomationUxmlLayoutAuditIssue
                 {
@@ -215,6 +215,8 @@ namespace VMUnityAutomation.Editor
                     ElementName = issue.Token, Kind = issue.Kind, Severity = issue.Severity,
                     Message = issue.Message, NativeStateScales = issue.NativeStateScales
                 }, false), options.RejectDefaultControlAppearance);
+            report.ButtonFeedback = report.FeedbackWork.Coverage;
+            if (!deferNative) report.FeedbackWork.Drain();
             report.SortIssues();
             return report;
         }

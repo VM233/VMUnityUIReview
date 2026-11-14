@@ -15,18 +15,23 @@ namespace VMUnityAutomation.Editor
         internal const int MaximumMilliseconds = 2000;
         internal const int MaximumMatchQueries = 32768;
         private readonly Stopwatch watch = Stopwatch.StartNew();
+        private readonly Stopwatch observationWatch = Stopwatch.StartNew();
         internal int Hosts, Buttons, DisabledButtons, StateUpdates, Samples;
-        internal int StyleMatchQueries, UnaffectedButtons;
+        internal int StyleMatchQueries, UnaffectedButtons, StyleOriginCacheHits;
+        internal int FieldOwners;
+        internal bool Cooperative;
         internal bool Complete = true;
         internal string ThemePath = "";
         internal VmUiControlSkinAudit ControlSkins;
 
         internal void Finish() => watch.Stop();
+        internal void BeginObservation() { if (Cooperative) observationWatch.Restart(); }
 
         internal void CheckBudget()
         {
-            if (Samples > MaximumSamples || StyleMatchQueries > MaximumMatchQueries || watch.ElapsedMilliseconds > MaximumMilliseconds)
-                throw new InvalidOperationException("Native button feedback review exceeded its 32768-sample / 32768-match-query / 2000 ms observation budget; coverage is incomplete.");
+            if (Samples > MaximumSamples || StyleMatchQueries > MaximumMatchQueries ||
+                (Cooperative ? observationWatch.ElapsedMilliseconds : watch.ElapsedMilliseconds) > MaximumMilliseconds)
+                throw new InvalidOperationException("Native UI review exceeded its 32768 total samples / 32768 total match queries / 2000 ms active observation budget; coverage is incomplete.");
         }
 
         internal Dictionary<string, object> ToDictionary() => new Dictionary<string, object>
@@ -35,6 +40,10 @@ namespace VMUnityAutomation.Editor
             { "hosts", Hosts }, { "buttons", Buttons }, { "disabledButtons", DisabledButtons },
             { "stateUpdates", StateUpdates }, { "visualSamples", Samples },
             { "styleMatchQueries", StyleMatchQueries }, { "unaffectedButtons", UnaffectedButtons },
+            { "styleOriginCacheHits", StyleOriginCacheHits },
+            { "fieldOwners", FieldOwners },
+            { "observationBudgetMilliseconds", MaximumMilliseconds },
+            { "observationBudgetUnit", Cooperative ? "NativeControlObservation" : "Request" },
             { "themePath", ThemePath }, { "elapsedMilliseconds", watch.Elapsed.TotalMilliseconds },
             { "manualVisualReviewRequired", true },
             { "runtimeGeneratedControlsEvaluated", false },

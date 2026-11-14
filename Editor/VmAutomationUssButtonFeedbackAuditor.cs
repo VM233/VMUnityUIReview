@@ -8,92 +8,104 @@ namespace VMUnityAutomation.Editor
 {
     internal static class VmAutomationUssButtonFeedbackAuditor
     {
-        internal static VmUiFeedbackCoverage Audit(IEnumerable<string> uxmlPaths,
+        internal static VmUiFeedbackWork Create(IEnumerable<string> uxmlPaths,
             IReadOnlyCollection<string> targetPaths, string themePath,
-            Action<VmAutomationUssStyleAuditIssue> record, bool rejectDefaultControlAppearance = false)
+            Action<VmAutomationUssStyleAuditIssue> record, bool rejectDefaultControlAppearance)
         {
-            var coverage = new VmUiFeedbackCoverage { ThemePath = themePath ?? "" };
-            try
+            var coverage = new VmUiFeedbackCoverage
             {
-                if (rejectDefaultControlAppearance)
-                    coverage.ControlSkins = new VmUiControlSkinAudit(coverage);
-                var hosts = ResolveHosts(uxmlPaths, targetPaths, themePath);
-#if UNITY_6000_6_OR_NEWER
-                VmUiFeedbackStyleScope targetScope = null;
-#endif
-                foreach (var host in hosts)
+                ThemePath = themePath ?? "", Cooperative = rejectDefaultControlAppearance
+            };
+            return new VmUiFeedbackWork(coverage,
+                Steps(uxmlPaths, targetPaths, themePath, record, rejectDefaultControlAppearance, coverage).GetEnumerator(),
+                message => record(new VmAutomationUssStyleAuditIssue
                 {
-                    string path = host.Path;
-                    coverage.CheckBudget();
-                    var asset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(path);
-                    if (asset == null) throw new InvalidOperationException("Native UXML is unavailable: " + path);
-                    VisualElement root = asset.CloneTree();
-                    List<VisualElement> nodes = Descendants(root, VmUiFeedbackCoverage.MaximumNodes);
-                    Button[] buttons = nodes.OfType<Button>().ToArray();
-                    if (buttons.Length == 0 && coverage.ControlSkins == null) continue;
-                    if (buttons.Length > VmUiFeedbackCoverage.MaximumButtons)
-                        throw new InvalidOperationException("Native feedback host exceeds 128 Buttons: " + path);
-                    var theme = AssetDatabase.LoadAssetAtPath<ThemeStyleSheet>(themePath);
-                    if (theme == null)
-                        throw new InvalidOperationException("Feedback review requires one unambiguous imported PanelSettings ThemeStyleSheet. Complete the authoring roots: " + path);
-                    using (var panel = new VmUiFeedbackPanel(root, theme))
-                    {
-                        if (coverage.ControlSkins != null)
-                        {
-                            coverage.ControlSkins.RegisterTheme(panel.Theme, themePath);
-                            panel.SetState(root, false, false, false);
-                            coverage.ControlSkins.Inspect(panel.Root, nodes, path, "neutral", record);
-                            AuditFieldSkins(panel, nodes, path, coverage, record);
-                        }
+                    AssetPath = targetPaths.FirstOrDefault() ?? "", Kind = "button-feedback-incomplete",
+                    Severity = "error", Selector = "native feedback scope",
+                    Message = "Native UI coverage is incomplete: " + message
+                }));
+        }
+
+        private static IEnumerable<object> Steps(IEnumerable<string> uxmlPaths,
+            IReadOnlyCollection<string> targetPaths, string themePath,
+            Action<VmAutomationUssStyleAuditIssue> record, bool rejectDefaultControlAppearance,
+            VmUiFeedbackCoverage coverage)
+        {
+            if (rejectDefaultControlAppearance)
+                coverage.ControlSkins = new VmUiControlSkinAudit(coverage);
+            var hosts = ResolveHosts(uxmlPaths, targetPaths, themePath);
 #if UNITY_6000_6_OR_NEWER
-                        if (!host.WholeHost)
-                            buttons = (targetScope ?? (targetScope = new VmUiFeedbackStyleScope(
-                                LoadTargetSheets(targetPaths), coverage))).SelectButtons(nodes, coverage);
+            VmUiFeedbackStyleScope targetScope = null;
 #endif
-                        coverage.Hosts++;
-                        foreach (Button button in buttons)
-                        {
-                            AuditButton(panel, button, path, coverage, record);
-                        }
+            foreach (var host in hosts)
+            {
+                string path = host.Path;
+                coverage.CheckBudget();
+                var asset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(path);
+                if (asset == null) throw new InvalidOperationException("Native UXML is unavailable: " + path);
+                VisualElement root = asset.CloneTree();
+                List<VisualElement> nodes = Descendants(root, VmUiFeedbackCoverage.MaximumNodes);
+                Button[] buttons = nodes.OfType<Button>().ToArray();
+                if (buttons.Length == 0 && coverage.ControlSkins == null) continue;
+                if (buttons.Length > VmUiFeedbackCoverage.MaximumButtons)
+                    throw new InvalidOperationException("Native feedback host exceeds 128 Buttons: " + path);
+                var theme = AssetDatabase.LoadAssetAtPath<ThemeStyleSheet>(themePath);
+                if (theme == null)
+                    throw new InvalidOperationException("Feedback review requires one unambiguous imported PanelSettings ThemeStyleSheet. Complete the authoring roots: " + path);
+                using (var panel = new VmUiFeedbackPanel(root, theme))
+                {
+                    if (coverage.ControlSkins != null)
+                    {
+                        coverage.ControlSkins.RegisterTheme(panel.Theme, themePath);
+                        panel.SetState(root, false, false, false);
+                        coverage.ControlSkins.Inspect(panel.Root, nodes, path, "neutral", record);
+                        yield return null;
+                        foreach (object step in FieldSteps(panel, nodes, path, coverage, record)) yield return step;
+                    }
+#if UNITY_6000_6_OR_NEWER
+                    if (!host.WholeHost)
+                        buttons = (targetScope ?? (targetScope = new VmUiFeedbackStyleScope(
+                            LoadTargetSheets(targetPaths), coverage))).SelectButtons(nodes, coverage);
+#endif
+                    coverage.Hosts++;
+                    foreach (Button button in buttons)
+                    {
+                        AuditButton(panel, button, path, coverage, record);
+                        yield return null;
                     }
                 }
             }
-            catch (Exception exception)
-            {
-                coverage.Complete = false;
-                record(new VmAutomationUssStyleAuditIssue
-                {
-                    AssetPath = targetPaths.FirstOrDefault() ?? "",
-                    Kind = "button-feedback-incomplete", Severity = "error", Selector = "native feedback scope",
-                    Message = "Native button feedback coverage is incomplete: " + exception.GetBaseException().Message
-                });
-            }
-            finally { coverage.Finish(); }
-            return coverage;
         }
 
-        private static void AuditFieldSkins(VmUiFeedbackPanel panel, List<VisualElement> nodes,
+        internal static void AuditFieldSkins(VmUiFeedbackPanel panel, List<VisualElement> nodes,
             string path, VmUiFeedbackCoverage coverage, Action<VmAutomationUssStyleAuditIssue> record)
         {
-            VisualElement[] fields = nodes.Where(node => node is Toggle ||
-                (node.focusable && !(node is Button))).ToArray();
+            foreach (object step in FieldSteps(panel, nodes, path, coverage, record)) { }
+        }
+
+        private static IEnumerable<object> FieldSteps(VmUiFeedbackPanel panel, List<VisualElement> nodes,
+            string path, VmUiFeedbackCoverage coverage, Action<VmAutomationUssStyleAuditIssue> record)
+        {
+            VisualElement[] fields = nodes.Where(IsField).ToArray();
             if (fields.Length > VmUiFeedbackCoverage.MaximumButtons)
                 throw new InvalidOperationException("Native skin host exceeds 128 field state owners: " + path);
             foreach (VisualElement field in fields)
             {
                 bool enabled = field.enabledSelf;
-                var toggle = field as Toggle;
-                bool originalValue = toggle != null && toggle.value;
+                var boolean = field as INotifyValueChanged<bool>;
+                bool originalValue = boolean != null && boolean.value;
                 var sampled = Descendants(field, VmUiFeedbackCoverage.MaximumDescendants);
+                coverage.FieldOwners++;
                 VisualElement target = field;
-                if (toggle != null)
-                    target = field.Q(className: Toggle.inputUssClassName) ??
-                        throw new InvalidOperationException("Native Toggle input is missing: " + field.name);
+                if (field.ClassListContains(BaseField<int>.ussClassName))
+                    target = field.Q(className: "unity-base-slider__dragger") ??
+                        field.Q(className: BaseField<int>.inputUssClassName) ??
+                        throw new InvalidOperationException("Native field input is missing: " + field.name);
                 try
                 {
-                    for (int value = 0; value < (toggle == null ? 1 : 2); value++)
+                    for (int value = 0; value < (boolean == null ? 1 : 2); value++)
                     {
-                        toggle?.SetValueWithoutNotify(value == 1);
+                        boolean?.SetValueWithoutNotify(value == 1);
                         for (int state = 0; state < 5; state++)
                         {
                             field.SetEnabled(state != 4);
@@ -107,10 +119,18 @@ namespace VMUnityAutomation.Editor
                 }
                 finally
                 {
-                    toggle?.SetValueWithoutNotify(originalValue);
+                    boolean?.SetValueWithoutNotify(originalValue);
                     field.SetEnabled(enabled);
                     panel.SetState(field, false, false, false);
                 }
+                yield return null;
+            }
+
+            static bool IsField(VisualElement node)
+            {
+                for (Type type = node.GetType(); type != null; type = type.BaseType)
+                    if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(BaseField<>)) return true;
+                return false;
             }
         }
 

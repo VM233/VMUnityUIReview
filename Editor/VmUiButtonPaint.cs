@@ -23,7 +23,7 @@ namespace VMUnityAutomation.Editor
             IResolvedStyle style = element.resolvedStyle;
             bool image = !style.backgroundImage.Equals(default(Background));
             bool text = element is TextElement label && !string.IsNullOrWhiteSpace(label.text);
-            Vector4 borders = VmUiComputedBorderWidths.Read(element);
+            Vector4 borders = VmUiComputedStyleValues.Read(element);
             var paint = new List<object>(24)
             {
                 VisibleColor(style.backgroundColor), image ? style.backgroundImage : default(Background),
