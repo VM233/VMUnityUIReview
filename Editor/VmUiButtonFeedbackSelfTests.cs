@@ -44,6 +44,7 @@ namespace VMUnityAutomation.Editor
                 b.Add(icon);
             });
             Case("disabled button does not advertise hover or press", baseline, "feedback", b => b.SetEnabled(false));
+            cases.Add(SharedAncestorState(theme));
 #if UNITY_6000_6_OR_NEWER
             cases.Add(StructuralScope(theme, baseline));
 #endif
@@ -75,6 +76,54 @@ namespace VMUnityAutomation.Editor
                 }
                 finally { UnityEngine.Object.DestroyImmediate(sheet); }
             }
+        }
+
+        private static Dictionary<string, object> SharedAncestorState(ThemeStyleSheet theme)
+        {
+            var sheet = ScriptableObject.CreateInstance<StyleSheet>();
+            var root = new VisualElement();
+            root.AddToClassList("group");
+            var left = new Button();
+            var right = new Button();
+            root.Add(left);
+            root.Add(right);
+            int ancestorResolutions = 0;
+            root.RegisterCallback<CustomStyleResolvedEvent>(evt =>
+            {
+                if (evt.target == root) ancestorResolutions++;
+            });
+            bool passed;
+            int afterHover, afterStates;
+            try
+            {
+                Import(sheet, ".group { --feedback-state: 0; }.group:hover { --feedback-state: 1; }" +
+                    ".group:hover Button { color: red; }Button:hover { background-color: gray; }" +
+                    "Button:focus { color: yellow; }Button:active { background-color: white; }");
+                root.styleSheets.Add(sheet);
+                using (var panel = new VmUiFeedbackPanel(root, theme))
+                {
+                    panel.SetState(left, true, false, false);
+                    afterHover = ancestorResolutions;
+                    bool initial = left.resolvedStyle.color == Color.red;
+                    panel.SetState(left, true, false, true);
+                    panel.SetState(left, true, true, true);
+                    panel.SetState(left, true, false, true);
+                    afterStates = ancestorResolutions;
+                    panel.SetState(right, true, false, false);
+                    bool switched = right.resolvedStyle.color == Color.red && left.resolvedStyle.color == Color.red;
+                    panel.SetState(right, false, false, false);
+                    passed = initial && switched && afterHover > 0 && afterStates == afterHover &&
+                        ancestorResolutions > afterStates;
+                }
+                passed &= left.panel == null && right.panel == null;
+            }
+            finally { UnityEngine.Object.DestroyImmediate(sheet); }
+            return new Dictionary<string, object>
+            {
+                { "name", "shared ancestor hover remains continuous across focused press and release" },
+                { "passed", passed }, { "ancestorResolutionsAfterHover", afterHover },
+                { "ancestorResolutionsAfterStates", afterStates }, { "ancestorResolutionsAfterLeave", ancestorResolutions }
+            };
         }
 
 #if UNITY_6000_6_OR_NEWER

@@ -2,6 +2,9 @@
 
 ## [0.1.8] - 2026-11-14
 
+- Preserve shared ancestor pseudo states across native feedback samples, with
+  a real ancestor-resolution regression control; keep all coverage and budgets.
+
 - Add the project-wide `rules.rejectDefaultControlAppearance` gate to native
   authored UI and current attached runtime resource review. Attribute actual
   paint to Unity's ordered style records, including generated parts, inherited

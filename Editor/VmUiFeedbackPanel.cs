@@ -26,6 +26,8 @@ namespace VMUnityAutomation.Editor
         private static readonly long Active = Convert.ToInt64(Enum.Parse(PseudoStates.PropertyType, "Active"));
         private static readonly long Focus = Convert.ToInt64(Enum.Parse(PseudoStates.PropertyType, "Focus"));
         private readonly List<VisualElement> stateChain = new List<VisualElement>();
+        private readonly List<VisualElement> nextStateChain = new List<VisualElement>();
+        private readonly HashSet<VisualElement> nextStateMembers = new HashSet<VisualElement>();
         private ReviewOwner owner;
         private IDisposable panel;
         private ThemeStyleSheet theme;
@@ -67,31 +69,44 @@ namespace VMUnityAutomation.Editor
         internal void SetState(VisualElement button, bool hovered, bool pressed, bool focused,
             VisualElement stateOwner = null)
         {
-            ResetStates();
             stateOwner = stateOwner ?? button;
+            nextStateChain.Clear();
+            nextStateMembers.Clear();
             int depth = 0;
             for (VisualElement node = button; node != null; node = node.hierarchy.parent)
             {
                 if (++depth > VmUiFeedbackCoverage.MaximumDepth)
                     throw new InvalidOperationException("Native feedback ancestor depth exceeds 64.");
-                long states = Convert.ToInt64(PseudoStates.GetValue(node)) & ~(Hover | Active | Focus);
-                if (hovered) states |= Hover;
-                if (node == stateOwner && pressed) states |= Active;
-                if (node == stateOwner && focused) states |= Focus;
-                PseudoStates.SetValue(node, Enum.ToObject(PseudoStates.PropertyType, states));
-                stateChain.Add(node);
+                nextStateChain.Add(node);
+                nextStateMembers.Add(node);
             }
+            foreach (VisualElement node in stateChain)
+                if (!nextStateMembers.Contains(node)) ApplyState(node, false, false, false);
+            foreach (VisualElement node in nextStateChain)
+                ApplyState(node, hovered, node == stateOwner && pressed, node == stateOwner && focused);
+            stateChain.Clear();
+            stateChain.AddRange(nextStateChain);
             updateStyles.Invoke(updater, null);
+        }
+
+        private static void ApplyState(VisualElement node, bool hovered, bool pressed, bool focused)
+        {
+            long current = Convert.ToInt64(PseudoStates.GetValue(node));
+            long states = current & ~(Hover | Active | Focus);
+            if (hovered) states |= Hover;
+            if (pressed) states |= Active;
+            if (focused) states |= Focus;
+            if (states != current)
+                PseudoStates.SetValue(node, Enum.ToObject(PseudoStates.PropertyType, states));
         }
 
         private void ResetStates()
         {
             foreach (VisualElement node in stateChain)
-            {
-                long states = Convert.ToInt64(PseudoStates.GetValue(node)) & ~(Hover | Active | Focus);
-                PseudoStates.SetValue(node, Enum.ToObject(PseudoStates.PropertyType, states));
-            }
+                ApplyState(node, false, false, false);
             stateChain.Clear();
+            nextStateChain.Clear();
+            nextStateMembers.Clear();
         }
 
         public void Dispose()
