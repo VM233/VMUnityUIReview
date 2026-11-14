@@ -26,6 +26,7 @@ namespace VMUnityAutomation.Runtime
         public int HitTests { get; set; }
         public int LayoutGroups { get; set; }
         public int LayoutChildren { get; set; }
+        public int LayoutPeerComparisons { get; set; }
         public int GeometryChecks { get; set; }
         public string MeasurementScope { get; set; }
         public int SemanticExpectations { get; set; }

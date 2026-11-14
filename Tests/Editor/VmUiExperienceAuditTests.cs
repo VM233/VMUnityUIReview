@@ -83,6 +83,42 @@ namespace VMUnityAutomation.Editor.Tests
             Assert.That(Review().Findings.Any(f => f.Rule.StartsWith("layout-")), Is.False);
         }
 
+#if UNITY_6000_0_OR_NEWER
+        [UnityTest]
+        public IEnumerator PeerWidthsUseNativeContentContainerAndRejectUnequalContentBasis()
+        {
+            var tabs = new ToggleButtonGroup { name = "Workflow" };
+            Place(tabs, 20, 160, 300, 40);
+            tabs.AddToClassList("ui-audit-equal-width");
+            var a = new Button { text = "Learn" };
+            var b = new Button { text = "Automatic combat" };
+            tabs.Add(a); tabs.Add(b); surface.Add(tabs);
+            a.style.width = 70; b.style.width = 160;
+            yield return null;
+            AssertRule(Review(), "layout-align-equal-width");
+            a.style.width = b.style.width = 120;
+            yield return null;
+            var valid = Review();
+            Assert.That(valid.LayoutPeerComparisons, Is.GreaterThan(0));
+            Assert.That(valid.Findings.Any(f => f.Rule == "layout-align-equal-width"), Is.False);
+        }
+#endif
+
+        [Test]
+        public void TransitionWitnessRejectsOriginalWaitAndSnap()
+        {
+            VmUiTransitionAudit.Frame F(int n, float x, bool published = true) =>
+                new VmUiTransitionAudit.Frame { Number = n, Seconds = n * .02, Position = new Vector2(x, 0), Published = published };
+            var valid = new[] { F(0, 0), F(1, 30), F(2, 60), F(3, 90), F(4, 100), F(5, 100), F(6, 100) };
+            Assert.That(VmUiTransitionAudit.Review(valid, true, 150, .25f).Passed, Is.True);
+            var delayed = (VmUiTransitionAudit.Frame[])valid.Clone();
+            delayed[0] = F(0, 0, false);
+            Assert.That(VmUiTransitionAudit.Review(delayed, true, 150, .25f).Findings, Does.Contain("delayed-publication"));
+            var snap = new[] { F(0, 0), F(1, 100), F(2, 100), F(3, 100) };
+            Assert.That(VmUiTransitionAudit.Review(snap, true, 150, .25f).Findings, Does.Contain("position-snap"));
+            Assert.Throws<ArgumentException>(() => VmUiTransitionAudit.Review(new[] { F(0, 0), F(0, 50), F(1, 100) }, true, 150, .25f));
+        }
+
         [UnityTest]
         public IEnumerator EmptyRowsAndAllAlignmentAxesHaveMatchedNegativeControls()
         {

@@ -215,13 +215,16 @@ namespace VMUnityAutomation.Runtime
                 bool top = group.ClassListContains("ui-audit-align-top"), bottom = group.ClassListContains("ui-audit-align-bottom");
                 bool row = group.ClassListContains("ui-audit-row"), column = group.ClassListContains("ui-audit-column");
                 bool nonempty = group.ClassListContains("ui-audit-nonempty-rows");
-                if (!cx && !cy && !left && !right && !top && !bottom && !row && !column && !nonempty) continue;
+                bool equalWidth = group.ClassListContains("ui-audit-equal-width");
+                if (!cx && !cy && !left && !right && !top && !bottom && !row && !column && !nonempty && !equalWidth) continue;
                 report.LayoutGroups++;
-                Rect area = group.LocalToWorld(group.contentRect);
+                var flow = group.contentContainer;
+                Rect area = flow.LocalToWorld(flow.contentRect);
                 float previousRight = float.NegativeInfinity, previousBottom = float.NegativeInfinity;
-                for (int index = 0; index < group.hierarchy.childCount; index++)
+                float? peerWidth = null;
+                for (int index = 0; index < flow.hierarchy.childCount; index++)
                 {
-                    var child = group.hierarchy[index];
+                    var child = flow.hierarchy[index];
                     if (!Displayed(child)) continue;
                     if (nonempty && !meaningful.Contains(child))
                         Add(report, child, selected[child], "layout-empty-row", "A declared content row has no visible text, image or control.");
@@ -229,6 +232,16 @@ namespace VMUnityAutomation.Runtime
                     report.LayoutChildren++;
                     Rect bounds = ContentAlignmentBounds(child);
                     float tolerance = options.GeometryTolerance * Mathf.Max(Mathf.Abs(group.worldTransform.m00), Mathf.Abs(group.worldTransform.m11));
+                    if (equalWidth)
+                    {
+                        if (peerWidth.HasValue)
+                        {
+                            report.LayoutPeerComparisons++;
+                            CheckAlignment(child, selected[child], child.worldBound.width - peerWidth.Value,
+                                tolerance, "equal-width", report);
+                        }
+                        else peerWidth = child.worldBound.width;
+                    }
                     if (cx) CheckAlignment(child, selected[child], bounds.center.x - area.center.x, tolerance, "center-x", report);
                     if (cy) CheckAlignment(child, selected[child], bounds.center.y - area.center.y, tolerance, "center-y", report);
                     if (left) CheckAlignment(child, selected[child], bounds.xMin - area.xMin, tolerance, "left", report);

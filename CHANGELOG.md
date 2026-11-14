@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.18] - 2026-11-14
+
+- Review declared equal-width peers through their native content container and report nonzero comparison coverage.
+- Add bounded natural-frame transition witnesses separating immediate content publication, position continuity and settlement, with original wait/snap counterexamples.
+
 ## [0.1.17] - 2026-11-14
 
 - Separate authored collision/touch footprints from native glyph-size expectations.
