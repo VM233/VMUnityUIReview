@@ -7,6 +7,7 @@
 - [Automatic import observation](uitoolkit-import-observation.md)
 - [Interaction structure](ui-interaction-structure.md)
 - [Runtime player experience](ui-player-experience.md)
+- [Projected marker coverage and clustering](projected-markers.md)
 - [UI Builder preview](ui-builder-canvas.md)
 - [Transition source review](ui-transition-source-review.md)
 - [Style reference coherence](ui-style-reference-review.md)

@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.1.16] - 2026-11-14
+
+- Add a Player-compatible projected-marker audit and a read-only official CLI
+  facade. Capture domain eligibility separately from native mesh bounds and exact
+  memberships; reject missing glyphs, screen-size drift, displaced anchors,
+  distant/unknown/duplicate members, incorrect counts and empty coverage.
+- Add bounded native mesh projection and matched positive/negative fixtures.
+  Reports retain source/frame context and the complete observed snapshot;
+  geometry does not replace pixel or motion acceptance.
+
 ## [0.1.15] - 2026-11-14
 
 - Keep the work-context producer interface and binding value in separate source

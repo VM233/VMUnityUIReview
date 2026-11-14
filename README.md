@@ -1,7 +1,8 @@
 # VM Unity UI Review
 
 `com.vm233.unity-ui-review` owns reusable Unity UI Toolkit authoring, native
-button feedback, project control skins, runtime experience, UI Builder and transition reviews. It
+button feedback, project control skins, projected markers, runtime experience,
+UI Builder and transition reviews. It
 extends the existing Automation catalog through the official Unity CLI and
 Pipeline; Automation owns input, capture, request binding and durable jobs.
 
