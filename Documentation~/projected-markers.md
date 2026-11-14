@@ -1,7 +1,7 @@
 # Projected marker coverage
 
 Use this review for map/location markers and comparable projected UI. The game
-owns source eligibility, geographic anchors, intended normalized glyph sizes and
+owns source eligibility, geographic anchors, intended normalized glyph sizes, collision sizes and
 cluster membership. `IVmUiProjectedMarkerSource` captures those facts separately
 from the active native renderer/mesh publication. Do not derive an expectation
 from the displayed size or omit a source because its renderer is hidden.
@@ -13,6 +13,11 @@ source footprint plus the source-owned collision padding. It rejects zero
 required coverage. A representative keeps its actual geographic anchor; an
 unrestricted nearest assignment or transitive chain cannot qualify distant
 members. Panning and zooming require fresh projections from the same camera.
+
+`CollisionSizePixels` declares the actual input/layout footprint independently
+of `ExpectedGlyphSizePixels`. A narrow glyph may have a square touch target;
+that target controls direct-overlap membership without excusing glyph-size drift.
+Both sizes are mandatory positive pixel pairs, supplied from authored policy.
 
 Pixel points/sizes use two finite numbers and rectangles use four, in one actual
 screen-pixel coordinate system. `VmUiProjectedMarkerGeometry.ProjectMeshBounds`

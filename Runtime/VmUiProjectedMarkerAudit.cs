@@ -31,8 +31,9 @@ namespace VMUnityAutomation.Runtime
             {
                 if (candidate == null || !Text(candidate.Identity, 160) || !Text(candidate.Family, 160) ||
                     !Finite(Point(candidate.GeographicAnchorPixels)) || !Finite(Point(candidate.ExpectedGlyphSizePixels)) ||
+                    !Finite(Point(candidate.CollisionSizePixels)) || candidate.CollisionSizePixels[0] <= 0 || candidate.CollisionSizePixels[1] <= 0 ||
                     candidate.ExpectedGlyphSizePixels[0] <= 0 || candidate.ExpectedGlyphSizePixels[1] <= 0 || candidates.ContainsKey(candidate.Identity))
-                    throw new ArgumentException("Candidates need unique source identities, families, finite anchors and positive authored glyph sizes.");
+                    throw new ArgumentException("Candidates need unique source identities, families, finite anchors and positive authored glyph/collision sizes.");
                 candidates.Add(candidate.Identity, candidate);
                 if (candidate.Required) report.ExpectedVisible++;
                 CheckTime(watch);

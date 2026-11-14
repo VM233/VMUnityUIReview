@@ -19,7 +19,8 @@ namespace VMUnityAutomation.Tests
                     RenderedBoundsPixels = Bounds(c.ExpectedBounds()) }).ToArray() };
         }
         private static VmUiProjectedMarkerCandidate Candidate(string id, float x) => new VmUiProjectedMarkerCandidate
-        { Identity = id, Family = "same-family", Required = true, GeographicAnchorPixels = new[] { x, 100f }, ExpectedGlyphSizePixels = new[] { 64f, 64f } };
+        { Identity = id, Family = "same-family", Required = true, GeographicAnchorPixels = new[] { x, 100f },
+            ExpectedGlyphSizePixels = new[] { 64f, 64f }, CollisionSizePixels = new[] { 64f, 64f } };
         private static float[] Bounds(Rect value) => new[] { value.x, value.y, value.width, value.height };
         private static VmUiProjectedMarkerReport Review(VmUiProjectedMarkerSnapshot source) => VmUiProjectedMarkerAudit.Review(source, "fixture-source", "matched geometry");
         private static bool Has(VmUiProjectedMarkerSnapshot source, string rule) => Review(source).Findings.Any(f => f.Rule == rule);
@@ -44,5 +45,16 @@ namespace VMUnityAutomation.Tests
         [Test] public void FreshIdentityRejectsStalePublication() { var s = Source(); s.Candidates[1].Identity = "replacement"; Assert.That(Has(s, "member-unknown") && Has(s, "marker-missing")); }
         [Test] public void OverBudgetDoesNotPartiallyPass() { var s = Source(); s.Candidates = new VmUiProjectedMarkerCandidate[1025]; Assert.Throws<VmUiAuditLimitException>(() => Review(s)); }
         [Test] public void DuplicateSourceDoesNotQualify() { var s = Source(); s.Candidates[1].Identity = "a"; Assert.Throws<ArgumentException>(() => Review(s)); }
+        [Test] public void NarrowGlyphCanUseAnIndependentTouchFootprint()
+        {
+            var s = Source(145);
+            foreach (var candidate in s.Candidates) candidate.ExpectedGlyphSizePixels = new[] { 12f, 64f };
+            Cluster(s); Assert.That(Review(s).Passed);
+        }
+        [Test] public void CollisionFootprintCannotExcuseGlyphSizeDrift()
+        {
+            var s = Source(); s.Candidates[0].ExpectedGlyphSizePixels = new[] { 12f, 64f };
+            Assert.That(Has(s, "glyph-size"));
+        }
     }
 }

@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.17] - 2026-11-14
+
+- Separate authored collision/touch footprints from native glyph-size expectations.
+  Require both dimensions explicitly; narrow artwork can share a readable marker
+  target without weakening size or distant-member checks. Add matched fixtures.
+
 ## [0.1.16] - 2026-11-14
 
 - Add a Player-compatible projected-marker audit and a read-only official CLI
