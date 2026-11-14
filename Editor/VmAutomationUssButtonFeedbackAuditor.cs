@@ -12,14 +12,15 @@ namespace VMUnityAutomation.Editor
         private static readonly Unity.Profiling.ProfilerMarker CloneHostMarker = new Unity.Profiling.ProfilerMarker("VM.UIFeedback.CloneHost");
         internal static VmUiFeedbackWork Create(IEnumerable<string> uxmlPaths,
             IReadOnlyCollection<string> targetPaths, string themePath,
-            Action<VmAutomationUssStyleAuditIssue> record, bool rejectDefaultControlAppearance)
+            Action<VmAutomationUssStyleAuditIssue> record, bool rejectDefaultControlAppearance,
+            VmUiFeedbackWork preflight = null)
         {
             var coverage = new VmUiFeedbackCoverage
             {
                 ThemePath = themePath ?? ""
             };
             return new VmUiFeedbackWork(coverage,
-                Steps(uxmlPaths, targetPaths, themePath, record, rejectDefaultControlAppearance, coverage).GetEnumerator(),
+                Steps(uxmlPaths, targetPaths, themePath, record, rejectDefaultControlAppearance, coverage, preflight).GetEnumerator(),
                 message => record(new VmAutomationUssStyleAuditIssue
                 {
                     AssetPath = targetPaths.FirstOrDefault() ?? "", Kind = "button-feedback-incomplete",
@@ -31,8 +32,20 @@ namespace VMUnityAutomation.Editor
         private static IEnumerable<object> Steps(IEnumerable<string> uxmlPaths,
             IReadOnlyCollection<string> targetPaths, string themePath,
             Action<VmAutomationUssStyleAuditIssue> record, bool rejectDefaultControlAppearance,
-            VmUiFeedbackCoverage coverage)
+            VmUiFeedbackCoverage coverage, VmUiFeedbackWork preflight)
         {
+            if (preflight != null)
+            {
+                try
+                {
+                    while (!preflight.Finished)
+                    {
+                        preflight.Advance();
+                        yield return null;
+                    }
+                }
+                finally { preflight.Cancel("Parent authoring review retired."); }
+            }
             if (rejectDefaultControlAppearance)
                 coverage.ControlSkins = new VmUiControlSkinAudit(coverage);
             var hosts = ResolveHosts(uxmlPaths, targetPaths, themePath);

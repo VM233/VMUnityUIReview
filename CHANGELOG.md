@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.1.22] - 2026-11-15
+
+- Run complete work-context authoring coverage through the existing cooperative native-work owner, yielding between Prefabs/documents with the same per-slice limits and cancellation cleanup.
+
 ## [0.1.21] - 2026-11-15
 
 - Exercise the discovery boundary through the existing feedback-work factory and its real cleanup lifecycle.

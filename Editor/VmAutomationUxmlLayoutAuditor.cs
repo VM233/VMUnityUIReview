@@ -206,8 +206,8 @@ namespace VMUnityAutomation.Editor
             }
 
             VmAutomationUxmlPanelNestingAuditor.AuditProject(allUxmlPaths, report);
-            if (options.ValidateWorkContextOwnership)
-                VmUiWorkContextAuthoringAudit.Audit(options, report);
+            var workContext = options.ValidateWorkContextOwnership
+                ? VmUiWorkContextAuthoringAudit.Create(options, report) : null;
             VmAutomationUxmlThemeStyleAuditor.AuditProject(targetPaths, report);
             report.FeedbackWork = VmAutomationUssButtonFeedbackAuditor.Create(allUxmlPaths,
                 targetPaths, VmAutomationUssStyleAuditor.FindCommonPanelThemePath(options),
@@ -216,7 +216,7 @@ namespace VMUnityAutomation.Editor
                     AssetPath = issue.AssetPath, Line = issue.Line, Element = issue.Selector,
                     ElementName = issue.Token, Kind = issue.Kind, Severity = issue.Severity,
                     Message = issue.Message, NativeStateScales = issue.NativeStateScales
-                }, false), options.RejectDefaultControlAppearance);
+                }, false), options.RejectDefaultControlAppearance, workContext);
             report.ButtonFeedback = report.FeedbackWork.Coverage;
             if (!deferNative) report.FeedbackWork.Drain();
             report.SortIssues();

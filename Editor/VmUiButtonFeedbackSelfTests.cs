@@ -48,6 +48,8 @@ namespace VMUnityAutomation.Editor
 #if UNITY_6000_6_OR_NEWER
             cases.Add(StructuralScope(theme, baseline));
             cases.Add(DiscoveryBoundary(packagePath));
+            cases.Add(ComposedWork(packagePath, false));
+            cases.Add(ComposedWork(packagePath, true));
 #endif
             return cases;
 
@@ -77,6 +79,37 @@ namespace VMUnityAutomation.Editor
                 }
                 finally { UnityEngine.Object.DestroyImmediate(sheet); }
             }
+        }
+
+        private static Dictionary<string, object> ComposedWork(string packagePath, bool cancel)
+        {
+            int phase = 0;
+            IEnumerable<object> Before()
+            {
+                phase = 1;
+                yield return null;
+                phase = 2;
+            }
+            var before = new VmUiFeedbackWork(new VmUiFeedbackCoverage(), Before().GetEnumerator(), _ => { });
+            string path = packagePath + "/Editor/Fixtures/Inline Skin.uxml";
+            var work = VmAutomationUssButtonFeedbackAuditor.Create(new[] { path }, new[] { path },
+                packagePath + "/Editor/Fixtures/Default Theme.tss", _ => { }, true, before);
+            try
+            {
+                work.Advance();
+                bool ordered = phase == 1 && work.Coverage.Samples == 0;
+                if (cancel) work.Cancel("Composition cancellation fixture.");
+                else work.Drain();
+                bool passed = ordered && before.Finished && work.Finished &&
+                    (cancel ? !before.Coverage.Complete && phase == 1 :
+                        before.Coverage.Complete && work.Coverage.Complete && phase == 2 && work.Coverage.Samples > 0);
+                return new Dictionary<string, object>
+                {
+                    { "name", cancel ? "parent retirement cancels pending authoring work" :
+                        "authoring work finishes before native control observation" }, { "passed", passed }
+                };
+            }
+            finally { work.Cancel("Composition fixture completed."); }
         }
 
         private static Dictionary<string, object> DiscoveryBoundary(string packagePath)

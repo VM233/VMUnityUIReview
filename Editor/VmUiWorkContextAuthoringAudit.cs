@@ -1,7 +1,6 @@
 #if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
@@ -24,113 +23,117 @@ namespace VMUnityAutomation.Editor
             internal HashSet<XElement> ContainsControls;
         }
 
-        internal static void Audit(VmAutomationUIToolkitAuditOptions options, VmAutomationUxmlLayoutAuditReport report)
+        internal static VmUiFeedbackWork Create(VmAutomationUIToolkitAuditOptions options,
+            VmAutomationUxmlLayoutAuditReport report)
         {
-            var clock = Stopwatch.StartNew();
+            var coverage = new VmUiFeedbackCoverage();
+            return new VmUiFeedbackWork(coverage, Steps(options, report, coverage).GetEnumerator(),
+                message => report.Errors.Add("Work-context authoring coverage incomplete: " + message));
+        }
+
+        private static IEnumerable<object> Steps(VmAutomationUIToolkitAuditOptions options,
+            VmAutomationUxmlLayoutAuditReport report, VmUiFeedbackCoverage coverage)
+        {
             var documents = new Dictionary<string, Document>(StringComparer.OrdinalIgnoreCase);
             int components = 0, nodes = 0, bytes = 0, bindings = 0, nativeDocuments = 0;
             var prefabs = VmAutomationUIToolkitAuditUtility.FindAssetFiles(".prefab", options).Take(129).ToArray();
-            try
+            if (prefabs.Length > 128) throw new InvalidOperationException("Work-context Prefab budget exceeded.");
+            foreach (string path in prefabs)
             {
-                if (prefabs.Length > 128) throw new InvalidOperationException("Work-context Prefab budget exceeded.");
-                foreach (string path in prefabs)
+                yield return null;
+                CheckTime();
+                var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+                var behaviours = prefab.GetComponentsInChildren<MonoBehaviour>(true);
+                if ((components += behaviours.Length) > 32768) throw new InvalidOperationException("Work-context component budget exceeded.");
+                var sources = behaviours.OfType<IVmUiWorkContextSource>().ToArray();
+                var uiDocuments = prefab.GetComponentsInChildren<UIDocument>(true);
+                foreach (var uiDocument in uiDocuments)
                 {
+                    yield return null;
+                    if (++nativeDocuments > 128) throw new InvalidOperationException("Work-context native document budget exceeded.");
                     CheckTime();
-                    var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
-                    var behaviours = prefab.GetComponentsInChildren<MonoBehaviour>(true);
-                    if ((components += behaviours.Length) > 32768) throw new InvalidOperationException("Work-context component budget exceeded.");
-                    var sources = behaviours.OfType<IVmUiWorkContextSource>().ToArray();
-                    var uiDocuments = prefab.GetComponentsInChildren<UIDocument>(true);
-                    foreach (var uiDocument in uiDocuments)
+                    var asset = uiDocument.visualTreeAsset;
+                    if (asset == null) throw new InvalidOperationException("A UI Prefab has no VisualTreeAsset: " + path);
+                    var graph = new List<Document>();
+                    foreach (string dependency in AssetDatabase.GetDependencies(AssetDatabase.GetAssetPath(asset), true)
+                                 .Where(value => value.EndsWith(".uxml", StringComparison.OrdinalIgnoreCase)))
                     {
-                        if (++nativeDocuments > 128) throw new InvalidOperationException("Work-context native document budget exceeded.");
-                        CheckTime();
-                        var asset = uiDocument.visualTreeAsset;
-                        if (asset == null) throw new InvalidOperationException("A UI Prefab has no VisualTreeAsset: " + path);
-                        var graph = new List<Document>();
-                        foreach (string dependency in AssetDatabase.GetDependencies(AssetDatabase.GetAssetPath(asset), true)
-                                     .Where(value => value.EndsWith(".uxml", StringComparison.OrdinalIgnoreCase)))
+                        if (!documents.TryGetValue(dependency, out var document))
                         {
-                            if (!documents.TryGetValue(dependency, out var document))
-                            {
-                                if (documents.Count == 128) throw new InvalidOperationException("Work-context UXML budget exceeded.");
-                                string text = File.ReadAllText(VmAutomationUIToolkitAuditUtility.ToFullPath(dependency));
-                                bytes += text.Length * 2;
-                                if (bytes > 8 * 1024 * 1024) throw new InvalidOperationException("Work-context source budget exceeded.");
-                                document = Parse(dependency, text, report);
-                                nodes += document.Xml.Descendants().Count();
-                                if (nodes > 32768) throw new InvalidOperationException("Work-context XML node budget exceeded.");
-                                documents.Add(dependency, document);
-                            }
-                            graph.Add(document);
+                            if (documents.Count == 128) throw new InvalidOperationException("Work-context UXML budget exceeded.");
+                            string text = File.ReadAllText(VmAutomationUIToolkitAuditUtility.ToFullPath(dependency));
+                            bytes += text.Length * 2;
+                            if (bytes > 8 * 1024 * 1024) throw new InvalidOperationException("Work-context source budget exceeded.");
+                            document = Parse(dependency, text, report);
+                            nodes += document.Xml.Descendants().Count();
+                            if (nodes > 32768) throw new InvalidOperationException("Work-context XML node budget exceeded.");
+                            documents.Add(dependency, document);
                         }
-                        var pageContexts = new Dictionary<XElement, string>();
-                        var matched = new HashSet<XElement>();
-                        var nativeNames = new Dictionary<string, int>(StringComparer.Ordinal);
-                        if (sources.Length > 0)
-                        {
-                            var tree = asset.CloneTree();
-                            try
-                            {
-                            var pending = new Stack<VisualElement>();
-                            pending.Push(tree);
-                            int nativeNodes = 0;
-                            while (pending.Count > 0)
-                            {
-                                var element = pending.Pop();
-                                if (++nativeNodes > 8192) throw new InvalidOperationException("Work-context native tree budget exceeded.");
-                                if (!string.IsNullOrEmpty(element.name))
-                                    nativeNames[element.name] = nativeNames.TryGetValue(element.name, out int count) ? count + 1 : 1;
-                                for (int index = 0; index < element.hierarchy.childCount; index++) pending.Push(element.hierarchy[index]);
-                            }
-                            }
-                            finally { tree.Clear(); }
-                        }
-                        foreach (var source in sources)
-                        {
-                            if (((Component)source).GetComponentInParent<UIDocument>(true) != uiDocument) continue;
-                            report.WorkContextSources++;
-                            var sourceBindings = source.GetWorkContextBindings();
-                            if (sourceBindings == null) throw new InvalidOperationException("Work-context source returned no binding product: " + source.GetType().FullName);
-                            int sourceCount = 0;
-                            foreach (var binding in sourceBindings)
-                            {
-                                sourceCount++;
-                                CheckTime();
-                                if (++bindings > 512) throw new InvalidOperationException("Work-context binding budget exceeded.");
-                                report.WorkContextBindings++;
-                                var matches = graph.Where(value => value.Names.ContainsKey(binding.ElementName ?? "")).ToArray();
-                                if (matches.Length != 1 || matches[0].Names[binding.ElementName].Length != 1 ||
-                                    !nativeNames.TryGetValue(binding.ElementName, out int count) || count != 1)
-                                {
-                                    Issue(path, report, "work-context-binding-target", "Expected one authored target for " + source.GetType().FullName + ": " + binding.ElementName);
-                                    continue;
-                                }
-                                Document document = matches[0];
-                                XElement target = document.Names[binding.ElementName][0];
-                                Validate(document, target, source.GetType().FullName, binding.Context, pageContexts, report);
-                                matched.Add(target);
-                            }
-                            if (sourceCount == 0) throw new InvalidOperationException("Work-context source returned an empty binding product: " + source.GetType().FullName);
-                        }
-                        foreach (var document in graph)
-                        foreach (var entry in document.Contracts.Where(value => value.Value["role"] == "activity"))
-                        {
-                            report.WorkContextActivities++;
-                            if (!matched.Contains(entry.Key))
-                                Issue(document.Path, report, "work-context-source-missing", "Activity has no actual serialized producer: " + Name(entry.Key));
-                        }
+                        graph.Add(document);
                     }
+                    var pageContexts = new Dictionary<XElement, string>();
+                    var matched = new HashSet<XElement>();
+                    var nativeNames = new Dictionary<string, int>(StringComparer.Ordinal);
+                    if (sources.Length > 0)
+                    {
+                        var tree = asset.CloneTree();
+                        try
+                        {
+                        var pending = new Stack<VisualElement>();
+                        pending.Push(tree);
+                        int nativeNodes = 0;
+                        while (pending.Count > 0)
+                        {
+                            var element = pending.Pop();
+                            if (++nativeNodes > 8192) throw new InvalidOperationException("Work-context native tree budget exceeded.");
+                            if (!string.IsNullOrEmpty(element.name))
+                                nativeNames[element.name] = nativeNames.TryGetValue(element.name, out int count) ? count + 1 : 1;
+                            for (int index = 0; index < element.hierarchy.childCount; index++) pending.Push(element.hierarchy[index]);
+                        }
+                        }
+                        finally { tree.Clear(); }
+                    }
+                    foreach (var source in sources)
+                    {
+                        if (((Component)source).GetComponentInParent<UIDocument>(true) != uiDocument) continue;
+                        report.WorkContextSources++;
+                        var sourceBindings = source.GetWorkContextBindings();
+                        if (sourceBindings == null) throw new InvalidOperationException("Work-context source returned no binding product: " + source.GetType().FullName);
+                        int sourceCount = 0;
+                        foreach (var binding in sourceBindings)
+                        {
+                            sourceCount++;
+                            CheckTime();
+                            if (++bindings > 512) throw new InvalidOperationException("Work-context binding budget exceeded.");
+                            report.WorkContextBindings++;
+                            var matches = graph.Where(value => value.Names.ContainsKey(binding.ElementName ?? "")).ToArray();
+                            if (matches.Length != 1 || matches[0].Names[binding.ElementName].Length != 1 ||
+                                !nativeNames.TryGetValue(binding.ElementName, out int count) || count != 1)
+                            {
+                                Issue(path, report, "work-context-binding-target", "Expected one authored target for " + source.GetType().FullName + ": " + binding.ElementName);
+                                continue;
+                            }
+                            Document document = matches[0];
+                            XElement target = document.Names[binding.ElementName][0];
+                            Validate(document, target, source.GetType().FullName, binding.Context, pageContexts, report);
+                            matched.Add(target);
+                        }
+                        if (sourceCount == 0) throw new InvalidOperationException("Work-context source returned an empty binding product: " + source.GetType().FullName);
+                    }
+                    foreach (var document in graph)
+                    foreach (var entry in document.Contracts.Where(value => value.Value["role"] == "activity"))
+                    {
+                        report.WorkContextActivities++;
+                        if (!matched.Contains(entry.Key))
+                            Issue(document.Path, report, "work-context-source-missing", "Activity has no actual serialized producer: " + Name(entry.Key));
+                    }
+                    CheckTime();
                 }
-            }
-            catch (Exception exception)
-            {
-                report.Errors.Add("Work-context authoring coverage incomplete: " + exception.GetBaseException().Message);
             }
 
             void CheckTime()
             {
-                if (clock.ElapsedMilliseconds > 2000) throw new InvalidOperationException("Work-context native observation exceeded 2000ms.");
+                coverage.CheckBudget();
             }
         }
 
