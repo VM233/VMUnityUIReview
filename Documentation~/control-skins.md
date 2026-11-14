@@ -26,8 +26,8 @@ inline rules instead of treating their absence from IStyle as an initial value.
 
 Before execution: retain the existing 128-host, 8192-node/host, 128-control/host,
 256-descendant/control, 64-depth and 32768-sample/query boundaries. The skin
-pass observes neutral paint and five interaction states for both values of
-boolean controls; at most 128 x 2 x 5 = 1280 styles updates/host. The existing
+pass observes neutral paint and up to ten interaction states for both values of
+boolean controls; at most 128 x 2 x 10 = 2560 styles updates/host. The existing
 sample/query caps stop work before their larger Cartesian maxima. One native
 panel and one copied theme live at a time. No layout or business input is run.
 
@@ -69,6 +69,13 @@ Native fields use the actual BaseField owner, rather than every focusable
 container. Boolean fields include RadioButton, Toggle and custom root-owned
 fields. Imported controls that deliberately remove the native field class own
 their root interaction. An actual native field class still requires its input.
+Root and input focus are sampled independently, including focused hover and
+focused press. The original root-only focus missed Unity's input-focused Foldout
+arrow and caption overrides after real pointer input. This follows Unity's
+[Styles Explorer input-state sampling](https://github.com/Unity-Technologies/UnityCsReference/blob/master/Modules/UIElementsSamplesEditor/StylesExplorer.cs).
+The extra axis retains the existing total sample/query/declaration caps and
+per-observation budget; exceeding any bound fails completeness. Require native
+input-focus negative controls and replay the attached pointer-click witness.
 Invisible generated paint is not accepted as visible art. Runtime review checks
 the current attached state; popup, selection/caret paint, motion and other
 application-generated states still require their real entry and visual review.

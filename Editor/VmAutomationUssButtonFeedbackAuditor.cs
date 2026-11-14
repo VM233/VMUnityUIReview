@@ -97,23 +97,29 @@ namespace VMUnityAutomation.Editor
                 var sampled = Descendants(field, VmUiFeedbackCoverage.MaximumDescendants);
                 coverage.FieldOwners++;
                 VisualElement target = field;
+                VisualElement input = field;
                 if (field.ClassListContains(BaseField<int>.ussClassName))
-                    target = field.Q(className: "unity-base-slider__dragger") ??
-                        field.Q(className: BaseField<int>.inputUssClassName) ??
+                {
+                    input = field.Q(className: BaseField<int>.inputUssClassName) ??
                         throw new InvalidOperationException("Native field input is missing: " + field.name);
+                    target = field.Q(className: "unity-base-slider__dragger") ?? input;
+                }
                 try
                 {
                     for (int value = 0; value < (boolean == null ? 1 : 2); value++)
                     {
                         boolean?.SetValueWithoutNotify(value == 1);
-                        for (int state = 0; state < 5; state++)
+                        for (int state = 0; state < (input == field ? 7 : 10); state++)
                         {
                             field.SetEnabled(state != 4);
-                            panel.SetState(target, state is 1 or 2, state == 2, state == 3, field);
+                            panel.SetState(target, state is 1 or 2 or 5 or 6 or 8 or 9,
+                                state is 2 or 6 or 9, state is 3 or 5 or 6 or 7 or 8 or 9,
+                                field, state >= 7 ? input : field);
                             coverage.StateUpdates++;
                             coverage.ControlSkins.Inspect(panel.Root, sampled, path,
                                 field.GetType().Name + ":value=" + value + ":" +
-                                new[] { "normal", "hover", "pressed", "focused", "disabled" }[state], record);
+                                new[] { "normal", "hover", "pressed", "focused", "disabled", "focused-hover",
+                                    "focused-pressed", "input-focused", "input-focused-hover", "input-focused-pressed" }[state], record);
                         }
                     }
                 }

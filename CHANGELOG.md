@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.10] - 2026-11-14
+
+- Exercise field input focus independently of the root, including hovered and
+  pressed combinations. Retain root focus, boolean values and native budget caps.
+  Catch generated Foldout arrows and captions overridden only after real clicks.
+
 ## [0.1.9] - 2026-11-14
 
 - Distinguish the native USS importer's embedded Unity theme copies from

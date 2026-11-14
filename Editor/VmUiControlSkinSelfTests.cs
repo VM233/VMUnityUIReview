@@ -154,8 +154,9 @@ namespace VMUnityAutomation.Editor
                 results.Add(new Dictionary<string, object>
                 {
                     { "name", "native field owners cover both boolean values without treating focusable containers as fields" },
-                    { "passed", coverage.StateUpdates == 35 && toggle.value && radio.value && root.panel == null &&
-                        findings.Any(finding => finding.Message.Contains("RadioButton:value=1:")) },
+                    { "passed", coverage.StateUpdates == 64 && toggle.value && radio.value && root.panel == null &&
+                        findings.Any(finding => finding.Message.Contains("RadioButton:value=1:")) &&
+                        findings.Any(finding => finding.Message.Contains("Toggle:value=1:input-focused") && finding.Token == "background-color") },
                     { "stateUpdates", coverage.StateUpdates }, { "findings", findings.Count }
                 });
             }

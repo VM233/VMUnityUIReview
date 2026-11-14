@@ -67,9 +67,10 @@ namespace VMUnityAutomation.Editor
         }
 
         internal void SetState(VisualElement button, bool hovered, bool pressed, bool focused,
-            VisualElement stateOwner = null)
+            VisualElement stateOwner = null, VisualElement focusOwner = null)
         {
             stateOwner = stateOwner ?? button;
+            focusOwner = focusOwner ?? stateOwner;
             nextStateChain.Clear();
             nextStateMembers.Clear();
             int depth = 0;
@@ -83,7 +84,7 @@ namespace VMUnityAutomation.Editor
             foreach (VisualElement node in stateChain)
                 if (!nextStateMembers.Contains(node)) ApplyState(node, false, false, false);
             foreach (VisualElement node in nextStateChain)
-                ApplyState(node, hovered, node == stateOwner && pressed, node == stateOwner && focused);
+                ApplyState(node, hovered, node == stateOwner && pressed, node == focusOwner && focused);
             stateChain.Clear();
             stateChain.AddRange(nextStateChain);
             updateStyles.Invoke(updater, null);
