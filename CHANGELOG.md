@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.12] - 2026-11-14
+
+- Add fixed native Profiler markers for feedback work, host preparation,
+  structural matching, state/style updates and paint reads, including failures.
+  Keep markers within synchronous calls, with original scope and budgets intact.
+
 ## [0.1.11] - 2026-11-14
 
 - Resolve generated slider inputs and draggers even when native Scroller removes

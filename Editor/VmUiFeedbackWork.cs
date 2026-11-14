@@ -5,6 +5,7 @@ namespace VMUnityAutomation.Editor
 {
     internal sealed class VmUiFeedbackWork
     {
+        private static readonly Unity.Profiling.ProfilerMarker AdvanceMarker = new Unity.Profiling.ProfilerMarker("VM.UIFeedback.Advance");
         internal readonly VmUiFeedbackCoverage Coverage;
         private readonly IEnumerator<object> steps;
         private readonly Action<string> fail;
@@ -19,6 +20,7 @@ namespace VMUnityAutomation.Editor
         internal void Advance()
         {
             if (Finished) return;
+            using var measurement = AdvanceMarker.Auto();
             try
             {
                 Coverage.BeginObservation();

@@ -11,6 +11,8 @@ namespace VMUnityAutomation.Editor
     /// <summary>Native structural selector matches own USS feedback scope; paint keeps its real states.</summary>
     internal sealed class VmUiFeedbackStyleScope
     {
+        private static readonly Unity.Profiling.ProfilerMarker BuildMarker = new Unity.Profiling.ProfilerMarker("VM.UIFeedback.ScopeBuild");
+        private static readonly Unity.Profiling.ProfilerMarker MatchMarker = new Unity.Profiling.ProfilerMarker("VM.UIFeedback.ScopeMatch");
         private const BindingFlags Members = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
         private static readonly Type ComplexType = typeof(VisualElement).Assembly.GetType("UnityEngine.UIElements.StyleComplexSelector", true);
         private static readonly Type SelectorType = typeof(VisualElement).Assembly.GetType("UnityEngine.UIElements.StyleSelector", true);
@@ -33,6 +35,7 @@ namespace VMUnityAutomation.Editor
 
         internal VmUiFeedbackStyleScope(IEnumerable<StyleSheet> sheets, VmUiFeedbackCoverage coverage)
         {
+            using var measurement = BuildMarker.Auto();
             var signatures = new HashSet<string>(StringComparer.Ordinal);
             int ruleCount = 0, selectorCount = 0, partCount = 0, textCount = 0;
             foreach (StyleSheet sheet in sheets)
@@ -56,6 +59,7 @@ namespace VMUnityAutomation.Editor
 
         internal Button[] SelectButtons(IReadOnlyList<VisualElement> nodes, VmUiFeedbackCoverage coverage)
         {
+            using var measurement = MatchMarker.Auto();
             var scopedSubtrees = new HashSet<VisualElement>();
             var affected = new HashSet<Button>();
             int total = 0;
