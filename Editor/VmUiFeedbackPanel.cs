@@ -9,6 +9,9 @@ namespace VMUnityAutomation.Editor
     /// <summary>One isolated native style context. No window, binding tick or input dispatch.</summary>
     internal sealed class VmUiFeedbackPanel : IDisposable
     {
+        private static readonly Unity.Profiling.ProfilerMarker SetupMarker = new Unity.Profiling.ProfilerMarker("VM.UIFeedback.PanelSetup");
+        private static readonly Unity.Profiling.ProfilerMarker StateMarker = new Unity.Profiling.ProfilerMarker("VM.UIFeedback.State");
+        private static readonly Unity.Profiling.ProfilerMarker NativeStylesMarker = new Unity.Profiling.ProfilerMarker("VM.UIFeedback.NativeStyles");
         private const BindingFlags Members = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
         private static readonly Type PanelType = typeof(VisualElement).Assembly.GetType("UnityEngine.UIElements.Panel", true);
         private static readonly Type PhaseType = typeof(VisualElement).Assembly.GetType("UnityEngine.UIElements.VisualTreeUpdatePhase", true);
@@ -39,6 +42,7 @@ namespace VMUnityAutomation.Editor
 
         internal VmUiFeedbackPanel(VisualElement content, ThemeStyleSheet sourceTheme)
         {
+            using var measurement = SetupMarker.Auto();
             if (content == null || sourceTheme == null)
                 throw new ArgumentException("Native feedback review requires content and its actual theme.");
             try
@@ -69,6 +73,7 @@ namespace VMUnityAutomation.Editor
         internal void SetState(VisualElement button, bool hovered, bool pressed, bool focused,
             VisualElement stateOwner = null, VisualElement focusOwner = null)
         {
+            using var measurement = StateMarker.Auto();
             stateOwner = stateOwner ?? button;
             focusOwner = focusOwner ?? stateOwner;
             nextStateChain.Clear();
@@ -87,7 +92,7 @@ namespace VMUnityAutomation.Editor
                 ApplyState(node, hovered, node == stateOwner && pressed, node == focusOwner && focused);
             stateChain.Clear();
             stateChain.AddRange(nextStateChain);
-            updateStyles.Invoke(updater, null);
+            using (NativeStylesMarker.Auto()) updateStyles.Invoke(updater, null);
         }
 
         private static void ApplyState(VisualElement node, bool hovered, bool pressed, bool focused)

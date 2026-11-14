@@ -10,6 +10,7 @@ namespace VMUnityAutomation.Editor
 {
     internal sealed class VmUiButtonPaint
     {
+        private static readonly Unity.Profiling.ProfilerMarker CaptureMarker = new Unity.Profiling.ProfilerMarker("VM.UIFeedback.Paint");
         private static readonly string[] TransformNames = { "scale", "translate", "rotate" };
         private static readonly PropertyInfo[] Transforms = TransformNames.Select(name =>
             typeof(IResolvedStyle).GetProperty(name) ?? throw new MissingMemberException(typeof(IResolvedStyle).FullName, name)).ToArray();
@@ -55,6 +56,7 @@ namespace VMUnityAutomation.Editor
         internal static VmUiButtonPaint[] Capture(IReadOnlyList<VisualElement> elements,
             VmUiFeedbackCoverage coverage)
         {
+            using var measurement = CaptureMarker.Auto();
             coverage.Samples += elements.Count;
             coverage.CheckBudget();
             return elements.Select(element => new VmUiButtonPaint(element)).ToArray();

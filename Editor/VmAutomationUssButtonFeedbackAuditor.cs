@@ -8,6 +8,8 @@ namespace VMUnityAutomation.Editor
 {
     internal static class VmAutomationUssButtonFeedbackAuditor
     {
+        private static readonly Unity.Profiling.ProfilerMarker ResolveHostsMarker = new Unity.Profiling.ProfilerMarker("VM.UIFeedback.ResolveHosts");
+        private static readonly Unity.Profiling.ProfilerMarker CloneHostMarker = new Unity.Profiling.ProfilerMarker("VM.UIFeedback.CloneHost");
         internal static VmUiFeedbackWork Create(IEnumerable<string> uxmlPaths,
             IReadOnlyCollection<string> targetPaths, string themePath,
             Action<VmAutomationUssStyleAuditIssue> record, bool rejectDefaultControlAppearance)
@@ -43,7 +45,8 @@ namespace VMUnityAutomation.Editor
                 coverage.CheckBudget();
                 var asset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(path);
                 if (asset == null) throw new InvalidOperationException("Native UXML is unavailable: " + path);
-                VisualElement root = asset.CloneTree();
+                VisualElement root;
+                using (CloneHostMarker.Auto()) root = asset.CloneTree();
                 List<VisualElement> nodes = Descendants(root, VmUiFeedbackCoverage.MaximumNodes);
                 Button[] buttons = nodes.OfType<Button>().ToArray();
                 if (buttons.Length == 0 && coverage.ControlSkins == null) continue;
@@ -140,6 +143,7 @@ namespace VMUnityAutomation.Editor
         private static FeedbackHost[] ResolveHosts(IEnumerable<string> uxmlPaths,
             IReadOnlyCollection<string> targets, string themePath)
         {
+            using var measurement = ResolveHostsMarker.Auto();
             string[] paths = uxmlPaths.Distinct(StringComparer.OrdinalIgnoreCase)
                 .OrderBy(path => path, StringComparer.Ordinal).ToArray();
             if (paths.Length > VmUiFeedbackCoverage.MaximumHosts)
