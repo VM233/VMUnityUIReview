@@ -96,14 +96,11 @@ namespace VMUnityAutomation.Editor
                 bool originalValue = boolean != null && boolean.value;
                 var sampled = Descendants(field, VmUiFeedbackCoverage.MaximumDescendants);
                 coverage.FieldOwners++;
-                VisualElement target = field;
-                VisualElement input = field;
-                if (field.ClassListContains(BaseField<int>.ussClassName))
-                {
-                    input = field.Q(className: BaseField<int>.inputUssClassName) ??
-                        throw new InvalidOperationException("Native field input is missing: " + field.name);
-                    target = field.Q(className: "unity-base-slider__dragger") ?? input;
-                }
+                VisualElement input = field.Q(className: BaseField<int>.inputUssClassName);
+                if (input == null && field.ClassListContains(BaseField<int>.ussClassName))
+                    throw new InvalidOperationException("Native field input is missing: " + field.name);
+                input = input ?? field;
+                VisualElement target = field.Q(className: "unity-base-slider__dragger") ?? input;
                 try
                 {
                     for (int value = 0; value < (boolean == null ? 1 : 2); value++)

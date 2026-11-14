@@ -68,7 +68,12 @@ These execution bounds do not replace actual style and player-visual acceptance.
 Native fields use the actual BaseField owner, rather than every focusable
 container. Boolean fields include RadioButton, Toggle and custom root-owned
 fields. Imported controls that deliberately remove the native field class own
-their root interaction. An actual native field class still requires its input.
+their root interaction only when they have no generated input. Resolve existing
+inputs and slider draggers before applying that root-owned contract: native
+Scroller strips the field root class while retaining its interactive dragger.
+An actual native field class still requires its input. The existing bounded
+descendant lookup now also covers those class-stripped owners; no new scan axis
+or budget is introduced. A class-stripped native slider is a regression control.
 Root and input focus are sampled independently, including focused hover and
 focused press. The original root-only focus missed Unity's input-focused Foldout
 arrow and caption overrides after real pointer input. This follows Unity's

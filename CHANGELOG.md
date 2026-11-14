@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.11] - 2026-11-14
+
+- Resolve generated slider inputs and draggers even when native Scroller removes
+  its field root class. Retain deliberate root-owned custom fields and verify
+  the class-stripped slider's actual hovered dragger in the native regression.
+
 ## [0.1.10] - 2026-11-14
 
 - Exercise field input focus independently of the root, including hovered and

@@ -141,7 +141,9 @@ namespace VMUnityAutomation.Editor
                 for (int index = 0; index < 129; index++) root.Add(new VisualElement { focusable = true });
                 var toggle = new Toggle { value = true }; var radio = new RadioButton { value = true };
                 var custom = new RootField();
-                root.Add(toggle); root.Add(radio); root.Add(new Slider()); root.Add(custom);
+                var slider = new Slider();
+                slider.RemoveFromClassList(BaseField<float>.ussClassName);
+                root.Add(toggle); root.Add(radio); root.Add(slider); root.Add(custom);
                 var coverage = new VmUiFeedbackCoverage();
                 var findings = new List<VmAutomationUssStyleAuditIssue>();
                 using (var panel = new VmUiFeedbackPanel(root, theme))
@@ -156,7 +158,9 @@ namespace VMUnityAutomation.Editor
                     { "name", "native field owners cover both boolean values without treating focusable containers as fields" },
                     { "passed", coverage.StateUpdates == 64 && toggle.value && radio.value && root.panel == null &&
                         findings.Any(finding => finding.Message.Contains("RadioButton:value=1:")) &&
-                        findings.Any(finding => finding.Message.Contains("Toggle:value=1:input-focused") && finding.Token == "background-color") },
+                        findings.Any(finding => finding.Message.Contains("Toggle:value=1:input-focused") && finding.Token == "background-color") &&
+                        findings.Any(finding => finding.Message.Contains("Slider:value=0:hover") &&
+                            finding.Message.Contains("unity-base-slider__dragger")) },
                     { "stateUpdates", coverage.StateUpdates }, { "findings", findings.Count }
                 });
             }
