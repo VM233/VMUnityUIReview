@@ -15,72 +15,75 @@ namespace VMUnityAutomation.Runtime
         public sealed class Report
         {
             public bool Passed;
-            public int EvaluatedGlyphs, EvaluatedStrokes;
+            public int EvaluatedGlyphs, EvaluatedStrokes, MissingStrokeGlyphs;
             public int StrokeWeightIssues;
             public readonly List<string> Findings = new List<string>();
         }
-        public static Glyph Capture(Mesh mesh, Color ink)
+        private struct EdgeUse { public int First, Second; }
+
+        // UV endpoint/side roles identify boundaries; every width comes from native positions.
+        public static Glyph Capture(string identity, float canvasSpan, IReadOnlyList<Vector3> vertices,
+            IReadOnlyList<Vector2> penCoordinates, IReadOnlyList<int> triangles)
         {
-            if (mesh == null || mesh.vertexCount == 0 || mesh.vertexCount > 4096)
-                throw new ArgumentException("Stroke capture requires one actual readable glyph with1..4096 vertices.");
-            var vertices = mesh.vertices; var colors = mesh.colors; var triangles = mesh.triangles;
-            if (colors.Length != vertices.Length || triangles.Length > 24576 || triangles.Length % 3 != 0)
-                throw new ArgumentException("Stroke capture requires complete native pigment and bounded triangle data.");
-            var result = new Glyph { Identity = mesh.name,
-                CanvasSpan = Mathf.Max(mesh.bounds.size.x, mesh.bounds.size.y, mesh.bounds.size.z) };
-            for (int offset = 0; offset + 5 < triangles.Length; offset += 6)
+            if (string.IsNullOrEmpty(identity) || !Finite(canvasSpan) || canvasSpan <= 0 || vertices == null ||
+                vertices.Count is < 1 or > 4096 || penCoordinates == null || penCoordinates.Count != vertices.Count ||
+                triangles == null || triangles.Count > 24576 || triangles.Count % 3 != 0)
+                throw new ArgumentException("Native pen capture requires identity, canvas,1..4096 positions/UV roles and<=24576 triangle indices.");
+            var result = new Glyph { Identity = identity, CanvasSpan = canvasSpan };
+            var edges = new Dictionary<(int, int), EdgeUse>();
+            int penTriangles = 0;
+            for (int offset = 0; offset < triangles.Count; offset += 3)
             {
-                bool pigment = true;
-                for (int index = 0; index < 6; index++)
+                bool pen = true;
+                for (int corner = 0; corner < 3; corner++)
                 {
-                    var color = colors[triangles[offset + index]];
-                    if (Mathf.Abs(color.r - ink.r) > .002f || Mathf.Abs(color.g - ink.g) > .002f || Mathf.Abs(color.b - ink.b) > .002f)
-                        pigment = false;
+                    int index = triangles[offset + corner];
+                    if (index < 0 || index >= vertices.Count)
+                        throw new ArgumentException(identity + ":native triangle index is outside its position stream.");
+                    pen &= IsPen(penCoordinates[index]);
                 }
-                if (!pigment) continue;
-                var points = Boundary(vertices, triangles, offset);
-                if (points == null) continue;
-                float width = float.PositiveInfinity;
-                for (int side = 0; side < 2; side++)
+                if (!pen) continue;
+                penTriangles++;
+                for (int corner = 0; corner < 3; corner++)
                 {
-                    var a = points[(side + 1) % 4] - points[side];
-                    var b = points[(side + 3) % 4] - points[(side + 2) % 4];
-                    if (a.sqrMagnitude == 0 || b.sqrMagnitude == 0 ||
-                        Mathf.Abs(Vector3.Dot(a.normalized, b.normalized)) < .999f) continue;
-                    float candidate = Vector3.Cross(points[(side + 2) % 4] - points[side], a.normalized).magnitude;
-                    if (candidate > 0) width = Mathf.Min(width, candidate);
+                    int a = triangles[offset + corner], b = triangles[offset + (corner + 1) % 3];
+                    var key = a < b ? (a, b) : (b, a);
+                    if (!edges.TryGetValue(key, out var use)) use = new EdgeUse { First = offset, Second = -1 };
+                    else if (use.Second >= 0) throw new ArgumentException(identity + ":native pen edge is nonmanifold.");
+                    else use.Second = offset;
+                    edges[key] = use;
                 }
-                if (!float.IsPositiveInfinity(width)) result.Widths.Add(width);
             }
+            foreach (var use in edges.Values)
+            {
+                if (use.Second < 0) continue;
+                var corners = new int[] { -1, -1, -1, -1 };
+                bool quad = true;
+                for (int corner = 0; corner < 6; corner++)
+                {
+                    int index = triangles[(corner < 3 ? use.First : use.Second) + corner % 3];
+                    var uv = penCoordinates[index];
+                    int role = uv.y < 0 ? (uv.x < .5f ? 0 : 1) : (uv.x > .5f ? 2 : 3);
+                    if (corners[role] >= 0 && corners[role] != index) quad = false;
+                    corners[role] = index;
+                }
+                if (!quad || Array.Exists(corners, index => index < 0)) continue;
+                Vector3 a = vertices[corners[0]], b = vertices[corners[1]],
+                    c = vertices[corners[2]], d = vertices[corners[3]];
+                var along = b - a; var opposite = d - c;
+                if (along.sqrMagnitude == 0 || opposite.sqrMagnitude == 0 ||
+                    Mathf.Abs(Vector3.Dot(along.normalized, opposite.normalized)) < .999f)
+                    throw new ArgumentException(identity + ":native pen lost its parallel authored boundaries.");
+                float width = Vector3.Cross(d - a, along.normalized).magnitude;
+                if (!Finite(width) || width <= 0) throw new ArgumentException(identity + ":native pen has no finite physical width.");
+                result.Widths.Add(width);
+            }
+            if (result.Widths.Count * 2 != penTriangles)
+                throw new ArgumentException(identity + ":not every native pen triangle belongs to one complete directional strip.");
             return result;
         }
-        private static Vector3[] Boundary(Vector3[] vertices, int[] indices, int offset)
-        {
-            var from = new int[6]; var to = new int[6]; var boundary = new bool[6];
-            int count = 0;
-            for (int edge = 0; edge < 6; edge++)
-            {
-                int triangle = offset + edge / 3 * 3;
-                from[edge] = indices[triangle + edge % 3]; to[edge] = indices[triangle + (edge + 1) % 3];
-                boundary[edge] = true;
-            }
-            for (int edge = 0; edge < 6; edge++)
-                for (int other = edge + 1; other < 6; other++)
-                    if (from[edge] == to[other] && to[edge] == from[other]) boundary[edge] = boundary[other] = false;
-            int first = -1;
-            for (int edge = 0; edge < 6; edge++) if (boundary[edge]) { count++; if (first < 0) first = edge; }
-            if (count != 4) return null;
-            var result = new Vector3[4]; int current = first;
-            for (int corner = 0; corner < 4; corner++)
-            {
-                result[corner] = vertices[from[current]]; int destination = to[current]; boundary[current] = false;
-                if (corner == 3) return destination == from[first] ? result : null;
-                current = -1;
-                for (int edge = 0; edge < 6; edge++) if (boundary[edge] && from[edge] == destination) { current = edge; break; }
-                if (current < 0) return null;
-            }
-            return result;
-        }
+        private static bool IsPen(Vector2 uv) => (uv.x == 0 || uv.x == 1) && (uv.y == -1 || uv.y == 1);
+
         public static Report Review(IReadOnlyList<Glyph> glyphs, float normalizedPen, float relativeTolerance)
         {
             if (glyphs == null || glyphs.Count == 0 || glyphs.Count > 128 || !Finite(normalizedPen) || normalizedPen <= 0 ||
@@ -90,18 +93,23 @@ namespace VMUnityAutomation.Runtime
             foreach (var glyph in glyphs)
             {
                 if (glyph == null || string.IsNullOrEmpty(glyph.Identity) || !Finite(glyph.CanvasSpan) || glyph.CanvasSpan <= 0 ||
-                    glyph.Widths.Count == 0 || glyph.Widths.Count > 4096)
-                    throw new ArgumentException("Each glyph requires its actual identity, canvas and1..4096 measured stroke widths.");
+                    glyph.Widths.Count > 4096)
+                    throw new ArgumentException("Each glyph requires its actual identity, canvas and<=4096 measured stroke widths.");
                 report.EvaluatedGlyphs++;
+                if (glyph.Widths.Count == 0)
+                {
+                    report.MissingStrokeGlyphs++;
+                    report.Findings.Add(glyph.Identity + ":no-native-pen-strips");
+                    continue;
+                }
                 int failures = 0; float minimum = float.PositiveInfinity, maximum = 0;
                 foreach (float width in glyph.Widths)
                 {
-                    if (!Finite(width) || width <= 0) throw new ArgumentException("Native pen widths must be positive and finite.");
+                    if (!Finite(width) || width <= 0) throw new ArgumentException(glyph.Identity + ":native pen widths must be positive and finite.");
                     report.EvaluatedStrokes++;
                     float normalized = width / glyph.CanvasSpan;
                     minimum = Mathf.Min(minimum, normalized); maximum = Mathf.Max(maximum, normalized);
-                    if (Mathf.Abs(normalized / normalizedPen - 1) > relativeTolerance)
-                        failures++;
+                    if (Mathf.Abs(normalized / normalizedPen - 1) > relativeTolerance) failures++;
                 }
                 report.StrokeWeightIssues += failures;
                 if (failures > 0) report.Findings.Add(glyph.Identity + ":stroke-weight:" +

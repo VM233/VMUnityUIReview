@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.26] - 2026-11-15
+
+- Capture imported and CPU-discarded glyphs through a disposable native Editor mesh snapshot. Preserve authored pen endpoint/side UV roles and measure actual parallel geometry, independently of pigment, triangle order and stroke length.
+- Report missing pen coverage with the actual glyph identity; reject incomplete directional strips. Retain reordered, short-stroke, CPU-discarded and original thin/thick controls.
+
 ## [0.1.25] - 2026-11-15
 
 - Measure the first physical geometry response separately from prompt fading/publication. Missing response timings remain explicit null values in structured reports.

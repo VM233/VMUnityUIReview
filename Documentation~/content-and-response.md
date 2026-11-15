@@ -30,11 +30,21 @@ silently impose a time limit on every navigation or loading operation.
 
 ## Static cost ledger
 
-Glyph pen review reads the real mesh vertices, pigments, triangle-pair boundary
-and canvas normalization. It measures parallel strip edges, then compares the
+Glyph pen review reads the real mesh positions, directional UV roles, edge
+adjacency and canvas normalization. UV corners `(0,-1), (1,-1), (1,1), (0,1)`
+identify each strip's endpoints and sides; filled faces use other coordinates.
+Widths come from actual parallel boundaries, never from those role values. It compares the
 normalized widths against the caller's explicit family pen. It rejects empty
 coverage and thin/thick original controls. This does not judge icon meaning or
 the artistic coherence of filled shapes.
+
+The Editor adapter uses Unity's disposable
+[MeshUtility.AcquireReadOnlyMeshData](https://docs.unity3d.com/2021.3/Documentation/ScriptReference/MeshUtility.AcquireReadOnlyMeshData.html)
+snapshot, including meshes whose runtime CPU data was discarded. The runtime
+reviewer consumes detached position/role/index arrays. It does not infer pen
+identity from pigment, assume consecutive triangle pairs, change import settings
+or keep a second readable production mesh. Missing coverage is a failed finding
+with the actual source identity, so the host can still deliver its visual sheet.
 
 Before implementation: text inputs contain at most 65,536 UTF-16 units. One
 linear pass counts at most 65,537 line boundaries; a fixed set of ten vague
@@ -49,9 +59,11 @@ visits with <=512-unit identities. Each review is O(n), with <=600 numeric
 observations and <=128 dictionary entries (<256KiB managed scratch). There is no
 native query, capture, clock override or task scheduling inside these reviewers.
 Glyph capture admits <=4,096 vertices/24,576 triangle indices per mesh and <=128
-glyphs. Each triangle pair does <=36 edge comparisons; no pairwise search across
-glyphs. One mesh's detached arrays and <=4,096 measured widths are retained at
-a time by a caller that batches capture/review. Native pigment and pen admission
+glyphs. One linear visit to<=8,192 triangles produces<=24,576 edge entries;
+each shared edge checks six native role/position references. There is no pairwise
+triangle/glyph search. One mesh's detached arrays and edge dictionary consume
+<4MiB scratch and retire with its native snapshot;<=4,096 measured widths per
+glyph may be retained by the caller. Native pen admission
 must precede artistic acceptance. The existing host keeps its time budget.
 All width violations are counted; findings retain one exact normalized range per
 glyph (<=128 findings), bounding the failing case as well as the passing case.
