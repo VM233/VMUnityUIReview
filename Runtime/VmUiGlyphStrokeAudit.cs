@@ -11,13 +11,14 @@ namespace VMUnityAutomation.Runtime
             public string Identity;
             public float CanvasSpan;
             public readonly List<float> Widths = new List<float>();
+            public readonly List<Vector3> Centers = new List<Vector3>();
         }
         public sealed class Report
         {
             public bool Passed;
             public int EvaluatedGlyphs, EvaluatedStrokes, MissingStrokeGlyphs;
             public int StrokeWeightIssues;
-            public readonly List<string> Findings = new List<string>();
+            public List<string> Findings { get; set; } = new List<string>();
         }
         private struct EdgeUse { public int First, Second; }
 
@@ -77,6 +78,7 @@ namespace VMUnityAutomation.Runtime
                 float width = Vector3.Cross(d - a, along.normalized).magnitude;
                 if (!Finite(width) || width <= 0) throw new ArgumentException(identity + ":native pen has no finite physical width.");
                 result.Widths.Add(width);
+                result.Centers.Add((a + b + c + d) * .25f);
             }
             if (result.Widths.Count * 2 != penTriangles)
                 throw new ArgumentException(identity + ":not every native pen triangle belongs to one complete directional strip.");

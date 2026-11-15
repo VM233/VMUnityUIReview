@@ -38,6 +38,11 @@ normalized widths against the caller's explicit family pen. It rejects empty
 coverage and thin/thick original controls. This does not judge icon meaning or
 the artistic coherence of filled shapes.
 
+Each captured strip also retains its actual four-corner center. A host may project
+those witnesses into its native rendered image to detect missing paint. Findings
+are a structured list property, so the native public report includes failing
+identities rather than only their aggregate count.
+
 The Editor adapter uses Unity's disposable
 [MeshUtility.AcquireReadOnlyMeshData](https://docs.unity3d.com/2021.3/Documentation/ScriptReference/MeshUtility.AcquireReadOnlyMeshData.html)
 snapshot, including meshes whose runtime CPU data was discarded. The runtime
@@ -62,7 +67,7 @@ Glyph capture admits <=4,096 vertices/24,576 triangle indices per mesh and <=128
 glyphs. One linear visit to<=8,192 triangles produces<=24,576 edge entries;
 each shared edge checks six native role/position references. There is no pairwise
 triangle/glyph search. One mesh's detached arrays and edge dictionary consume
-<4MiB scratch and retire with its native snapshot;<=4,096 measured widths per
+<4MiB scratch and retire with its native snapshot;<=4,096 measured widths/centers per
 glyph may be retained by the caller. Native pen admission
 must precede artistic acceptance. The existing host keeps its time budget.
 All width violations are counted; findings retain one exact normalized range per

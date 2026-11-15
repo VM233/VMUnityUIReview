@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.27] - 2026-11-15
+
+- Publish glyph findings through the native structured report contract, retaining every failing source identity.
+- Retain actual strip centers alongside measured widths so a host can check native painted ink at the same geometric witnesses. Mesh measurements alone do not qualify rendering.
+
 ## [0.1.26] - 2026-11-15
 
 - Capture imported and CPU-discarded glyphs through a disposable native Editor mesh snapshot. Preserve authored pen endpoint/side UV roles and measure actual parallel geometry, independently of pigment, triangle order and stroke length.
