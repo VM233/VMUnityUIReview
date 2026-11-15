@@ -103,7 +103,7 @@ core has no Editor or CLI transport dependency. Save its full report alongside
 the source/build fingerprint and real images or motion capture.
 
 Run the `VmUiExperienceAuditTests` fixture in the declared
-`VMUnityAutomation.Editor.Tests` assembly through the native package-test job.
+`VMUnityUIReview.Editor.Tests` assembly through the native package-test job.
 The fixture restores its temporary panel and prior focus. Use matched negative
 controls as well as a passing tree; changing the threshold to conceal a failed
 case does not qualify the review.

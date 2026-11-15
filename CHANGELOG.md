@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.24] - 2026-11-15
+
+- Reject flat authored/runtime multiline information blocks through the existing UXML and experience audits, with explicit nonzero composition coverage. Expose a bounded shared concrete-reason check to source-localization consumers.
+- Add native-frame response witnesses separating publication, actual visible onset and settlement, plus repeated-return destination consistency. Retain the original delayed, hidden, stale-launcher and alternating-return controls; hosts still own actual input and domain/paint evidence.
+- Measure actual native mesh strip widths against each icon family's normalized canvas/pen contract, retaining thin/thick geometry controls and rejecting empty coverage.
+
 ## [0.1.23] - 2026-11-15
 
 - Measure enabled Button text and boundary contrast on native resolved flat surfaces across normal, hover, focus, press and release. Reject unreadable text and a hover/press that loses a previously distinct boundary against its actual host, including alpha composition.

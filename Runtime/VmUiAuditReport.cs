@@ -23,6 +23,7 @@ namespace VMUnityAutomation.Runtime
         public int ScannedElements { get; set; }
         public int VisibleElements { get; set; }
         public int MeasuredTexts { get; set; }
+        public int InformationCompositionChecks { get; set; }
         public int HitTests { get; set; }
         public int LayoutGroups { get; set; }
         public int LayoutChildren { get; set; }

@@ -353,6 +353,9 @@ namespace VMUnityAutomation.Runtime
         private static void CheckText(TextElement element, string path, VmUiAuditReport report, VmUiAuditOptions options)
         {
             report.MeasuredTexts++;
+            report.InformationCompositionChecks++;
+            if (VmUiContentAudit.IsFlatBlock(element.text))
+                Add(report, element, path, "flat-information-block", "One equally styled text field mixes at least five explicit content lines. Split semantic groups and their hierarchy at the content owner.");
             float opacity = EffectiveOpacity(element) * element.resolvedStyle.color.a;
             if (opacity < options.MinimumTextOpacity)
                 Add(report, element, path, "unreadable-opacity", "Visible text is below the configured effective opacity.", opacity, options.MinimumTextOpacity);

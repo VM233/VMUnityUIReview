@@ -25,6 +25,17 @@ namespace VMUnityAutomation.Editor
                 continue;
             }
 
+            report.InformationCompositionChecks++;
+            string text = AttributeValue(element, "text");
+            if (VMUnityAutomation.Runtime.VmUiContentAudit.IsFlatBlock(text))
+                report.Record(new VmAutomationUxmlLayoutAuditIssue
+                {
+                    AssetPath = assetPath, Line = GetLineNumber(element), Element = element.Name.LocalName,
+                    ElementName = AttributeValue(element, "name"), Kind = "flat-information-block", Severity = "error",
+                    AttributeName = "text", AttributeValue = text,
+                    Message = "One equally styled text field contains at least five explicit content lines. Split semantic groups and their hierarchy at the content owner."
+                }, false);
+
             var style = ResolveAuthoredStyle(element, inlineStyleContracts);
             if (style.TryGetValue("background-image", out var backgroundImage) == false)
             {

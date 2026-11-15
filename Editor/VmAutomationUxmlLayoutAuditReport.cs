@@ -20,6 +20,7 @@ namespace VMUnityAutomation.Editor
         public int IndexedStyleSheetCount;
         public int IndexedRuntimeSourceCount;
         public int IndexedSerializedAssetCount;
+        public int InformationCompositionChecks;
         public int InteractionScopes, InteractionGroups, InteractionNavigations, InteractionFields;
         public int InteractionPublicationNavigations, InteractionPublicationDestinations;
         public int InteractionButtons, InteractionSliders;
@@ -94,6 +95,7 @@ namespace VMUnityAutomation.Editor
                 { "indexedStyleSheets", IndexedStyleSheetCount },
                 { "indexedRuntimeSourceFiles", IndexedRuntimeSourceCount },
                 { "indexedSerializedAssetFiles", IndexedSerializedAssetCount },
+                { "informationCompositionChecks", InformationCompositionChecks },
                 { "interactionStructure", new Dictionary<string, object>
                     {
                         { "coverage", InteractionScopes == 0 ? "NotDeclared" : "DeclaredAuthoringStructure" },
