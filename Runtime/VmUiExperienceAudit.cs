@@ -322,8 +322,9 @@ namespace VMUnityAutomation.Runtime
             return opacity;
         }
 
-        private static Rect VisibleBounds(VisualElement element, Rect viewport)
+        public static Rect VisibleBounds(VisualElement element, Rect viewport)
         {
+            if (element == null) throw new ArgumentNullException(nameof(element));
             var result = Intersection(element.worldBound, viewport);
             return element.hierarchy.parent == null ? result : Intersection(result, VmUiNativeClip.Read(element.hierarchy.parent));
         }

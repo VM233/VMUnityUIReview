@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.28] - 2026-11-15
+
+- Expose the experience audit's existing native VisibleBounds product so frame
+  continuity and input observers share actual USS/ancestor clipping semantics.
+- Cover partial, zero-height and restored native clipping. The raw element
+  rectangle remains an explicit failing control for visible-area consumers.
+
 ## [0.1.27] - 2026-11-15
 
 - Publish glyph findings through the native structured report contract, retaining every failing source identity.

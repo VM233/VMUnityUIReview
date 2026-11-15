@@ -34,6 +34,13 @@ and [Unity6](https://github.com/Unity-Technologies/UnityCsReference/blob/6000.2/
 The review uses the native axis-aligned clip rectangle; rounded silhouettes,
 transformed pixel edges and textured contrast still need image review.
 
+`VmUiExperienceAudit.VisibleBounds(element, viewport)` exposes that same native
+intersection to frame and input observers. A non-positive width or height has
+no painted region or usable centre, even when the element's own bounds remain positive.
+Use the returned rectangle for native input and keep style eligibility separate
+from actual painted area. This adds no scan, cache, resource or timer; each call
+performs one existing native clip read and two rectangle intersections.
+
 ## Static cost ledger before implementation
 
 Physical ancestry correction (0.6.417): Unity's

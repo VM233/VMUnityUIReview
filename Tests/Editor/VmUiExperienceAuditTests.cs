@@ -204,6 +204,25 @@ namespace VMUnityAutomation.Editor.Tests
         }
 
         [UnityTest]
+        public IEnumerator SharedVisibleBoundsPreserveNativePartialAndZeroClipping()
+        {
+            var clip = new VisualElement(); Place(clip, 0, 0, 100, 160);
+            clip.style.overflow = Overflow.Hidden;
+            surface.Add(clip); clip.Add(requirement);
+            yield return null;
+            var partial = VmUiExperienceAudit.VisibleBounds(requirement, surface.worldBound);
+            Assert.That(partial.width, Is.EqualTo(80).Within(.1));
+            Assert.That(partial.height, Is.EqualTo(40).Within(.1));
+            Assert.That(partial.width, Is.LessThan(requirement.worldBound.width));
+            clip.style.height = 0; yield return null;
+            var empty = VmUiExperienceAudit.VisibleBounds(requirement, surface.worldBound);
+            Assert.That(empty.width <= 0 || empty.height <= 0, Is.True);
+            clip.style.height = 160; yield return null;
+            var restored = VmUiExperienceAudit.VisibleBounds(requirement, surface.worldBound);
+            Assert.That(restored, Is.EqualTo(partial));
+        }
+
+        [UnityTest]
         public IEnumerator NativeSizeAndAncestorClipHaveMatchedControls()
         {
             AssertPass(Review());
