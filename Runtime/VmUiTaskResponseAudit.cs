@@ -11,15 +11,18 @@ namespace VMUnityAutomation.Runtime
             public double Seconds;
             public bool Published;
             public float PaintedFraction;
+            public float GeometryOffsetPixels;
         }
 
         public sealed class Report
         {
             public bool Passed;
             public int Evaluated;
-            public double PublicationMilliseconds = double.PositiveInfinity;
-            public double VisibleResponseMilliseconds = double.PositiveInfinity;
-            public double SettlementMilliseconds = double.PositiveInfinity;
+            public double? PublicationMilliseconds;
+            public double? VisibleResponseMilliseconds;
+            public double? GeometryResponseMilliseconds;
+            public double? SettlementMilliseconds;
+            public bool GeometryRequired;
             public readonly List<string> Findings = new List<string>();
         }
 
@@ -29,29 +32,34 @@ namespace VMUnityAutomation.Runtime
         }
 
         public static Report Review(IReadOnlyList<Frame> frames, double inputSeconds,
-            double maximumResponseMilliseconds, double maximumSettlementMilliseconds)
+            double maximumResponseMilliseconds, double maximumSettlementMilliseconds, bool requireGeometry = false)
         {
             if (frames == null || frames.Count < 2 || frames.Count > 600 || !Finite(inputSeconds) ||
                 !Positive(maximumResponseMilliseconds) || !Positive(maximumSettlementMilliseconds))
                 throw new ArgumentException("Response review requires2..600 native frames and finite input/budgets.");
-            var report = new Report { Evaluated = frames.Count };
+            var report = new Report { Evaluated = frames.Count, GeometryRequired = requireGeometry };
             for (int index = 0; index < frames.Count; index++)
             {
                 var frame = frames[index];
                 if (!Finite(frame.Seconds) || frame.Seconds < inputSeconds || !Finite(frame.PaintedFraction) ||
-                    frame.PaintedFraction < 0 || frame.PaintedFraction > 1 || index > 0 &&
+                    frame.PaintedFraction < 0 || frame.PaintedFraction > 1 || !Finite(frame.GeometryOffsetPixels) ||
+                    frame.GeometryOffsetPixels < 0 || index > 0 &&
                     (frame.Number <= frames[index - 1].Number || frame.Seconds < frames[index - 1].Seconds))
                     throw new ArgumentException("Response observations require ordered native frames and real visible fractions.");
                 double elapsed = (frame.Seconds - inputSeconds) * 1000;
-                if (frame.Published && double.IsPositiveInfinity(report.PublicationMilliseconds)) report.PublicationMilliseconds = elapsed;
-                if (frame.Published && frame.PaintedFraction > .01f && double.IsPositiveInfinity(report.VisibleResponseMilliseconds))
+                if (frame.Published && !report.PublicationMilliseconds.HasValue) report.PublicationMilliseconds = elapsed;
+                if (frame.Published && frame.PaintedFraction > .01f && !report.VisibleResponseMilliseconds.HasValue)
                     report.VisibleResponseMilliseconds = elapsed;
-                if (frame.Published && frame.PaintedFraction >= .999f && double.IsPositiveInfinity(report.SettlementMilliseconds))
+                if (frame.Published && frame.GeometryOffsetPixels >= .5f && !report.GeometryResponseMilliseconds.HasValue)
+                    report.GeometryResponseMilliseconds = elapsed;
+                if (frame.Published && frame.PaintedFraction >= .999f && !report.SettlementMilliseconds.HasValue)
                     report.SettlementMilliseconds = elapsed;
             }
-            if (report.PublicationMilliseconds > maximumResponseMilliseconds) report.Findings.Add("delayed-publication");
-            if (report.VisibleResponseMilliseconds > maximumResponseMilliseconds) report.Findings.Add("delayed-visible-response");
-            if (report.SettlementMilliseconds > maximumSettlementMilliseconds) report.Findings.Add("late-settlement");
+            if ((report.PublicationMilliseconds ?? double.PositiveInfinity) > maximumResponseMilliseconds) report.Findings.Add("delayed-publication");
+            if ((report.VisibleResponseMilliseconds ?? double.PositiveInfinity) > maximumResponseMilliseconds) report.Findings.Add("delayed-visible-response");
+            if (requireGeometry && (report.GeometryResponseMilliseconds ?? double.PositiveInfinity) > maximumResponseMilliseconds)
+                report.Findings.Add("delayed-geometry-response");
+            if ((report.SettlementMilliseconds ?? double.PositiveInfinity) > maximumSettlementMilliseconds) report.Findings.Add("late-settlement");
             var last = frames[frames.Count - 1];
             if (!last.Published || last.PaintedFraction < .999f) report.Findings.Add("destination-unsettled");
             report.Passed = report.Findings.Count == 0;

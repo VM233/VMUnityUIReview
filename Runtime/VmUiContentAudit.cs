@@ -34,6 +34,8 @@ namespace VMUnityAutomation.Runtime
                     {
                         if (lines >= 5 && listLines < lines - 1) return true;
                         lines = listLines = 0;
+                        start = index + 1;
+                        continue;
                     }
                     lines++;
                     char prefix = text[first];

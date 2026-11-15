@@ -16,6 +16,7 @@ namespace VMUnityAutomation.Runtime
         {
             public bool Passed;
             public int EvaluatedGlyphs, EvaluatedStrokes;
+            public int StrokeWeightIssues;
             public readonly List<string> Findings = new List<string>();
         }
         public static Glyph Capture(Mesh mesh, Color ink)
@@ -92,14 +93,20 @@ namespace VMUnityAutomation.Runtime
                     glyph.Widths.Count == 0 || glyph.Widths.Count > 4096)
                     throw new ArgumentException("Each glyph requires its actual identity, canvas and1..4096 measured stroke widths.");
                 report.EvaluatedGlyphs++;
+                int failures = 0; float minimum = float.PositiveInfinity, maximum = 0;
                 foreach (float width in glyph.Widths)
                 {
                     if (!Finite(width) || width <= 0) throw new ArgumentException("Native pen widths must be positive and finite.");
                     report.EvaluatedStrokes++;
                     float normalized = width / glyph.CanvasSpan;
+                    minimum = Mathf.Min(minimum, normalized); maximum = Mathf.Max(maximum, normalized);
                     if (Mathf.Abs(normalized / normalizedPen - 1) > relativeTolerance)
-                        report.Findings.Add(glyph.Identity + ":stroke-weight:" + normalized.ToString("R", System.Globalization.CultureInfo.InvariantCulture));
+                        failures++;
                 }
+                report.StrokeWeightIssues += failures;
+                if (failures > 0) report.Findings.Add(glyph.Identity + ":stroke-weight:" +
+                    minimum.ToString("R", System.Globalization.CultureInfo.InvariantCulture) + ".." +
+                    maximum.ToString("R", System.Globalization.CultureInfo.InvariantCulture) + ":issues=" + failures);
             }
             report.Passed = report.Findings.Count == 0;
             return report;

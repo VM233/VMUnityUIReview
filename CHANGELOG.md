@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.25] - 2026-11-15
+
+- Measure the first physical geometry response separately from prompt fading/publication. Missing response timings remain explicit null values in structured reports.
+- Count all glyph pen violations while bounding findings to one exact normalized range per glyph; do not count a rich-text heading as an additional flat content line.
+
 ## [0.1.24] - 2026-11-15
 
 - Reject flat authored/runtime multiline information blocks through the existing UXML and experience audits, with explicit nonzero composition coverage. Expose a bounded shared concrete-reason check to source-localization consumers.

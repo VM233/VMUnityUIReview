@@ -11,6 +11,9 @@ and localization consumers; vague action rejections are checked at their source.
 caller supplies the native frame/time, authoritative destination publication and
 visible destination fraction, including any retained source-image occlusion.
 Publication, first visible response and full settlement have separate budgets.
+An optional geometry contract also measures the first movement of at least half
+a physical pixel; a prompt fade cannot conceal a resize that starts late. Missing
+timings are null, rather than nonfinite numbers in structured output.
 The clock starts at input, not layout/publication. Empty, nonfinite, unordered or
 over-budget input fails admission. A logical selected flag alone is insufficient.
 
@@ -50,6 +53,8 @@ glyphs. Each triangle pair does <=36 edge comparisons; no pairwise search across
 glyphs. One mesh's detached arrays and <=4,096 measured widths are retained at
 a time by a caller that batches capture/review. Native pigment and pen admission
 must precede artistic acceptance. The existing host keeps its time budget.
+All width violations are counted; findings retain one exact normalized range per
+glyph (<=128 findings), bounding the failing case as well as the passing case.
 Matched controls retain delayed publication, hidden-but-published destinations,
 late onset, stale launcher and alternating return, alongside prompt natural
 motion and repeated stable destinations. Verdict: pass for these frozen bounds.
