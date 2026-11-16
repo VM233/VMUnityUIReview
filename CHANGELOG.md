@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.30] - 2026-11-16
+
+- Determine movement from the complete witnessed path. A transient opacity/position change returning to its baseline no longer fails as empty coverage merely because its endpoints agree.
+- Reuse bounded per-sample distances for intermediate and settlement checks. The recorded opacity-cycle counterexample passes; stationary coverage, direct snaps, ordering, publication and timing controls remain required.
+
 ## [0.1.29] - 2026-11-16
 
 - Distinguish an initial input baseline from completed native paints in transition witnesses. The baseline and first paint may retain the same actual frame number; repeated completed paints, later baselines, backwards frames and unknown phases remain invalid.

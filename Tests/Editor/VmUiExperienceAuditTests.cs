@@ -158,6 +158,22 @@ namespace VMUnityAutomation.Editor.Tests
             Assert.Throws<ArgumentException>(() => VmUiTransitionAudit.Review(frames, false, 100, .25f));
         }
 
+        [Test]
+        public void ReturningMotionRetainsItsIntermediatePaintsAndRejectsStationaryCoverage()
+        {
+            float[] opacity = { 1000, 926.5f, 964.9583f, 987.9583f, 998.5f, 1000, 1000 };
+            var frames = opacity.Select((value, index) => new VmUiTransitionAudit.Frame
+            {
+                Number = index, Seconds = index * .016, Position = new Vector2(value, 0), Published = true
+            }).ToArray();
+            var report = VmUiTransitionAudit.Review(frames, true, 100, 1);
+            Assert.That(report.Passed, Is.True, string.Join(",", report.Findings));
+            Assert.That(report.IntermediateFrames, Is.GreaterThan(0));
+            for (int index = 0; index < frames.Length; index++) frames[index].Position = Vector2.zero;
+            Assert.That(VmUiTransitionAudit.Review(frames, true, 100, 1).Findings,
+                Does.Contain("motion-coverage-empty"));
+        }
+
         [UnityTest]
         public IEnumerator EmptyRowsAndAllAlignmentAxesHaveMatchedNegativeControls()
         {

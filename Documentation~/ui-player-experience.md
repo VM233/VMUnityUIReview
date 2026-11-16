@@ -11,6 +11,13 @@ baselines fail. Publication, motion, pixel and settlement checks are unchanged.
 This adds one enum field per existing sample and O(1) validation per sample,
 with the same3..600-sample bound and no new allocation, traversal or lifetime.
 
+Motion coverage follows the whole witnessed path. A returning trajectory can
+have equal endpoints and still contain intermediate native paints. Stationary
+coverage remains missing, and a relocation with no intermediate paint still
+fails as a snap. Settlement and publication limits remain unchanged. The
+existing sample loop uses two distances per sample, at most1200 for600 samples;
+there is no pairwise comparison, additional collection or retained state.
+
 ## Explicit visual geometry
 
 Set `GeometryOnly=true` for a dedicated declared-geometry audit of a component in a layered screen. It requires nonempty geometry contracts only and publishes `MeasurementScope=DeclaredGeometry`, zero hit/text measurements and no semantic coverage. Its Passed result qualifies those relations only. The default `Presentation` scope retains the full native experience audit, including genuinely or intentionally covered controls; do not present a narrow geometry report as full-screen acceptance.

@@ -40,7 +40,7 @@ namespace VMUnityAutomation.Runtime
             var last = frames[frames.Count - 1];
             if (double.IsNaN(first.Seconds) || double.IsInfinity(first.Seconds))
                 throw new ArgumentException("Transition times must be finite.");
-            float travel = Vector2.Distance(first.Position, last.Position);
+            bool observedMotion = false;
             int settled = 0;
             for (int index = 0; index < frames.Count; index++)
             {
@@ -58,17 +58,18 @@ namespace VMUnityAutomation.Runtime
                     throw new ArgumentException("Witnesses require ordered native frames; only an initial input baseline may share its frame with the first completed paint.");
                 if (frame.Published && double.IsPositiveInfinity(result.PublicationMilliseconds))
                     result.PublicationMilliseconds = (frame.Seconds - first.Seconds) * 1000;
-                if (requireMotion && travel > tolerancePixels &&
-                    Vector2.Distance(frame.Position, first.Position) > tolerancePixels &&
-                    Vector2.Distance(frame.Position, last.Position) > tolerancePixels)
+                float fromFirst = Vector2.Distance(frame.Position, first.Position);
+                float fromLast = Vector2.Distance(frame.Position, last.Position);
+                observedMotion |= fromFirst > tolerancePixels;
+                if (requireMotion && fromFirst > tolerancePixels && fromLast > tolerancePixels)
                     result.IntermediateFrames++;
-                if (Vector2.Distance(frame.Position, last.Position) > tolerancePixels) settled = index + 1;
+                if (fromLast > tolerancePixels) settled = index + 1;
             }
             result.SettlementMilliseconds = (frames[settled].Seconds - first.Seconds) * 1000;
             if (!first.Published) result.Findings.Add("delayed-publication");
             if (!last.Published) result.Findings.Add("destination-missing");
-            if (requireMotion && travel <= tolerancePixels) result.Findings.Add("motion-coverage-empty");
-            if (requireMotion && travel > tolerancePixels && result.IntermediateFrames == 0)
+            if (requireMotion && !observedMotion) result.Findings.Add("motion-coverage-empty");
+            if (requireMotion && observedMotion && result.IntermediateFrames == 0)
                 result.Findings.Add("position-snap");
             if (settled >= frames.Count - 1 || Vector2.Distance(frames[frames.Count - 2].Position, last.Position) > tolerancePixels)
                 result.Findings.Add("position-unsettled");
