@@ -7,9 +7,12 @@ namespace VMUnityAutomation.Runtime
     /// <summary>Reviews bounded natural-frame witnesses. The host owns input, destination semantics and capture.</summary>
     public static class VmUiTransitionAudit
     {
+        public enum SamplePhase { CompletedFrame, InputBaseline }
+
         public struct Frame
         {
             public int Number;
+            public SamplePhase Phase;
             public double Seconds;
             public Vector2 Position;
             public bool Published;
@@ -42,11 +45,17 @@ namespace VMUnityAutomation.Runtime
             for (int index = 0; index < frames.Count; index++)
             {
                 var frame = frames[index];
+                bool inputToPaint = index == 1 && first.Phase == SamplePhase.InputBaseline &&
+                    frame.Phase == SamplePhase.CompletedFrame;
                 if (double.IsNaN(frame.Seconds) || double.IsInfinity(frame.Seconds) ||
                     float.IsNaN(frame.Position.x) || float.IsInfinity(frame.Position.x) ||
                     float.IsNaN(frame.Position.y) || float.IsInfinity(frame.Position.y) ||
-                    index > 0 && (frame.Number <= frames[index - 1].Number || frame.Seconds < frames[index - 1].Seconds))
-                    throw new ArgumentException("Witnesses require distinct increasing native frames and finite readings.");
+                    frame.Phase != SamplePhase.CompletedFrame && frame.Phase != SamplePhase.InputBaseline ||
+                    index > 0 && (frame.Phase != SamplePhase.CompletedFrame ||
+                        frame.Number < frames[index - 1].Number ||
+                        frame.Number == frames[index - 1].Number && !inputToPaint ||
+                        frame.Seconds < frames[index - 1].Seconds))
+                    throw new ArgumentException("Witnesses require ordered native frames; only an initial input baseline may share its frame with the first completed paint.");
                 if (frame.Published && double.IsPositiveInfinity(result.PublicationMilliseconds))
                     result.PublicationMilliseconds = (frame.Seconds - first.Seconds) * 1000;
                 if (requireMotion && travel > tolerancePixels &&

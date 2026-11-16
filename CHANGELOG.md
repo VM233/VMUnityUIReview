@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.29] - 2026-11-16
+
+- Distinguish an initial input baseline from completed native paints in transition witnesses. The baseline and first paint may retain the same actual frame number; repeated completed paints, later baselines, backwards frames and unknown phases remain invalid.
+- Keep the existing motion, publication, settlement, time and pixel checks unchanged. Phase fixtures retain the original duplicate-frame counterexample; native host input-to-paint scheduling remains separately required.
+
 ## [0.1.28] - 2026-11-15
 
 - Expose the experience audit's existing native VisibleBounds product so frame

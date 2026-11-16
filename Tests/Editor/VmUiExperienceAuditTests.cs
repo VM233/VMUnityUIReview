@@ -120,6 +120,44 @@ namespace VMUnityAutomation.Editor.Tests
             Assert.Throws<ArgumentException>(() => VmUiTransitionAudit.Review(new[] { F(0, 0), F(0, 50), F(1, 100) }, true, 150, .25f));
         }
 
+        [Test]
+        public void InputBaselineAndCompletedPaintKeepTheirActualSharedNativeFrame()
+        {
+            var frames = new[]
+            {
+                new VmUiTransitionAudit.Frame { Number = 4, Phase = VmUiTransitionAudit.SamplePhase.InputBaseline,
+                    Seconds = 1, Position = Vector2.zero, Published = true },
+                new VmUiTransitionAudit.Frame { Number = 4, Seconds = 1.01,
+                    Position = new Vector2(50, 0), Published = true },
+                new VmUiTransitionAudit.Frame { Number = 5, Seconds = 1.02,
+                    Position = new Vector2(100, 0), Published = true },
+                new VmUiTransitionAudit.Frame { Number = 6, Seconds = 1.03,
+                    Position = new Vector2(100, 0), Published = true }
+            };
+            Assert.That(VmUiTransitionAudit.Review(frames, true, 100, .25f).Passed, Is.True);
+            frames[0].Phase = VmUiTransitionAudit.SamplePhase.CompletedFrame;
+            Assert.Throws<ArgumentException>(() => VmUiTransitionAudit.Review(frames, true, 100, .25f));
+            frames[0].Phase = VmUiTransitionAudit.SamplePhase.InputBaseline;
+            frames[2].Number = 4;
+            Assert.Throws<ArgumentException>(() => VmUiTransitionAudit.Review(frames, true, 100, .25f));
+        }
+
+        [Test]
+        public void InputBaselineCannotAppearAfterTheInitialSampleOrInventAPhase()
+        {
+            var frames = new[]
+            {
+                new VmUiTransitionAudit.Frame { Number = 4, Seconds = 1, Published = true },
+                new VmUiTransitionAudit.Frame { Number = 5, Phase = VmUiTransitionAudit.SamplePhase.InputBaseline,
+                    Seconds = 1.01, Published = true },
+                new VmUiTransitionAudit.Frame { Number = 6, Seconds = 1.02, Published = true }
+            };
+            Assert.Throws<ArgumentException>(() => VmUiTransitionAudit.Review(frames, false, 100, .25f));
+            frames[1].Phase = VmUiTransitionAudit.SamplePhase.CompletedFrame;
+            frames[0].Phase = (VmUiTransitionAudit.SamplePhase)9;
+            Assert.Throws<ArgumentException>(() => VmUiTransitionAudit.Review(frames, false, 100, .25f));
+        }
+
         [UnityTest]
         public IEnumerator EmptyRowsAndAllAlignmentAxesHaveMatchedNegativeControls()
         {

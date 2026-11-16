@@ -1,5 +1,16 @@
 # Runtime player UI review
 
+## Input baselines and completed paints
+
+`VmUiTransitionAudit.Frame` keeps its actual native frame number and timestamp.
+The default `Phase` is `CompletedFrame`. A host may mark its initial release
+baseline as `InputBaseline`; only that first baseline and the first completed
+paint may share a frame number. Later samples must be completed paints in
+strictly increasing frames. Unknown phases, repeated paints and later input
+baselines fail. Publication, motion, pixel and settlement checks are unchanged.
+This adds one enum field per existing sample and O(1) validation per sample,
+with the same3..600-sample bound and no new allocation, traversal or lifetime.
+
 ## Explicit visual geometry
 
 Set `GeometryOnly=true` for a dedicated declared-geometry audit of a component in a layered screen. It requires nonempty geometry contracts only and publishes `MeasurementScope=DeclaredGeometry`, zero hit/text measurements and no semantic coverage. Its Passed result qualifies those relations only. The default `Presentation` scope retains the full native experience audit, including genuinely or intentionally covered controls; do not present a narrow geometry report as full-screen acceptance.
