@@ -22,3 +22,10 @@ exhaustion fails rather than publishing partial acceptance. Native matched tests
 cover redundant captions, hidden/reappearing content, wrong/correct groups and
 duplicate declarations. Actual input, localized pixels and visual design remain
 independent acceptance layers.
+
+Visible-bounds measurements return no painted area before native geometry is
+finite. Empty intersections retain zero extent through subsequent native clips;
+negative rectangles must not normalize into positive visible area. Full
+presentation review independently retains its nonfinite-layout finding. The
+native pending/settled, disjoint, partial and zero-clip controls distinguish
+first layout from a real movement without excluding retained-image types.

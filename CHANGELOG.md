@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.33] - 2026-11-17
+
+- Keep nonfinite pre-layout boxes unpainted in shared visible-bounds measurements.
+  Canonicalize empty intersections so a second native clip cannot revive a
+  disjoint rectangle. Full presentation review still rejects nonfinite layout.
+- Cover actual pending/settled native layout and disjoint clipping alongside
+  the existing partial, zero-height and restored-clip controls.
+
 ## [0.1.32] - 2026-11-17
 
 - Check declared action groups and closed, reviewed text composition through the existing experience audit. Fresh domain contracts reject orphaned/incorrectly ranked actions and reintroduced redundant captions without inferring purpose from translated words.

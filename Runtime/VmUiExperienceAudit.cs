@@ -373,7 +373,10 @@ namespace VMUnityAutomation.Runtime
         public static Rect VisibleBounds(VisualElement element, Rect viewport)
         {
             if (element == null) throw new ArgumentNullException(nameof(element));
-            var result = Intersection(element.worldBound, viewport);
+            var bounds = element.worldBound;
+            if (!Finite(bounds.x) || !Finite(bounds.y) || !Finite(bounds.width) || !Finite(bounds.height))
+                return Rect.zero;
+            var result = Intersection(bounds, viewport);
             return element.hierarchy.parent == null ? result : Intersection(result, VmUiNativeClip.Read(element.hierarchy.parent));
         }
 
@@ -485,8 +488,12 @@ namespace VMUnityAutomation.Runtime
         private static bool Finite(float value) => !float.IsNaN(value) && !float.IsInfinity(value);
         private static bool Contains(Rect outer, Rect inner, float tolerance) => inner.xMin >= outer.xMin - tolerance &&
             inner.yMin >= outer.yMin - tolerance && inner.xMax <= outer.xMax + tolerance && inner.yMax <= outer.yMax + tolerance;
-        private static Rect Intersection(Rect first, Rect second) => Rect.MinMaxRect(Mathf.Max(first.xMin, second.xMin),
-            Mathf.Max(first.yMin, second.yMin), Mathf.Min(first.xMax, second.xMax), Mathf.Min(first.yMax, second.yMax));
+        private static Rect Intersection(Rect first, Rect second)
+        {
+            float left = Mathf.Max(first.xMin, second.xMin), top = Mathf.Max(first.yMin, second.yMin);
+            return new Rect(left, top, Mathf.Max(0, Mathf.Min(first.xMax, second.xMax) - left),
+                Mathf.Max(0, Mathf.Min(first.yMax, second.yMax) - top));
+        }
         private static void CheckBudget(Stopwatch watch)
         {
             if (watch.Elapsed.TotalMilliseconds > MaximumMilliseconds)

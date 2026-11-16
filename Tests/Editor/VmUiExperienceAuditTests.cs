@@ -258,6 +258,23 @@ namespace VMUnityAutomation.Editor.Tests
         }
 
         [UnityTest]
+        public IEnumerator SharedVisibleBoundsRejectUnlaidAndDisjointGeometry()
+        {
+            var pending = new VisualElement { name = "PendingNativeLayout" };
+            Place(pending, 10, 160, 100, 60); surface.Add(pending);
+            Assert.That(float.IsNaN(pending.layout.width), Is.True);
+            Assert.That(VmUiExperienceAudit.VisibleBounds(pending, surface.worldBound).size, Is.EqualTo(Vector2.zero));
+            yield return null;
+            var settled = VmUiExperienceAudit.VisibleBounds(pending, surface.worldBound);
+            Assert.That(settled.width, Is.EqualTo(100).Within(.1));
+            Assert.That(settled.height, Is.EqualTo(60).Within(.1));
+            AssertPass(Review());
+            Place(requirement, 500, 500, 100, 40); yield return null;
+            var disjoint = VmUiExperienceAudit.VisibleBounds(requirement, new Rect(0, 0, 100, 100));
+            Assert.That(disjoint.width <= 0 || disjoint.height <= 0, Is.True);
+        }
+
+        [UnityTest]
         public IEnumerator SharedVisibleBoundsPreserveNativePartialAndZeroClipping()
         {
             var clip = new VisualElement(); Place(clip, 0, 0, 100, 160);
