@@ -7,6 +7,7 @@
 - [Automatic import observation](uitoolkit-import-observation.md)
 - [Interaction structure](ui-interaction-structure.md)
 - [Runtime player experience](ui-player-experience.md)
+- [Reviewed design composition](design-composition.md)
 - [Information hierarchy, concrete reasons and response/return witnesses](content-and-response.md)
 - [Projected marker coverage and clustering](projected-markers.md)
 - [UI Builder preview](ui-builder-canvas.md)

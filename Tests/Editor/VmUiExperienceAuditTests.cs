@@ -581,6 +581,40 @@ namespace VMUnityAutomation.Editor.Tests
             Assert.Throws<ArgumentException>(() => VmUiExperienceAudit.Review(surface, options, new[] { contract }));
         }
 
+        [UnityTest]
+        public IEnumerator DesignContractsRejectRedundantCaptionAndMisplacedAction()
+        {
+            var contracts = new[] {
+                new VmUiAuditExpectation { Owner = "TaskDesign", Element = surface,
+                    TextContent = new TextElement[] { action, requirement } },
+                new VmUiAuditExpectation { Owner = "TaskDesign", Element = action, Group = surface }
+            };
+            var valid = Review(contracts);
+            Assert.That(valid.InformationCompositionChecks, Is.GreaterThanOrEqualTo(3));
+            AssertPass(valid);
+            var redundant = new Label("Scan this QR code to join") { name = "RedundantCaption" };
+            Place(redundant, 20, 145, 300, 30); surface.Add(redundant);
+            yield return null;
+            AssertRule(Review(contracts), "design-unclassified-text");
+            redundant.style.display = DisplayStyle.None;
+            yield return null;
+            AssertPass(Review(contracts));
+            redundant.style.display = DisplayStyle.Flex;
+            yield return null;
+            AssertRule(Review(contracts), "design-unclassified-text");
+            redundant.RemoveFromHierarchy();
+            var secondary = new VisualElement { name = "SecondaryTaskActions" };
+            surface.Add(secondary);
+            contracts[1].Group = secondary;
+            yield return null;
+            AssertRule(Review(contracts), "design-action-group");
+            secondary.Add(action);
+            yield return null;
+            AssertPass(Review(contracts));
+            contracts[0].TextContent = new TextElement[] { action, requirement, action };
+            Assert.Throws<ArgumentException>(() => Review(contracts));
+        }
+
         private VmUiAuditReport Review(IReadOnlyList<VmUiAuditExpectation> expectations = null) =>
             VmUiExperienceAudit.Review(surface, Options(), expectations ?? Array.Empty<VmUiAuditExpectation>());
 

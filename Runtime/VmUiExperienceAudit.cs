@@ -31,7 +31,7 @@ namespace VMUnityAutomation.Runtime
             var watch = Stopwatch.StartNew();
             int semanticCount = 0;
             foreach (var item in expectations)
-                if (item != null && item.Geometry == null) semanticCount++;
+                if (item != null && (item.Geometry == null || item.Group != null || item.TextContent != null)) semanticCount++;
             if (options.GeometryOnly && (expectations.Count == 0 || semanticCount != 0))
                 throw new ArgumentException("Declared-geometry mode requires nonempty geometry contracts only.");
             var report = new VmUiAuditReport
@@ -81,10 +81,12 @@ namespace VMUnityAutomation.Runtime
                 if (control && element.enabledInHierarchy && visible.Contains(bounds.center))
                     CheckControl(element, entry.Value, report, options);
             }
+            int compositionWork = 0;
             foreach (var expectation in expectations)
             {
                 CheckBudget(watch);
                 CheckExpectation(selected, expectation, report);
+                CheckComposition(selected, expectation, report, watch, ref compositionWork);
                 if (expectation.Geometry != null)
                     CheckGeometry(selected, expectation, report, options);
             }
@@ -95,6 +97,52 @@ namespace VMUnityAutomation.Runtime
             report.Complete = true;
             report.Passed = report.Findings.Count == 0;
             return report;
+        }
+
+        private static void CheckComposition(Dictionary<VisualElement, string> paths,
+            VmUiAuditExpectation expected, VmUiAuditReport report, Stopwatch watch, ref int work)
+        {
+            if (expected.Group != null)
+            {
+                if (!paths.ContainsKey(expected.Group))
+                    throw new ArgumentException("A design group must belong to the selected tree.");
+                report.InformationCompositionChecks++;
+                if (!expected.Group.Contains(expected.Element))
+                    Add(report, expected.Element, paths[expected.Element], "design-action-group",
+                        "The action is outside its declared task or navigation group.", owner: expected.Owner,
+                        expected: paths[expected.Group]);
+            }
+            if (expected.TextContent == null) return;
+            var allowed = new HashSet<VisualElement>();
+            foreach (var text in expected.TextContent)
+            {
+                CompositionBudget(watch, ref work);
+                if (text == null || !paths.ContainsKey(text) || !expected.Element.Contains(text) || !allowed.Add(text))
+                    throw new ArgumentException("Declared content must contain distinct text elements of its actual region.");
+            }
+            var pending = new Stack<VisualElement>();
+            pending.Push(expected.Element);
+            while (pending.Count > 0)
+            {
+                CompositionBudget(watch, ref work);
+                var element = pending.Pop();
+                if (element is TextElement text && !string.IsNullOrWhiteSpace(text.text) && Displayed(element))
+                {
+                    report.InformationCompositionChecks++;
+                    if (!allowed.Contains(element))
+                        Add(report, element, paths[element], "design-unclassified-text",
+                            "Visible text has no declared purpose in this reviewed task region.", owner: expected.Owner,
+                            observed: text.text);
+                }
+                for (int i = element.hierarchy.childCount - 1; i >= 0; i--)
+                    pending.Push(element.hierarchy[i]);
+            }
+        }
+
+        private static void CompositionBudget(Stopwatch watch, ref int work)
+        {
+            if (++work > 8192) throw new VmUiAuditLimitException("Design composition exceeds8192 total content visits.");
+            CheckBudget(watch);
         }
 
         private static void CheckGeometry(Dictionary<VisualElement, string> selected,

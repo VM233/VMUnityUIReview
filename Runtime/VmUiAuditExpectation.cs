@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -15,6 +16,8 @@ namespace VMUnityAutomation.Runtime
         public float? MinimumOpacity;
         public Object Background;
         public GeometryContract Geometry;
+        public VisualElement Group;
+        public IReadOnlyList<TextElement> TextContent;
 
         public enum GeometryKind { Anchors, Insets, PixelScale, Untransformed }
 

@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.32] - 2026-11-17
+
+- Check declared action groups and closed, reviewed text composition through the existing experience audit. Fresh domain contracts reject orphaned/incorrectly ranked actions and reintroduced redundant captions without inferring purpose from translated words.
+- Count actual checks, bound all content visits, and retain visible/hidden/reused and misplaced/correct-group native controls. Manual semantic and visual review remains required.
+
 ## [0.1.31] - 2026-11-16
 
 - Admit automatic authoring audits only in stable Edit Mode, retaining imports observed during Play Mode.
