@@ -9,6 +9,19 @@ Automatic checks run after Unity imports a saved asset, including saves from UI
 Builder and external edits imported by AssetDatabase. An unimported disk write
 is not an imported authoring product.
 
+Automatic native audits are admitted only in stable Edit Mode. Imports observed
+during Play Mode remain pending. A Play transition, import or source change
+retires in-flight native resources and invalidates that observation; the
+automatic owner requeues its exact source paths and discards the stale report.
+It does not publish an authoring defect from an interrupted observation. Explicit
+review commands continue to report cancellation as incomplete coverage.
+
+This lifecycle adjustment adds no new scan axis or polling loop. Invalidation
+visits each already bounded source path once, releases the existing native work
+and removes its fingerprint so the next stable authoring observation uses the
+latest source. The retirement fixture adds one small stylesheet import and at
+most240 Editor updates; the existing import/impact bounds below are unchanged.
+
 Prefab imports qualify against the actual UXML name-reference and asset-reference
 consumers. A domain-owned index retains whether each prefab contributed either
 product, so removing the last binding, deleting a prefab or moving it out of scope

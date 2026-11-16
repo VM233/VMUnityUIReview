@@ -80,6 +80,9 @@ namespace VMUnityAutomation.Editor
 
         private static void OnEditorUpdate()
         {
+            if (EditorApplication.isPlayingOrWillChangePlaymode ||
+                EditorApplication.isCompiling || EditorApplication.isUpdating)
+                return;
             ObserveAutomaticSettings(false);
             if (!automaticEnabled)
             {
@@ -181,7 +184,7 @@ namespace VMUnityAutomation.Editor
                 report.SortIssues();
                 UssState.Record(paths, report.WarningCount, report.ErrorCount + report.Errors.Count);
                 VmAutomationUssStyleAuditConsoleReporter.Log(report, true);
-            });
+            }, () => Requeue(paths, PendingUss));
         }
 
         private static bool EnsurePrefabImpacts(VmAutomationUIToolkitAuditOptions options)
@@ -236,7 +239,16 @@ namespace VMUnityAutomation.Editor
                 report.SortIssues();
                 UxmlState.Record(auditedPaths, report.WarningCount, report.ErrorCount + report.Errors.Count);
                 VmAutomationUxmlLayoutAuditConsoleReporter.Log(report, true);
-            });
+            }, () => Requeue(auditedPaths, PendingUxml));
+        }
+
+        private static void Requeue(IEnumerable<string> paths, ICollection<string> pending)
+        {
+            foreach (string path in paths)
+            {
+                LastFingerprints.Remove(path);
+                pending.Add(path);
+            }
         }
 
         private static string[] TakeChangedPaths(ICollection<string> pending)

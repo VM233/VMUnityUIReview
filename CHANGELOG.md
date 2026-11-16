@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.31] - 2026-11-16
+
+- Admit automatic authoring audits only in stable Edit Mode, retaining imports observed during Play Mode.
+- Retire invalidated native work without publishing its incomplete automatic findings. Requeue its source paths for a fresh authoring product; explicit command cancellations retain their failure report.
+- Cover the real project-change retirement path and retain import, unchanged-source, enable-state and prefab impact regressions.
+
 ## [0.1.30] - 2026-11-16
 
 - Determine movement from the complete witnessed path. A transient opacity/position change returning to its baseline no longer fails as empty coverage merely because its endpoints agree.

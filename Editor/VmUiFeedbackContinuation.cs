@@ -10,10 +10,11 @@ namespace VMUnityAutomation.Editor
         internal static int Pending { get; private set; }
         private readonly VmUiFeedbackWork work;
         private readonly Action completed;
+        private readonly Action invalidated;
         private readonly Stopwatch lifetime = Stopwatch.StartNew();
         private bool retired;
 
-        internal static void Run(VmUiFeedbackWork work, Action completed)
+        internal static void Run(VmUiFeedbackWork work, Action completed, Action invalidated = null)
         {
             if (work == null || work.Finished) { completed(); return; }
             if (Pending == 8)
@@ -21,12 +22,12 @@ namespace VMUnityAutomation.Editor
                 work.Cancel("At most eight native UI review continuations may be admitted.");
                 completed(); return;
             }
-            new VmUiFeedbackContinuation(work, completed);
+            new VmUiFeedbackContinuation(work, completed, invalidated);
         }
 
-        private VmUiFeedbackContinuation(VmUiFeedbackWork work, Action completed)
+        private VmUiFeedbackContinuation(VmUiFeedbackWork work, Action completed, Action invalidated)
         {
-            this.work = work; this.completed = completed;
+            this.work = work; this.completed = completed; this.invalidated = invalidated;
             Pending++;
             EditorApplication.update += Tick;
             EditorApplication.projectChanged += SourceChanged;
@@ -37,7 +38,11 @@ namespace VMUnityAutomation.Editor
         private void Tick()
         {
             if (EditorApplication.isCompiling || EditorApplication.isUpdating || EditorApplication.isPlayingOrWillChangePlaymode)
+            {
                 work.Cancel("Native authoring review requires an unchanged, stable Edit Mode source.");
+                Retire(contextInvalidated: true);
+                return;
+            }
             if (lifetime.ElapsedMilliseconds > 60000) work.Cancel("Native UI review exceeded its 60000 ms continuation lifetime.");
             var slice = Stopwatch.StartNew();
             while (!work.Finished && slice.ElapsedMilliseconds < 8) work.Advance();
@@ -47,16 +52,16 @@ namespace VMUnityAutomation.Editor
         private void SourceChanged()
         {
             work.Cancel("Project assets changed during native UI review; the earlier source is not qualified.");
-            Retire();
+            Retire(contextInvalidated: true);
         }
 
         private void Closing()
         {
             work.Cancel("The owning Editor domain is retiring before native UI review completed.");
-            Retire();
+            Retire(contextInvalidated: true);
         }
 
-        private void Retire()
+        private void Retire(bool contextInvalidated = false)
         {
             if (retired) return;
             retired = true;
@@ -65,7 +70,8 @@ namespace VMUnityAutomation.Editor
             EditorApplication.quitting -= Closing;
             AssemblyReloadEvents.beforeAssemblyReload -= Closing;
             Pending--;
-            completed();
+            if (contextInvalidated && invalidated != null) invalidated();
+            else completed();
         }
     }
 }

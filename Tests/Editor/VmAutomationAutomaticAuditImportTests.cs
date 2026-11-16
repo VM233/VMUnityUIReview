@@ -52,6 +52,28 @@ namespace VMUnityAutomation.Editor.Tests
         }
 
         [UnityTest]
+        public IEnumerator SourceInvalidationRetiresNativeWorkWithoutPublishingAnAutomaticFinding()
+        {
+            Configure(false);
+            bool published = false;
+            bool invalidated = false;
+            var work = new VmUiFeedbackWork(new VmUiFeedbackCoverage(), Steps(), _ => { });
+            VmUiFeedbackContinuation.Run(work, () => published = true, () => invalidated = true);
+            WriteStyle(3);
+            AssetDatabase.ImportAsset(StylePath, ImportAssetOptions.ForceUpdate | ImportAssetOptions.ForceSynchronousImport);
+            for (int frame = 0; frame < 240 && !invalidated; frame++) yield return null;
+            Assert.That(invalidated, Is.True, "The real project-change event must invalidate its earlier source.");
+            Assert.That(published, Is.False, "An interrupted automatic audit has no qualified finding to publish.");
+            Assert.That(work.Finished, Is.True);
+            Assert.That(work.Coverage.Complete, Is.False);
+
+            System.Collections.Generic.IEnumerator<object> Steps()
+            {
+                while (true) yield return null;
+            }
+        }
+
+        [UnityTest]
         public IEnumerator ImportedAssetsDriveAuditsAcrossUpdatesAndEnableChanges()
         {
             int before = RunCount();
