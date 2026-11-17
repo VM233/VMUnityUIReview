@@ -15,6 +15,34 @@ namespace VMUnityAutomation.Editor.Tests
     [Category(VmAutomationPackageTestCommands.FullPackageRegressionCategory)]
     public sealed class VmUiExperienceAuditTests
     {
+        [TestCase(false), TestCase(true)]
+        public void DirectedPlacementAdmitsForwardAndReverseDestinations(bool reverse)
+        {
+            var values = new[] { 84f, 180f, 347f, 462f, 474f, 474f };
+            var frames = values.Select((value, index) => new VmUiTransitionAudit.Frame
+            {
+                Number = index, Seconds = index * .02, Published = true,
+                Position = reverse ? new Vector2(558 - value, 208) : new Vector2(value, 208)
+            }).ToArray();
+            Assert.That(VmUiTransitionAudit.Review(frames, true, 100, .25f, true).Passed, Is.True);
+        }
+
+        [TestCase(false), TestCase(true)]
+        public void DirectedPlacementRejectsBackwardDetoursAndEndpointOvershoot(bool overshoot)
+        {
+            // A real warm placement can contain smooth intermediate frames and still move backward first.
+            var values = overshoot ? new[] { 84f, 180f, 490f, 480f, 474f, 474f }
+                : new[] { 84f, 32f, 347f, 462f, 474f, 474f };
+            var frames = values.Select((value, index) => new VmUiTransitionAudit.Frame
+            {
+                Number = index, Seconds = index * .02, Published = true, Position = new Vector2(value, 208)
+            }).ToArray();
+            Assert.That(VmUiTransitionAudit.Review(frames, true, 100, .25f).Passed, Is.True,
+                "Timing, settlement and intermediate frames alone miss this counterexample.");
+            Assert.That(VmUiTransitionAudit.Review(frames, true, 100, .25f, true).Findings,
+                Does.Contain("position-reversal"));
+        }
+
         private sealed class AuditWindow : EditorWindow { }
         private AuditWindow window;
         private EditorWindow previousFocus;

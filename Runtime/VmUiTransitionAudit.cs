@@ -29,7 +29,7 @@ namespace VMUnityAutomation.Runtime
         }
 
         public static Report Review(IReadOnlyList<Frame> frames, bool requireMotion,
-            double maximumMilliseconds, float tolerancePixels)
+            double maximumMilliseconds, float tolerancePixels, bool requireMonotonicProgress = false)
         {
             if (frames == null || frames.Count < 3 || frames.Count > 600 ||
                 maximumMilliseconds <= 0 || double.IsNaN(maximumMilliseconds) || double.IsInfinity(maximumMilliseconds) ||
@@ -74,6 +74,27 @@ namespace VMUnityAutomation.Runtime
             if (settled >= frames.Count - 1 || Vector2.Distance(frames[frames.Count - 2].Position, last.Position) > tolerancePixels)
                 result.Findings.Add("position-unsettled");
             if (result.SettlementMilliseconds > maximumMilliseconds) result.Findings.Add("late-settlement");
+            if (requireMonotonicProgress && observedMotion)
+            {
+                var direction = last.Position - first.Position;
+                float distance = direction.magnitude;
+                float furthest = 0;
+                if (distance <= tolerancePixels) result.Findings.Add("position-reversal");
+                else
+                {
+                    direction /= distance;
+                    foreach (var frame in frames)
+                    {
+                        float progress = Vector2.Dot(frame.Position - first.Position, direction);
+                        if (progress < furthest - tolerancePixels || progress > distance + tolerancePixels)
+                        {
+                            result.Findings.Add("position-reversal");
+                            break;
+                        }
+                        furthest = Mathf.Max(furthest, progress);
+                    }
+                }
+            }
             result.Passed = result.Findings.Count == 0;
             return result;
         }

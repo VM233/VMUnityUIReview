@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.34] - 2026-11-17
+
+- Let natural-frame callers declare monotonic progress toward a destination.
+  Reject backward detours and endpoint overshoot even when timing, settlement
+  and intermediate-frame checks pass. Keep existing tolerances and budgets.
+- Retain forward/reverse destination controls and the original warm detour as
+  independent regression witnesses.
+
 ## [0.1.33] - 2026-11-17
 
 - Keep nonfinite pre-layout boxes unpainted in shared visible-bounds measurements.

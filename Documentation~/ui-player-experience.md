@@ -107,6 +107,14 @@ Native fixtures must pair controls that differ only in the tested mechanism: unc
 
 ## Integration
 
+`VmUiTransitionAudit.Review` accepts an explicit `requireMonotonicProgress`
+contract for directed placement. It projects completed positions from the input
+baseline toward the final settled destination and rejects backward progress or
+endpoint overshoot beyond the caller's existing pixel tolerance. It does not
+infer this intent for looping, dragging or deliberately overshooting animations.
+The bounded second pass visits at most600 frames, allocates no per-frame objects,
+and leaves publication, settlement, native-frame and timing checks unchanged.
+
 Find `uitoolkit/review-player-experience` in the current official catalog and read
 its exact typed contract. Supply the exact active document identity from
 runtime-documents, an immutable source fingerprint and the actual scenario.
